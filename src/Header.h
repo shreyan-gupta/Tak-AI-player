@@ -39,4 +39,18 @@ class Board
 };
 
 
+enum Player_type{
+	black, white, none
+};
+
+enum Stone{
+	F,S,C
+};
+
+class Player{
+
+public:
+	Player();
+};
+
 #endif
