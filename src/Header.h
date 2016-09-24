@@ -8,10 +8,11 @@
 using namespace std;
 
 typedef std::pair<Stone,Player_type> Piece;
+typedef long double ll;
 
 struct Position
 {
-	std::stack<Piece> Stack;
+	std::deque<Piece> Stack;
 	inline Player_Type get_player()
 	{
 		if (Stack.size() == 0)
@@ -23,7 +24,8 @@ struct Position
 
 struct Move
 {
-	
+	bool type;
+	bool place_move;
 };
 
 
@@ -34,8 +36,9 @@ class Board
 
 		Board(int);
 		~Board();
-		eval();
-		makemove();		// inputs yet to define
+		ll eval();
+		void makemove(Move);		// inputs yet to define
+		void generate_valid_moves(bool,std::multimap<ll,Move> &);
 };
 
 
@@ -51,11 +54,11 @@ class Player{
 private:
 	int StonesLeft;
 	int CapsLeft;
-	bool MinMax;
+	bool Max;
 public:
 	Player(bool,int,int);
 	~Player();
-	decide_move();
+	std::pair<Move,ll> decide_move(Board,int);
 };
 
 #endif
