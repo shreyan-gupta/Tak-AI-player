@@ -5,9 +5,42 @@
 #include <stack>
 #include <vector>
 
+using namespace std;
+
+typedef std::pair<Stone,Player_type> Piece;
+
+struct Position
+{
+	std::stack<Piece> Stack;
+	inline Player_Type get_player()
+	{
+		if (Stack.size() == 0)
+			return none;
+		else
+			return Stack.top().second;
+	}
+};
+
+struct Move
+{
+	
+};
+
+
+class Board
+{
+	public:
+		vector< vector<Position> > GameBoard;
+
+		Board(int);
+		~Board();
+		eval();
+		makemove();		// inputs yet to define
+};
+
 
 enum Player_type{
-	black, white, none
+	Black, White, None
 };
 
 enum Stone{
@@ -15,9 +48,14 @@ enum Stone{
 };
 
 class Player{
-
+private:
+	int StonesLeft;
+	int CapsLeft;
+	bool MinMax;
 public:
-	Player();
+	Player(bool,int,int);
+	~Player();
+	decide_move();
 };
 
 #endif
