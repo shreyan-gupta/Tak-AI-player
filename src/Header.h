@@ -12,7 +12,7 @@ typedef std::pair<Stone,Player_type> Piece;
 struct Position
 {
 	std::stack<Piece> Stack;
-	Player_Type getPlayer()
+	inline Player_Type get_player()
 	{
 		if (Stack.size() == 0)
 			return none;
@@ -30,9 +30,9 @@ struct Move
 class Board
 {
 	public:
-		vector<vector<Position> > GameBoard;
+		vector< vector<Position> > GameBoard;
 
-		Board();
+		Board(int);
 		~Board();
 		eval();
 		makemove();		// inputs yet to define
@@ -40,7 +40,7 @@ class Board
 
 
 enum Player_type{
-	black, white, none
+	Black, White, None
 };
 
 enum Stone{
@@ -48,9 +48,14 @@ enum Stone{
 };
 
 class Player{
-
+private:
+	int StonesLeft;
+	int CapsLeft;
+	bool MinMax;
 public:
-	Player();
+	Player(bool,int,int);
+	~Player();
+	decide_move();
 };
 
 #endif
