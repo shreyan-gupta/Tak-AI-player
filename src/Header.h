@@ -9,10 +9,6 @@
 
 using namespace std;
 
-enum Player_Type{
-	Black = false, White = true
-};
-
 enum Stone{
 	Flat, Stand, Cap
 };
@@ -20,6 +16,7 @@ enum Stone{
 namespace Types{
 	typedef std::pair<Stone,Player_Type> Piece;
 	typedef long double eval_type;
+	typedef bool Player_Type;	// Black = false, White = true
 }
 
 struct Position
@@ -54,21 +51,19 @@ private:
 public:
 	int size;
 	vector< vector<Position> > GameBoard;
+	Player p1, p2;
 	
+	Game(int);
 	eval_type eval();
 	void makemove(Move);		// inputs yet to define
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	Game(int);
 };
 
-class Player{
-private:
+struct Player{
 	int StonesLeft;
 	int CapsLeft;
-	bool Max;
-public:
+	Player_Type type;
 	Player(bool,int,int);
-	std::pair<Move,eval_type> decide_move(Game,int);	// depth left.
 };
 
 #endif
