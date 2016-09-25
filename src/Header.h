@@ -18,7 +18,7 @@ enum Stone{
 };
 
 typedef std::pair<Stone,Player_Type> Piece;
-typedef long double ll;
+typedef long double eval_type;
 
 struct Position
 {
@@ -50,9 +50,9 @@ public:
 	vector< vector<Position> > GameBoard;
 	Board(int);
 	~Board();
-	ll eval();
+	eval_type eval();
 	void makemove(Move);		// inputs yet to define
-	void generate_valid_moves(bool,std::multimap<ll,Move> &);
+	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
 };
 
 class Player{
@@ -63,7 +63,7 @@ private:
 public:
 	Player(bool,int,int);
 	~Player();
-	std::pair<Move,ll> decide_move(Board,int);
+	std::pair<Move,eval_type> decide_move(Board,int);
 };
 
 #endif

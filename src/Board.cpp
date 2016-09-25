@@ -1,7 +1,7 @@
 #include "Header.h"
 
 typedef std::pair<Stone,Player_Type> Piece;
-typedef long double ll;
+typedef long double eval_type;
 
 inline Piece Position::get_piece(){
 	if(!Stack.empty()) return Stack.front();
@@ -49,7 +49,7 @@ string Board::to_string()
 	return str;
 }
 
-ll Board::eval()
+eval_type Board::eval()
 {
 	// TODO
 }
@@ -77,7 +77,7 @@ void Board::makemove(Move m)
 	}
 }
 
-void Board::generate_valid_moves(bool max, std::multimap<ll,Move> & moves)
+void Board::generate_valid_moves(bool max, std::multimap<eval_type,Move> & moves)
 {
 	// TODO
 	int s = GameBoard.size();
@@ -86,7 +86,7 @@ void Board::generate_valid_moves(bool max, std::multimap<ll,Move> & moves)
 		for (int j = 0 ; j < s ; j ++)
 		{
 			// empty? or stack?
-			
+
 		}
 	}
 }
