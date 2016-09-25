@@ -10,8 +10,8 @@ out : $(OBJ)
 main.o : main.cpp Header.h
 	g++ $(CFLAGS) main.cpp
 
-Game.o : Board.cpp Header.h
-	g++ $(CFLAGS) Board.cpp
+Game.o : Game.cpp Header.h
+	g++ $(CFLAGS) Game.cpp
 
 # Player.o : Player.cpp Header.h
 # 	g++ $(CFLAGS) Player.cpp

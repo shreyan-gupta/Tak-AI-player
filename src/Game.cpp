@@ -25,10 +25,10 @@ string Position::to_string(){
 	}
 	val += mul;
 	s += std::to_string(val);
-	if(!Stack.empty()){
-		if(Stack.back().first == F) s += "!";
-		else if(Stack.back().first == S) s+= "@";
-		else s += "#";
+	if(!empty()){
+		if(Stack.back().first == Flat) s += "F";
+		else if(Stack.back().first == Stand) s+= "S";
+		else s += "C";
 	}
 	return s;
 }
@@ -36,11 +36,8 @@ string Position::to_string(){
 Game::Game(int size){
 	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-}
-
-Game::~Game()
-{
-	// do nothing!
+	p1 = Player(White, 100, 1);
+	p1 = Player(Black, 100, 1);
 }
 
 string Game::to_string()
@@ -61,17 +58,17 @@ eval_type Game::eval()
 	// TODO
 }
 
-std::pair<Move,ll> Game::decide_move(int depth, bool max)
+std::pair<Move,eval_type> Game::decide_move(int depth, bool max)
 {
-	std::multimap<ll,Move> allmoves;
-	generate_valid_moves(Max,allmoves);
+	std::multimap<eval_type,Move> allmoves;
+	generate_valid_moves(max,allmoves);
 	// iterate over allmoves.
 	for (auto &i : allmoves)
 	{
 		// makemove.
 		// ask p2 to decide his best move
 		// make anti move.
-		makemove(i.first);
+		makemove(i.second);
 
 	}
 }
@@ -87,7 +84,7 @@ void Game::makemove(Move m)
 		{
 			// push WHAT?? 
 			GameBoard[m.x][m.y].Stack.push_back(m.p);
-			if (p.Player_Type == Black)
+			if (m.p.Player_Type == Black)
 				GameBoard[m.x][m.y].Num_Black += 1;
 			else
 				GameBoard[m.x][m.y].Num_White += 1;
@@ -96,7 +93,7 @@ void Game::makemove(Move m)
 		{
 			// POP!
 			GameBoard[m.x][m.y].Stack.pop_back();
-			if (p.Player_Type == Black)
+			if (m.p.Player_Type == Black)
 				GameBoard[m.x][m.y].Num_Black -= 1;
 			else
 				GameBoard[m.x][m.y].Num_White -= 1;
@@ -108,7 +105,7 @@ void Game::makemove(Move m)
 	}
 }
 
-void Game::generate_valid_moves(bool max, std::multimap<ll,Move> &moves)
+void Game::generate_valid_moves(bool max, std::multimap<eval_type,Move> &moves)
 {
 	// TODO
 	for (int i = 0 ; i < size ; i ++)
