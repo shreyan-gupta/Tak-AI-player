@@ -31,7 +31,7 @@ struct Position
 
 struct Move
 {
-	bool Type; 			// false if antimove else true
+	bool Type;		// false if antimove else true
 	bool Place_move; 	// true if place else false
 	int x;
 	int y;
@@ -40,6 +40,8 @@ struct Move
 	vector<int> Drops;
 	string to_string(); // print ke liye!
 };
+
+std::pair<Move,ll> decide_move(int,bool); // depth left.
 
 
 class Board
@@ -63,7 +65,6 @@ private:
 public:
 	Player(bool,int,int);
 	~Player();
-	std::pair<Move,ll> decide_move(Board,int); // depth left.
 };
 
 #endif
