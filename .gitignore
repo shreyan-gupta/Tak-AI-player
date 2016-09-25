@@ -2,6 +2,7 @@
 *.slo
 *.lo
 *.o
+/src/*.o
 *.obj
 
 # Precompiled Headers
@@ -24,6 +25,8 @@
 *.lib
 
 # Executables
+/src/*.exe
+/src/out
 *.exe
 *.out
 *.app

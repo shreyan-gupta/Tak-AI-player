@@ -7,20 +7,22 @@
 #include <map>
 #include <string>
 
-using namespace std;
-
-enum Player_Type{
-	Black = false, White = true
-};
-
 enum Stone{
 	Flat, Stand, Cap
 };
 
+enum
+
 namespace Types{
+	typedef bool Player_Type;	// Black = false, White = true
 	typedef std::pair<Stone,Player_Type> Piece;
 	typedef long double eval_type;
+	const bool Black = false;
+	const bool While = true;
 }
+
+using namespace std;
+using namespace Types;
 
 struct Position
 {
@@ -42,6 +44,15 @@ struct Move
 	char Direction; 	// + U, - D, > R, < L
 	vector<int> Drops;
 	string to_string(); // print ke liye!
+	Move(int, int, Piece);
+	Move(int, int, Piece, char, vector<int>);
+};
+
+struct Player{
+	int StonesLeft;
+	int CapsLeft;
+	Player_Type type;
+	Player(bool,int,int);
 };
 
 class Game
@@ -54,22 +65,12 @@ private:
 public:
 	int size;
 	vector< vector<Position> > GameBoard;
-	
-	Game(int);
+	Player p_black, p_white;
 
+	Game(int);
 	eval_type eval();
 	void makemove(Move);		// inputs yet to define
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	std::pair<Move,eval_type> decide_move(int,bool);	// depth left, player?
-};
-
-class Player{
-private:
-	int StonesLeft;
-	int CapsLeft;
-	bool Max;
-public:
-	Player(bool,int,int);
 };
 
 #endif
