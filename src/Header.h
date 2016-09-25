@@ -44,6 +44,8 @@ struct Move
 	char Direction; 	// + U, - D, > R, < L
 	vector<int> Drops;
 	string to_string(); // print ke liye!
+	Move(int, int, Piece);
+	Move(int, int, Piece, char, vector<int>);
 };
 
 struct Player{
@@ -63,7 +65,7 @@ private:
 public:
 	int size;
 	vector< vector<Position> > GameBoard;
-	Player p1, p2;
+	Player p_black, p_white;
 
 	Game(int);
 	eval_type eval();

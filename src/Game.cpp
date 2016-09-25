@@ -7,6 +7,30 @@ Player::Player(bool player_type, int pieces, int caps){
 	CapsLeft = caps;
 }
 
+Move::Move(int x, int x, Piece p){
+	this->Type = true;
+	this->Place_Move = true;
+	this->x = x;
+	this->y = y;
+	this->p = p;
+	this->Direction;
+	this->Drops;
+}
+
+Move::Move(int x, int y, Piece p, char d, vector<int> v){
+	this->Type = true;
+	this->Place_Move = false;
+	this->x = x;
+	this->y = y;
+	this->p = p;
+	this->Direction = d;
+	this->Drops = v;
+}
+
+inline Piece piece(Stone s, bool p){
+	return make_pair(s,p);
+}
+
 inline Piece Position::top_piece(){
 	return Stack.front();
 }
@@ -36,8 +60,8 @@ string Position::to_string(){
 Game::Game(int size){
 	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-	p1 = Player(White, 100, 1);
-	p1 = Player(Black, 100, 1);
+	p_white = Player(White, 100, 1);
+	p_black = Player(Black, 100, 1);
 }
 
 string Game::to_string()
@@ -105,15 +129,28 @@ void Game::makemove(Move m)
 	}
 }
 
-void Game::generate_valid_moves(bool max, std::multimap<eval_type,Move> &moves)
-{
-	// TODO
-	for (int i = 0 ; i < size ; i ++)
-	{
-		for (int j = 0 ; j < size ; j ++)
-		{
-			// empty? or stack?
-			
+void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
+	// FIX P_BLACK
+	if(p_black.CapsLeft != 0)
+	for(int i=0; i<size; ++i){
+		for(int j=0; j<size; ++j){
+			if(!GameBoard[i][j].empty()){
+				Move m(i, j, piece(Cap,player));
+				moves.insert(eval(???), m);
+			}
+		}
+	}
+	if(p_black.StonesLeft != 0)
+	for(int i=0; i<size; ++i){
+		for(int j=0; j<size; ++j){
+			if(!GameBoard[i][j].empty()){
+				Move m1(i, j, piece(Flat,player));
+				Move m2(i, j, piece(Stand,player));
+				moves.insert(eval(???), m1);
+				moves.insert(eval(???), m2);
+			}
 		}
 	}
 }
+
+
