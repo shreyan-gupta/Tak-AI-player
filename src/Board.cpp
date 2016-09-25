@@ -14,7 +14,7 @@ string Position::to_string(){
 	string s = "";
 	for(auto &i : Stack){
 		if(i.second == Black) val += mul;
-		mul << 1;
+		mul = mul << 1;
 	}
 	val += mul;
 	s += std::to_string(val);

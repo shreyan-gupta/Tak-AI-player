@@ -63,7 +63,7 @@ private:
 public:
 	Player(bool,int,int);
 	~Player();
-	std::pair<Move,ll> decide_move(Board,int);
+	std::pair<Move,ll> decide_move(Board,int); // depth left.
 };
 
 #endif
