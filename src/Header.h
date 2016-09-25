@@ -35,6 +35,7 @@ struct Move
 	bool Place_move; 	// true if place else false
 	int x;
 	int y;
+	Piece p; // rakhna hai ye/uthaana hai ye.
 	char Direction; 	// + U, - D, > R, < L
 	vector<int> Drops;
 	string to_string(); // print ke liye!

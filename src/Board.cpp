@@ -57,9 +57,36 @@ ll Board::eval()
 void Board::makemove(Move m)
 {
 	// TODO
+	if (m.Place_move)
+	{
+		// x,y pe posn mein push kardo. (stack must be empty abhi.)
+		if (m.Type)
+		{
+			// push WHAT?? 
+			GameBoard[m.x][m.y].Stack.push_back(m.p);
+		}
+		else
+		{
+			// POP!
+			GameBoard[m.x][m.y].Stack.pop_back();
+		}
+	}
+	else
+	{
+		// move/anti?
+	}
 }
 
 void Board::generate_valid_moves(bool max, std::multimap<ll,Move> & moves)
 {
 	// TODO
+	int s = GameBoard.size();
+	for (int i = 0 ; i < s ; i ++)
+	{
+		for (int j = 0 ; j < s ; j ++)
+		{
+			// empty? or stack?
+			
+		}
+	}
 }
