@@ -1,11 +1,12 @@
 #include "Header.h"
+using namespace Types;
 
-typedef std::pair<Stone,Player_Type> Piece;
-typedef long double eval_type;
+inline Piece Position::top_piece(){
+	return Stack.front();
+}
 
-inline Piece Position::get_piece(){
-	if(!Stack.empty()) return Stack.front();
-	else return make_pair(F,None);
+inline bool Position::empty(){
+	return Stack.empty();
 }
 
 string Position::to_string(){
@@ -14,7 +15,7 @@ string Position::to_string(){
 	string s = "";
 	for(auto &i : Stack){
 		if(i.second == Black) val += mul;
-		mul << 1;
+		mul = mul << 1;
 	}
 	val += mul;
 	s += std::to_string(val);
@@ -27,6 +28,7 @@ string Position::to_string(){
 }
 
 Board::Board(int size){
+	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
 }
 
@@ -38,12 +40,11 @@ Board::~Board()
 string Board::to_string()
 {
 	string str = "";
-	int s = GameBoard.size();
-	for (int i = 0 ; i < s ; i ++)
+	for (int i = 0 ; i < size ; i ++)
 	{
-		for (int j = 0 ; j < s ; j ++)
+		for (int j = 0 ; j < size ; j ++)
 		{
-			str += GameBoard[i][j].to_string() + " "; // this is a position.
+			str += GameBoard[i][j].to_string() + "_"; // this is a position.
 		}
 	}
 	return str;
@@ -77,16 +78,7 @@ void Board::makemove(Move m)
 	}
 }
 
-void Board::generate_valid_moves(bool max, std::multimap<eval_type,Move> & moves)
-{
+void Board::generate_valid_moves(bool max, std::multimap<eval_type,Move> &moves){
 	// TODO
-	int s = GameBoard.size();
-	for (int i = 0 ; i < s ; i ++)
-	{
-		for (int j = 0 ; j < s ; j ++)
-		{
-			// empty? or stack?
-
-		}
-	}
+	// generating valid places
 }
