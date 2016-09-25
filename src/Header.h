@@ -12,6 +12,9 @@ typedef std::pair<Stone,Player_type> Piece;
 struct Position
 {
 	std::stack<Piece> Stack;
+	int black = 0;
+	int white = 0;
+	string to_string();
 	inline Player_Type get_player()
 	{
 		if (Stack.size() == 0)
@@ -29,13 +32,13 @@ struct Move
 
 class Board
 {
+		string to_string();
 	public:
 		vector< vector<Position> > GameBoard;
-
 		Board(int);
 		~Board();
 		eval();
-		makemove();		// inputs yet to define
+		makemove();	// inputs yet to define
 };
 
 
