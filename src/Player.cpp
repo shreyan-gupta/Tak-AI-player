@@ -7,8 +7,3 @@ Player::Player(bool player_type, int pieces, int caps){
 	StonesLeft = pieces;
 	CapsLeft = caps;
 }
-
-Player::~Player()
-{
-	 // do nothing
-}

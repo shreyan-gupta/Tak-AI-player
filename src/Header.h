@@ -34,7 +34,7 @@ struct Position
 
 struct Move
 {
-	bool Type; 			// false if antimove else true
+	bool Type;			// false if antimove else true
 	bool Place_Move; 	// true if place else false
 	int x;
 	int y;
@@ -55,10 +55,12 @@ public:
 	int size;
 	vector< vector<Position> > GameBoard;
 	
+	Game(int);
+
 	eval_type eval();
 	void makemove(Move);		// inputs yet to define
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	Game(int);
+	std::pair<Move,eval_type> decide_move(int,bool);	// depth left, player?
 };
 
 class Player{
@@ -68,7 +70,6 @@ private:
 	bool Max;
 public:
 	Player(bool,int,int);
-	std::pair<Move,eval_type> decide_move(Game,int);	// depth left.
 };
 
 #endif

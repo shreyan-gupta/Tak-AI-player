@@ -81,7 +81,7 @@ void Game::makemove(Move m)
 		{
 			// push WHAT?? 
 			GameBoard[m.x][m.y].Stack.push_back(m.p);
-			if (p.Player_Type == Black)
+			if (m.p.Player_Type == Black)
 				GameBoard[m.x][m.y].Num_Black += 1;
 			else
 				GameBoard[m.x][m.y].Num_White += 1;
@@ -90,7 +90,7 @@ void Game::makemove(Move m)
 		{
 			// POP!
 			GameBoard[m.x][m.y].Stack.pop_back();
-			if (p.Player_Type == Black)
+			if (m.p.Player_Type == Black)
 				GameBoard[m.x][m.y].Num_Black -= 1;
 			else
 				GameBoard[m.x][m.y].Num_White -= 1;
@@ -99,6 +99,49 @@ void Game::makemove(Move m)
 	else
 	{
 		// move/anti?
+		vector<int> & d = m.Drops;
+		char dirn = m.Direction;
+		int x_add = (dirn == '>') ? 1 : ((dirn == '<') ? -1 : 0);
+		int y_add = (dirn == '+') ? 1 : ((dirn == '-') ? -1 : 0);
+		if (m.Type)
+		{
+			int drop_x = m.x + x_add;
+			int drop_y = m.y + y_add;
+
+			std::deque<Piece> & mainstack = GameBoard[m.x][m.y].Stack;
+
+			for (int i = 0 ; i < d.size() ; i ++)
+			{
+				int num_drops = d[i];
+				for (int j = num_drops - 1 ; j > -1 ; j --)
+				{
+					Piece jth = mainstack[mainstack.size() - 1 - j];
+					GameBoard[drop_x][drop_y].Stack.push_back(jth);
+					if (jth.second == Black)
+						GameBoard[drop_x][drop_y].Num_Black += 1;
+					else
+						GameBoard[drop_x][drop_y].Num_White += 1;
+				}
+				// pop all these!
+				for (int j = 0 ; j < num_drops ; j ++)
+				{
+					if (mainstack.front().second == Black)
+						mainstack.Num_Black -= 1;
+					else
+						mainstack.Num_White -= 1;
+					mainstack.pop_back();
+				}
+				drop_x += x_add;
+				drop_y += y_add;
+			}
+		}
+
+		else
+		{
+			// ANTIMOVE!
+			int pick_x = ;
+			int pick_y = ;
+		}
 	}
 }
 
