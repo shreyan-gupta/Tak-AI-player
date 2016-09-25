@@ -2,12 +2,22 @@
 #define HEADER_H
 
 #include <iostream>
-#include <stack>
+#include <deque>
 #include <vector>
+#include <map>
+#include <string>
 
 using namespace std;
 
-typedef std::pair<Stone,Player_type> Piece;
+enum Player_Type{
+	Black, White, None
+};
+
+enum Stone{
+	F,S,C,
+};
+
+typedef std::pair<Stone,Player_Type> Piece;
 typedef long double ll;
 
 struct Position
@@ -16,41 +26,32 @@ struct Position
 	int black = 0;
 	int white = 0;
 	string to_string();
-	inline Player_Type get_player()
-	{
-		if (Stack.size() == 0)
-			return none;
-		else
-			return Stack.top().second;
-	}
+	Piece get_piece();
 };
 
 struct Move
 {
-	bool type;
-	bool place_move;
+	bool Type; 			// false if antimove else true
+	bool Place_move; 	// true if place else false
+	int x;
+	int y;
+	char Direction; 	// + U, - D, > R, < L
+	vector<int> Drops;
+	string to_string(); // print ke liye!
 };
 
 
 class Board
 {
-		string to_string();
-	public:
-		vector< vector<Position> > GameBoard;
-		Board(int);
-		~Board();
-		ll eval();
-		void makemove(Move);		// inputs yet to define
-		void generate_valid_moves(bool,std::multimap<ll,Move> &);
-};
-
-
-enum Player_type{
-	Black, White, None
-};
-
-enum Stone{
-	F,S,C
+private:
+	string to_string();
+public:
+	vector< vector<Position> > GameBoard;
+	Board(int);
+	~Board();
+	ll eval();
+	void makemove(Move);		// inputs yet to define
+	void generate_valid_moves(bool,std::multimap<ll,Move> &);
 };
 
 class Player{
