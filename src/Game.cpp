@@ -7,7 +7,7 @@ Player::Player(bool player_type, int pieces, int caps){
 	CapsLeft = caps;
 }
 
-Move::Move(int x, int x, Piece p){
+Move::Move(int x, int y, Piece p){
 	this->Type = true;
 	this->Place_Move = true;
 	this->x = x;
@@ -108,7 +108,7 @@ void Game::makemove(Move m)
 		{
 			// push WHAT?? 
 			GameBoard[m.x][m.y].Stack.push_back(m.p);
-			if (m.p.Player_Type == Black)
+			if (m.p.second == Black)
 				GameBoard[m.x][m.y].Num_Black += 1;
 			else
 				GameBoard[m.x][m.y].Num_White += 1;
@@ -117,7 +117,7 @@ void Game::makemove(Move m)
 		{
 			// POP!
 			GameBoard[m.x][m.y].Stack.pop_back();
-			if (m.p.Player_Type == Black)
+			if (m.p.second == Black)
 				GameBoard[m.x][m.y].Num_Black -= 1;
 			else
 				GameBoard[m.x][m.y].Num_White -= 1;
@@ -153,9 +153,9 @@ void Game::makemove(Move m)
 				for (int j = 0 ; j < num_drops ; j ++)
 				{
 					if (mainstack.front().second == Black)
-						mainstack.Num_Black -= 1;
+						GameBoard[m.x][m.y].Num_Black -= 1;
 					else
-						mainstack.Num_White -= 1;
+						GameBoard[m.x][m.y].Num_White -= 1;
 					mainstack.pop_back();
 				}
 				drop_x += x_add;
