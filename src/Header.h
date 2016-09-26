@@ -41,7 +41,6 @@ struct Position
 
 struct Move
 {
-	bool Type;			// false if antimove else true
 	bool Place_Move; 	// true if place else false
 	int x;
 	int y;
@@ -75,7 +74,9 @@ public:
 	Game(int);
 	eval_type eval();
 	void makemove(Move);		// inputs yet to define
+	void antimove(Move);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
+	tuple<int,int,int,int> GetStackable();
 };
 
 #endif
