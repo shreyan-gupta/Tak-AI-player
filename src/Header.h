@@ -11,7 +11,6 @@ enum Stone{
 	Flat, Stand, Cap
 };
 
-enum
 
 namespace Types{
 	typedef bool Player_Type;	// Black = false, White = true
@@ -23,6 +22,11 @@ namespace Types{
 
 using namespace std;
 using namespace Types;
+
+extern vector<vector<vector<vector<int> > > > AllPerms;
+
+void printVec(vector<int>&);
+
 
 struct Position
 {
