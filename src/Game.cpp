@@ -117,17 +117,12 @@ void Game::makemove(Move &m)
 	if (m.Place_Move)
 	{
 		// x,y pe posn mein push kardo. (stack must be empty abhi.)
-		if (m.Type)
-		{
 			// push WHAT?? 
 			GameBoard[m.x][m.y].Stack.push_back(m.p);
 			if (m.p.second == Black)
 				GameBoard[m.x][m.y].Num_Black += 1;
 			else
 				GameBoard[m.x][m.y].Num_White += 1;
-		}
-		else
-
 	}
 	else
 	{
@@ -136,44 +131,34 @@ void Game::makemove(Move &m)
 		char dirn = m.Direction;
 		int x_add = (dirn == '>') ? 1 : ((dirn == '<') ? -1 : 0);
 		int y_add = (dirn == '+') ? 1 : ((dirn == '-') ? -1 : 0);
-		if (m.Type)
+		int drop_x = m.x + x_add;
+		int drop_y = m.y + y_add;
+
+		std::deque<Piece> & mainstack = GameBoard[m.x][m.y].Stack;
+
+		for (int i = 0 ; i < d.size() ; i ++)
 		{
-			int drop_x = m.x + x_add;
-			int drop_y = m.y + y_add;
-
-			std::deque<Piece> & mainstack = GameBoard[m.x][m.y].Stack;
-
-			for (int i = 0 ; i < d.size() ; i ++)
+			int num_drops = d[i];
+			for (int j = num_drops - 1 ; j > -1 ; j --)
 			{
-				int num_drops = d[i];
-				for (int j = num_drops - 1 ; j > -1 ; j --)
-				{
-					Piece jth = mainstack[mainstack.size() - 1 - j];
-					GameBoard[drop_x][drop_y].Stack.push_back(jth);
-					if (jth.second == Black)
-						GameBoard[drop_x][drop_y].Num_Black += 1;
-					else
-						GameBoard[drop_x][drop_y].Num_White += 1;
-				}
-				// pop all these!
-				for (int j = 0 ; j < num_drops ; j ++)
-				{
-					if (mainstack.front().second == Black)
-						GameBoard[m.x][m.y].Num_Black -= 1;
-					else
-						GameBoard[m.x][m.y].Num_White -= 1;
-					mainstack.pop_back();
-				}
-				drop_x += x_add;
-				drop_y += y_add;
+				Piece jth = mainstack[mainstack.size() - 1 - j];
+				GameBoard[drop_x][drop_y].Stack.push_back(jth);
+				if (jth.second == Black)
+					GameBoard[drop_x][drop_y].Num_Black += 1;
+				else
+					GameBoard[drop_x][drop_y].Num_White += 1;
 			}
-		}
-
-		else
-		{
-			// ANTIMOVE!
-			int pick_x = m.x + x_add*d.size();
-			int pick_y = m.y + y_add*d.size();
+			// pop all these!
+			for (int j = 0 ; j < num_drops ; j ++)
+			{
+				if (mainstack.front().second == Black)
+					GameBoard[m.x][m.y].Num_Black -= 1;
+				else
+					GameBoard[m.x][m.y].Num_White -= 1;
+				mainstack.pop_back();
+			}
+			drop_x += x_add;
+			drop_y += y_add;
 		}
 	}
 }
@@ -209,11 +194,28 @@ void Game::antimove(Move &m){
 	}
 }
 
+std::tuple<int,int,int,int> Game::GetStackable(int x, int y)
+{
+	int l = 0;
+	int r = 0;
+	int u = 0;
+	int d = 0;
+	while (x-l-1 >= 0 && GameBoard[x-l-1][y].stackable())
+		l --;
+	while (x+r+1 < size && GameBoard[x+r+1][y].stackable())
+		r++;
+	while (y-d-1 >=0 && GameBoard[x][y-d-1].stackable())
+		d --;
+	while (y+u+1 < size && GameBoard[x][y+u+1].stackable())
+		u ++;
+	return make_tuple(l,r,u,d);
+}
+
 void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 	if(player == Black && p_black.CapsLeft != 0 || player == White && p_white.CapsLeft != 0)
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
-			if(!GameBoard[i][j].empty()){
+			if(GameBoard[i][j].empty()){
 				Move m(i, j, piece(Cap,player));
 				makemove(m);
 				moves.insert(eval(), m);
@@ -221,14 +223,77 @@ void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 			}
 		}
 	}
+	// placing caps done.
 	if(player==Black && p_black.StonesLeft != 0 || player==White && p_white.StonesLeft != 0)
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
-			if(!GameBoard[i][j].empty()){
+			if(GameBoard[i][j].empty()){
+				// place Flat/Stand
 				Move m1(i, j, piece(Flat,player));
 				Move m2(i, j, piece(Stand,player));
-				moves.insert(eval(???), m1);
-				moves.insert(eval(???), m2);
+				makemove(m1);
+				moves.insert(eval(), m1);
+				antimove(m1);
+				makemove(m2);
+				moves.insert(eval(), m2);
+				antimove(m2);
+			}
+			else if (GameBoard[i][j].top_piece().second == player)
+			{
+				// all possible stack moves.
+				int shiftmax = std::min(size,GameBoard[i][j].Stack.size()); // max pieces.
+				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++)
+				{
+					// how many stackable in each dirn?
+					tuple<int,int,int,int> range = GetStackable(i,j);
+					for (int m = 1 ; m <= std::get<0>(range) ; m ++)
+					{
+						// left
+						for (auto &d : AllPerms[i1][m])
+						{
+							Move ml(i,j,'<',d);
+							makemove(ml);
+							moves.insert(eval(),ml);
+							antimove(ml);
+						}
+					}
+					for (int m = 1 ; m <= std::get<1>(range) ; m ++)
+					{
+						// right
+						for (auto &d : AllPerms[i1][m])
+						{
+							Move mr(i,j,'>',d);
+							makemove(mr);
+							moves.insert(eval(),mr);
+							antimove(mr);
+						}
+					}
+
+					for (int m = 1 ; m <= std::get<2>(range) ; m ++)
+					{
+						// up
+						for (auto &d : AllPerms[i1][m])
+						{
+							Move mu(i,j,'+',d);
+							makemove(mu);
+							moves.insert(eval(),mu);
+							antimove(mu);
+						}
+
+					}
+					for (int m = 1 ; m <= std::get<3>(range) ; m ++)
+					{
+						// down
+						for (auto &d : AllPerms[i1][m])
+						{
+							Move md(i,j,'-',d);
+							makemove(md);
+							moves.insert(eval(),md);
+							antimove(md);
+						}
+
+					}
+				}
 			}
 		}
 	}
