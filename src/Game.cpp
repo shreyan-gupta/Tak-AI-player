@@ -1,70 +1,17 @@
 #include "Header.h"
 using namespace Types;
 
-Player::Player(bool player_type, int pieces, int caps){
-	type = player_type;
-	StonesLeft = pieces;
-	CapsLeft = caps;
-}
+eval_type E_MIN = -99999999999;
+eval_type E_MAX = +99999999999;
+Piece NULL_PIECE = make_pair(Flat, false);
+Move NULL_MOVE = Move(-1, -1, NULL_PIECE);
 
-Move::Move(int x, int y, Piece p){
-	this->Place_Move = true;
-	this->x = x;
-	this->y = y;
-	this->p = p;
-	this->Direction;
-	this->Drops = vector<int>();
-}
-
-Move::Move(int x, int y, char d, vector<int> &v){
-	this->Place_Move = false;
-	this->x = x;
-	this->y = y;
-	this->Direction = d;
-	this->Drops = v;
-}
-
-inline Piece piece(Stone s, bool p){
-	return make_pair(s,p);
-}
-
-inline Piece Position::top_piece(){
-	return Stack.front();
-}
-
-inline bool Position::empty(){
-	return Stack.empty();
-}
-
-inline bool Position::stackable(){
-	if(empty) return true;
-	else if(Stack.front().first == Flat) return true;
-	else return false;
-}
-
-string Position::to_string(){
-	int val=0;
-	int mul = 1;
-	string s = "";
-	for(auto &i : Stack){
-		if(i.second == Black) val += mul;
-		mul = mul << 1;
-	}
-	val += mul;
-	s += std::to_string(val);
-	if(!empty()){
-		if(Stack.back().first == Flat) s += "F";
-		else if(Stack.back().first == Stand) s+= "S";
-		else s += "C";
-	}
-	return s;
-}
-
-Game::Game(int size){
+Game::Game(int size) : p_white(Player(White, 100, 1)), p_black(Player(Black, 100, 1))
+{
 	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-	p_white = Player(White, 100, 1);
-	p_black = Player(Black, 100, 1);
+	// p_white = Player(White, 100, 1);
+	// p_black = Player(Black, 100, 1);
 }
 
 string Game::to_string()
@@ -82,17 +29,23 @@ string Game::to_string()
 
 eval_type Game::eval()
 {
+	return rand()%100;
 	// TODO
 }
 
-pair<eval_type, Move> Game::decide_move(bool player, int depth, int max_depth){
+void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth){
 	
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
 	
-	if(depth == max_depth) return make_pair(allmoves.begin().first, allmoves.begin().second);
-	
-	pair<eval_type, Move> best_move = make_pair(player?-99999999:9999999, Move(-1,-1, make_pair(Flat, player)));
+	if(depth == max_depth){
+		auto ptr = allmoves.begin();
+		best_move.e = ptr->first;
+		best_move.m = ptr->second;
+		return;
+	}
+
+	Eval_Move opponent_move(E_MIN, NULL_MOVE);
 	//iterate over all valid moves
 	for (auto &i : allmoves){
 		// makemove.
@@ -100,16 +53,14 @@ pair<eval_type, Move> Game::decide_move(bool player, int depth, int max_depth){
 		// make anti move.
 		
 		makemove(i.second);
-		auto opponent_move = decide_move(!player, depth+1, max_depth);
+		decide_move(opponent_move, !player, depth+1, max_depth);
 		if(player && opponent_move > best_move){
 			best_move = opponent_move;
 		}else if(!player && opponent_move < best_move){
 			best_move = opponent_move;
 		}
 	}
-	return best_move;
 }
-
 
 void Game::makemove(Move &m)
 {
@@ -127,7 +78,7 @@ void Game::makemove(Move &m)
 	else
 	{
 		// move/anti?
-		vector<int> & d = m.Drops;
+		vector<int> &d = *m.Drops;
 		char dirn = m.Direction;
 		int x_add = (dirn == '>') ? 1 : ((dirn == '<') ? -1 : 0);
 		int y_add = (dirn == '+') ? 1 : ((dirn == '-') ? -1 : 0);
@@ -174,7 +125,7 @@ void Game::antimove(Move &m){
 		int y_add = (m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0);
 		int x = m.x + x_add;
 		int y = m.y + y_add;
-		for(auto &l : m.Drops){
+		for(auto &l : *m.Drops){
 			auto itr = GameBoard[x][y].Stack.end() - l;
 			while(itr != GameBoard[x][y].Stack.end()){
 				current_p.Stack.push_back(*itr);
@@ -211,20 +162,20 @@ std::tuple<int,int,int,int> Game::GetStackable(int x, int y)
 	return make_tuple(l,r,u,d);
 }
 
-void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
-	if(player == Black && p_black.CapsLeft != 0 || player == White && p_white.CapsLeft != 0)
+void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &moves){
+	if((player == Black && p_black.CapsLeft != 0) || (player == White && p_white.CapsLeft != 0))
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()){
 				Move m(i, j, piece(Cap,player));
 				makemove(m);
-				moves.insert(eval(), m);
+				moves.insert(make_pair(eval(), m));
 				antimove(m);
 			}
 		}
 	}
 	// placing caps done.
-	if(player==Black && p_black.StonesLeft != 0 || player==White && p_white.StonesLeft != 0)
+	if((player==Black && p_black.StonesLeft != 0) || (player==White && p_white.StonesLeft != 0))
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()){
@@ -232,16 +183,16 @@ void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 				Move m1(i, j, piece(Flat,player));
 				Move m2(i, j, piece(Stand,player));
 				makemove(m1);
-				moves.insert(eval(), m1);
+				moves.insert(make_pair(eval(), m1));
 				antimove(m1);
 				makemove(m2);
-				moves.insert(eval(), m2);
+				moves.insert(make_pair(eval(), m2));
 				antimove(m2);
 			}
 			else if (GameBoard[i][j].top_piece().second == player)
 			{
 				// all possible stack moves.
-				int shiftmax = std::min(size,GameBoard[i][j].Stack.size()); // max pieces.
+				int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
 				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++)
 				{
 					// how many stackable in each dirn?
@@ -251,9 +202,9 @@ void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 						// left
 						for (auto &d : AllPerms[i1][m])
 						{
-							Move ml(i,j,'<',d);
+							Move ml(i,j,'<',&d);
 							makemove(ml);
-							moves.insert(eval(),ml);
+							moves.insert(make_pair(eval(),ml));
 							antimove(ml);
 						}
 					}
@@ -262,9 +213,9 @@ void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 						// right
 						for (auto &d : AllPerms[i1][m])
 						{
-							Move mr(i,j,'>',d);
+							Move mr(i,j,'>',&d);
 							makemove(mr);
-							moves.insert(eval(),mr);
+							moves.insert(make_pair(eval(),mr));
 							antimove(mr);
 						}
 					}
@@ -274,9 +225,9 @@ void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 						// up
 						for (auto &d : AllPerms[i1][m])
 						{
-							Move mu(i,j,'+',d);
+							Move mu(i,j,'+',&d);
 							makemove(mu);
-							moves.insert(eval(),mu);
+							moves.insert(make_pair(eval(),mu));
 							antimove(mu);
 						}
 
@@ -286,9 +237,9 @@ void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 						// down
 						for (auto &d : AllPerms[i1][m])
 						{
-							Move md(i,j,'-',d);
+							Move md(i,j,'-',&d);
 							makemove(md);
-							moves.insert(eval(),md);
+							moves.insert(make_pair(eval(),md));
 							antimove(md);
 						}
 

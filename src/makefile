@@ -1,6 +1,6 @@
 CFLAGS = -c -std=c++11 -O3 -march=native
 LFLAGS = -std=c++11 -O3 -march=native
-OBJ = main.o Game.o
+OBJ = main.o Misc.o Game.o Features.o
 
 all : out
 
@@ -13,8 +13,11 @@ main.o : main.cpp Header.h
 Game.o : Game.cpp Header.h
 	g++ $(CFLAGS) Game.cpp
 
-# Player.o : Player.cpp Header.h
-# 	g++ $(CFLAGS) Player.cpp
+Features.o : Features.cpp Header.h
+	g++ $(CFLAGS) Features.cpp
+
+Misc.o : Misc.cpp Header.h
+	g++ $(CFLAGS) Misc.cpp
 
 clean : 
 	rm *.o

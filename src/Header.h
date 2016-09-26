@@ -6,27 +6,25 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 
 enum Stone{
 	Flat, Stand, Cap
 };
-
 
 namespace Types{
 	typedef bool Player_Type;	// Black = false, White = true
 	typedef std::pair<Stone,Player_Type> Piece;
 	typedef long double eval_type;
 	const bool Black = false;
-	const bool While = true;
+	const bool White = true;
 }
 
 using namespace std;
 using namespace Types;
 
-extern vector<vector<vector<vector<int> > > > AllPerms;
-
 void printVec(vector<int>&);
-
+Piece piece(Stone, bool);
 
 struct Position
 {
@@ -46,10 +44,19 @@ struct Move
 	int y;
 	Piece p; 			// rakhna hai ye/uthaana hai ye.
 	char Direction; 	// + U, - D, > R, < L
-	vector<int> &Drops;
+	vector<int> *Drops;
 	string to_string(); // print ke liye!
 	Move(int, int, Piece);
-	Move(int, int, Piece, char, vector<int>);
+	Move(int, int, char, vector<int> *);
+};
+
+struct Eval_Move{
+	eval_type e;
+	Move m;
+	Eval_Move(eval_type&, Move&);
+	Eval_Move(const Eval_Move&);
+	bool operator<(const Eval_Move &other_move);
+	bool operator>(const Eval_Move &other_move);
 };
 
 struct Player{
@@ -73,10 +80,31 @@ public:
 
 	Game(int);
 	eval_type eval();
-	void makemove(Move);		// inputs yet to define
-	void antimove(Move);
+	void makemove(Move&);		// inputs yet to define
+	void antimove(Move&);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	tuple<int,int,int,int> GetStackable();
+	tuple<int,int,int,int> GetStackable(int, int);
+	void decide_move(Eval_Move&, bool, int, int);
 };
+
+extern vector<vector<vector<vector<int> > > > AllPerms;
+
+inline Piece piece(Stone s, bool p){
+	return make_pair(s,p);
+}
+
+inline Piece Position::top_piece(){
+	return Stack.front();
+}
+
+inline bool Position::empty(){
+	return Stack.empty();
+}
+
+inline bool Position::stackable(){
+	if(empty()) return true;
+	else if(Stack.front().first == Flat) return true;
+	else return false;
+}
 
 #endif

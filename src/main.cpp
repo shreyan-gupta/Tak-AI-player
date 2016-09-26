@@ -54,5 +54,6 @@ int main(int argc, char const *argv[])
 			std::cout << "\n";
 		}
 	}
+	Game g(3);
 	return 0;
 }
