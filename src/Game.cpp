@@ -8,21 +8,18 @@ Player::Player(bool player_type, int pieces, int caps){
 }
 
 Move::Move(int x, int y, Piece p){
-	this->Type = true;
 	this->Place_Move = true;
 	this->x = x;
 	this->y = y;
 	this->p = p;
 	this->Direction;
-	this->Drops;
+	this->Drops = vector<int>();
 }
 
-Move::Move(int x, int y, Piece p, char d, vector<int> v){
-	this->Type = true;
+Move::Move(int x, int y, char d, vector<int> &v){
 	this->Place_Move = false;
 	this->x = x;
 	this->y = y;
-	this->p = p;
 	this->Direction = d;
 	this->Drops = v;
 }
@@ -88,23 +85,33 @@ eval_type Game::eval()
 	// TODO
 }
 
-std::pair<Move,eval_type> Game::decide_move(int depth, bool max)
-{
-	std::multimap<eval_type,Move> allmoves;
-	generate_valid_moves(max,allmoves);
-	// iterate over allmoves.
-	for (auto &i : allmoves)
-	{
+pair<eval_type, Move> Game::decide_move(bool player, int depth, int max_depth){
+	
+	multimap <eval_type, Move> allmoves;
+	generate_valid_moves(player, allmoves);
+	
+	if(depth == max_depth) return make_pair(allmoves.begin().first, allmoves.begin().second);
+	
+	pair<eval_type, Move> best_move = make_pair(player?-99999999:9999999, Move(-1,-1, make_pair(Flat, player)));
+	//iterate over all valid moves
+	for (auto &i : allmoves){
 		// makemove.
-		// ask p2 to decide his best move
+		// ask !player to decide his best move
 		// make anti move.
+		
 		makemove(i.second);
-
+		auto opponent_move = decide_move(!player, depth+1, max_depth);
+		if(player && opponent_move > best_move){
+			best_move = opponent_move;
+		}else if(!player && opponent_move < best_move){
+			best_move = opponent_move;
+		}
 	}
+	return best_move;
 }
 
 
-void Game::makemove(Move m)
+void Game::makemove(Move &m)
 {
 	// TODO
 	if (m.Place_Move)
@@ -120,14 +127,7 @@ void Game::makemove(Move m)
 				GameBoard[m.x][m.y].Num_White += 1;
 		}
 		else
-		{
-			// POP!
-			GameBoard[m.x][m.y].Stack.pop_back();
-			if (m.p.second == Black)
-				GameBoard[m.x][m.y].Num_Black -= 1;
-			else
-				GameBoard[m.x][m.y].Num_White -= 1;
-		}
+
 	}
 	else
 	{
@@ -178,19 +178,46 @@ void Game::makemove(Move m)
 	}
 }
 
+void Game::antimove(Move &m){
+	if (m.Place_Move){
+		GameBoard[m.x][m.y].Stack.pop_back();
+		if (m.p.second == Black) GameBoard[m.x][m.y].Num_Black -= 1;
+		else GameBoard[m.x][m.y].Num_White -= 1;
+	}else{
+		Position &current_p = GameBoard[m.x][m.y];
+		int x_add = (m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0);
+		int y_add = (m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0);
+		int x = m.x + x_add;
+		int y = m.y + y_add;
+		for(auto &l : m.Drops){
+			auto itr = GameBoard[x][y].Stack.end() - l;
+			while(itr != GameBoard[x][y].Stack.end()){
+				current_p.Stack.push_back(*itr);
+				if(itr->second == Black){ 
+					++current_p.Num_Black;
+					--GameBoard[x][y].Num_Black;
+				}
+				else{ 
+					++current_p.Num_White;
+					--GameBoard[x][y].Num_White;
+				}
+				itr = GameBoard[x][y].Stack.erase(itr);
+			}
+			x += x_add;
+			y += y_add;
+		}
+	}
+}
+
 void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
-	// FIX P_BLACK
 	if(player == Black && p_black.CapsLeft != 0 || player == White && p_white.CapsLeft != 0)
-	// if(p_black.CapsLeft != 0)
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(!GameBoard[i][j].empty()){
 				Move m(i, j, piece(Cap,player));
 				makemove(m);
 				moves.insert(eval(), m);
-				m.Type = false;
-				makemove(m);
-				m.Type = true;
+				antimove(m);
 			}
 		}
 	}
