@@ -31,6 +31,7 @@ struct Position
 	int Num_White = 0;
 	Piece top_piece();
 	bool empty();
+	bool stackable();
 	string to_string();
 };
 
@@ -42,7 +43,7 @@ struct Move
 	int y;
 	Piece p; 			// rakhna hai ye/uthaana hai ye.
 	char Direction; 	// + U, - D, > R, < L
-	vector<int> Drops;
+	vector<int> &Drops;
 	string to_string(); // print ke liye!
 	Move(int, int, Piece);
 	Move(int, int, Piece, char, vector<int>);

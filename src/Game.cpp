@@ -39,6 +39,12 @@ inline bool Position::empty(){
 	return Stack.empty();
 }
 
+inline bool Position::stackable(){
+	if(empty) return true;
+	else if(Stack.front().first == Flat) return true;
+	else return false;
+}
+
 string Position::to_string(){
 	int val=0;
 	int mul = 1;
@@ -174,16 +180,21 @@ void Game::makemove(Move m)
 
 void Game::generate_valid_moves(bool player, multimap<eval_type,Move> &move){
 	// FIX P_BLACK
-	if(p_black.CapsLeft != 0)
+	if(player == Black && p_black.CapsLeft != 0 || player == White && p_white.CapsLeft != 0)
+	// if(p_black.CapsLeft != 0)
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(!GameBoard[i][j].empty()){
 				Move m(i, j, piece(Cap,player));
-				moves.insert(eval(???), m);
+				makemove(m);
+				moves.insert(eval(), m);
+				m.Type = false;
+				makemove(m);
+				m.Type = true;
 			}
 		}
 	}
-	if(p_black.StonesLeft != 0)
+	if(player==Black && p_black.StonesLeft != 0 || player==White && p_white.StonesLeft != 0)
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(!GameBoard[i][j].empty()){
