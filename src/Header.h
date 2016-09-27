@@ -7,6 +7,9 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <sstream>
+#include <random>
+#include <cstdio>
 
 enum Stone{
 	Flat, Stand, Cap
@@ -18,6 +21,19 @@ namespace Types{
 	typedef long double eval_type;
 	const bool Black = false;
 	const bool White = true;
+
+	template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str();
+    }
+}
+
+namespace Test
+{
+	bool checkMove();
+	bool checkValid();
 }
 
 using namespace std;
@@ -25,6 +41,7 @@ using namespace Types;
 
 void printVec(vector<int>&);
 Piece piece(Stone, bool);
+void getAllPerms(int);
 
 struct Position
 {
@@ -69,11 +86,11 @@ struct Player{
 class Game
 {
 private:
-	string to_string();
 	eval_type feature1();
 	eval_type feature2();
 	eval_type feature3();
 public:
+	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
 	Player p_black, p_white;
@@ -88,6 +105,7 @@ public:
 };
 
 extern vector<vector<vector<vector<int> > > > AllPerms;
+extern int Size;
 
 inline Piece piece(Stone s, bool p){
 	return make_pair(s,p);
