@@ -84,15 +84,15 @@ string Position::to_string(){
 	int val=0;
 	int mul = 1;
 	string s = "";
-	for(auto i = Stack.begin() ; i != Stack.end() ; i ++){
+	for(auto i = Stack.rbegin() ; i != Stack.rend() ; i ++){
 		if(i->second == White) val += mul;
 		mul = mul << 1;
 	}
 	val += mul;
 	s += Types::to_string(val);
 	if(!empty()){
-		if(Stack.back().first == Flat) s += "F";
-		else if(Stack.back().first == Stand) s+= "S";
+		if(Stack.front().first == Flat) s += "F";
+		else if(Stack.front().first == Stand) s+= "S";
 		else s += "C";
 	}
 	return s;

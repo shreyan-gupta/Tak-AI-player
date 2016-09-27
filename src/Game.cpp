@@ -129,10 +129,11 @@ void Game::antimove(Move &m){
 		int x = m.x + x_add;
 		int y = m.y + y_add;
 		for(auto &l : *m.Drops){
-			auto itr = GameBoard[x][y].Stack.end() - l;
-			while(itr != GameBoard[x][y].Stack.end()){
-				current_p.Stack.push_front(*itr);
-				if(itr->second == Black){ 
+			auto &S = GameBoard[x][y].Stack;
+			// for(auto itr = GameBoard[x][y].Stack.begin()+l-1; itr != GameBoard[x][y].Stack.begin(); --itr){
+			for(int pos = l-1; pos >= 0; --pos){
+				current_p.Stack.push_front(S[pos]);
+				if(S[pos].second == Black){ 
 					++current_p.Num_Black;
 					--GameBoard[x][y].Num_Black;
 				}
@@ -140,8 +141,8 @@ void Game::antimove(Move &m){
 					++current_p.Num_White;
 					--GameBoard[x][y].Num_White;
 				}
-				itr = GameBoard[x][y].Stack.erase(itr);
 			}
+			for(int pos=0; pos<l; ++pos) GameBoard[x][y].Stack.pop_front();
 			x += x_add;
 			y += y_add;
 		}

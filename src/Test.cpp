@@ -6,8 +6,8 @@ bool Test::checkMove()
 	std::cout << "Moves -> \n";
 	Game g(3);
 
-	Piece p = piece(Flat,true);
-	Move m(2,1,p);
+	// Piece p = piece(Flat,White);
+	Move m(2,1,piece(Flat,White));
 	cout << m.to_string() << std::endl;
 	g.makemove(m);
 	std::cout << g.to_string() << std::endl;
@@ -34,25 +34,25 @@ bool Test::checkValid()
 	std::cout << "Valid Moves -> \n";
 	Game g(3);
 
-	Piece p = piece(Flat,true);
-	Move m(2,1,p);
+	Move m(2,1,piece(Flat,White));
 	cout << m.to_string() << std::endl;
 	g.makemove(m);
 	std::cout << g.to_string() << std::endl;
 
-	Piece pp = piece(Flat,false);
-	Move mm(1,1,pp);
+	Move mm(1,1,piece(Flat,Black));
 	cout << mm.to_string() << std::endl;
 	g.makemove(mm);
 	std::cout << g.to_string() << std::endl;
+
+	printf("Moves for white\n");
+	std::multimap<eval_type, Move> moves;
+	g.generate_valid_moves(White,moves);
+	for (auto &i : moves)
+		cout << i.first << " " << i.second.to_string() << endl;
+	printf("Done Generating moves\n");
+
+	printf("Top of Stack %d\n", g.GameBoard[2][1].Stack.front().second);
 	
-	// cout << "MOVES FOR White \n";
-
-	// std::multimap<eval_type, Move> moves;
-	// g.generate_valid_moves(White,moves);
-	// for (auto &i : moves)
-	// 	cout << i.first << " " << i.second.to_string() << endl;
-
 	Move m1(2,1,'-',&AllPerms[1][1][0]);
 	cout << m1.to_string() << std::endl;
 	g.makemove(m1);
