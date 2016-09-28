@@ -17,7 +17,7 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	f[1] = &Game::feature1;
 	f[2] = &Game::feature2;
 	f[3] = &Game::feature3;
-	weight[0] = 1;
+	weight[0] = 10000;
 	weight[1] = 1;
 	weight[2] = 1;
 	weight[3] = 1;
@@ -39,7 +39,7 @@ string Game::to_string()
 eval_type Game::eval(){
 	eval_type e = 0;
 	for(int i=0; i< 4; ++i){
-		e += CALL_MEMBER_FN(this, f[0]) ();
+		e += CALL_MEMBER_FN(this, f[i]) ();
 	}
 	return e;
 }

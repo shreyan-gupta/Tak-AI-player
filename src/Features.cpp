@@ -12,17 +12,17 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 		return;
 	}
 	explored[x][y] = true;
-	if(!GameBoard[x][y+1].empty() && GameBoard[x][y+1].top_piece().second == player) 
+	if(y!=size-1 && !GameBoard[x][y+1].empty() && GameBoard[x][y+1].top_piece().second == player) 
 		search(type, x, y+1, player, GameBoard, explored, found, size);
-	if(!GameBoard[x+1][y].empty() && GameBoard[x+1][y].top_piece().second == player) 
+	if(x!=size-1 && !GameBoard[x+1][y].empty() && GameBoard[x+1][y].top_piece().second == player) 
 		search(type, x+1, y, player, GameBoard, explored, found, size);
-	if(!GameBoard[x-1][y].empty() && GameBoard[x-1][y].top_piece().second == player) 
+	if(x!=0 && !GameBoard[x-1][y].empty() && GameBoard[x-1][y].top_piece().second == player) 
 		search(type, x-1, y, player, GameBoard, explored, found, size);
-	if(!GameBoard[x][y-1].empty() && GameBoard[x][y-1].top_piece().second == player) 
+	if(y!=0 && !GameBoard[x][y-1].empty() && GameBoard[x][y-1].top_piece().second == player) 
 		search(type, x, y-1, player, GameBoard, explored, found, size);
 }
 
-eval_type Game::feature0(){
+int Game::feature0(){
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
 	for(int i=0; i<size; ++i){
 		if(GameBoard[i][0].empty() || explored[i][0]) continue;
@@ -50,7 +50,7 @@ eval_type Game::feature0(){
 }
 
 // Number of white and black on board
-eval_type Game::feature1(){
+int Game::feature1(){
 	int count = 0;
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
@@ -62,10 +62,19 @@ eval_type Game::feature1(){
 	return count;
 }
 
-eval_type Game::feature2(){
-	return 0;
+// How many of the same type below the stack
+int Game::feature2(){
+	int count = 0;
+	for(auto &i : GameBoard){
+		for(auto &j : i){
+			if(j.empty()) continue;
+			if(j.top_piece().second == White) count += j.Num_White;
+			else count -= j.Num_Black;
+		}
+	}
+	return count;
 }
 
-eval_type Game::feature3(){
+int Game::feature3(){
 	return 0;
 }

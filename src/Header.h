@@ -21,7 +21,7 @@ namespace Types{
 	typedef bool Player_Type;	// Black = false, White = true
 	typedef std::pair<Stone,Player_Type> Piece;
 	typedef float eval_type;
-	typedef eval_type (Game::*Feature) (void);
+	typedef int (Game::*Feature) (void);
 	const bool Black = false;
 	const bool White = true;
 
@@ -90,16 +90,16 @@ struct Player{
 class Game
 {
 private:
-	eval_type feature0();
-	eval_type feature1();
-	eval_type feature2();
-	eval_type feature3();
+	int feature0();
+	int feature1();
+	int feature2();
+	int feature3();
 public:
 	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
 	Feature f[4];
-	float weight[4];
+	eval_type weight[4];
 	Player p_black, p_white;
 
 	Game(int);
