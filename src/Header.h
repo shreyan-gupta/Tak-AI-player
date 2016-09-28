@@ -15,10 +15,13 @@ enum Stone{
 	Flat, Stand, Cap
 };
 
+class Game;
+
 namespace Types{
 	typedef bool Player_Type;	// Black = false, White = true
 	typedef std::pair<Stone,Player_Type> Piece;
-	typedef long double eval_type;
+	typedef float eval_type;
+	typedef eval_type (Game::*Feature) (void);
 	const bool Black = false;
 	const bool White = true;
 
@@ -78,14 +81,16 @@ struct Eval_Move{
 
 struct Player{
 	int StonesLeft;
-	int CapsLeft;
+	bool CapsLeft;
+	int x, y;
 	Player_Type type;
-	Player(bool,int,int);
+	Player(bool,int);
 };
 
 class Game
 {
 private:
+	eval_type feature0();
 	eval_type feature1();
 	eval_type feature2();
 	eval_type feature3();
@@ -93,6 +98,8 @@ public:
 	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
+	Feature f[4];
+	float weight[4];
 	Player p_black, p_white;
 
 	Game(int);

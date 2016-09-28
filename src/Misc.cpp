@@ -1,10 +1,12 @@
 #include "Header.h"
 using namespace Types;
 
-Player::Player(bool player_type, int pieces, int caps){
+Player::Player(bool player_type, int pieces){
 	type = player_type;
 	StonesLeft = pieces;
-	CapsLeft = caps;
+	CapsLeft = true;
+	x = -1;
+	y = -1;
 }
 
 string Move::to_string()

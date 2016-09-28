@@ -1,4 +1,7 @@
 #include "Header.h"
+
+#define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
+
 using namespace Types;
 
 eval_type E_MIN = -99999999999;
@@ -6,12 +9,18 @@ eval_type E_MAX = +99999999999;
 Piece NULL_PIECE = make_pair(Flat, false);
 Move NULL_MOVE = Move(-1, -1, NULL_PIECE);
 
-Game::Game(int size) : p_white(Player(White, 100, 1)), p_black(Player(Black, 100, 1))
+Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 {
 	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-	// p_white = Player(White, 100, 1);
-	// p_black = Player(Black, 100, 1);
+	f[0] = &Game::feature0;
+	f[1] = &Game::feature1;
+	f[2] = &Game::feature2;
+	f[3] = &Game::feature3;
+	weight[0] = 1;
+	weight[1] = 1;
+	weight[2] = 1;
+	weight[3] = 1;
 }
 
 string Game::to_string()
@@ -27,10 +36,12 @@ string Game::to_string()
 	return str;
 }
 
-eval_type Game::eval()
-{
-	return rand()%100;
-	// TODO
+eval_type Game::eval(){
+	eval_type e = 0;
+	for(int i=0; i< 4; ++i){
+		e += CALL_MEMBER_FN(this, f[0]) ();
+	}
+	return e;
 }
 
 void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth){
@@ -65,18 +76,15 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 void Game::makemove(Move &m)
 {
 	// TODO
-	if (m.Place_Move)
-	{
+	if (m.Place_Move){
 		// x,y pe posn mein push kardo. (stack must be empty abhi.)
-			// push WHAT?? 
-			GameBoard[m.x][m.y].Stack.push_front(m.p);
-			if (m.p.second == Black)
-				GameBoard[m.x][m.y].Num_Black += 1;
-			else
-				GameBoard[m.x][m.y].Num_White += 1;
-	}
-	else
-	{
+		// push WHAT?? 
+		GameBoard[m.x][m.y].Stack.push_front(m.p);
+		if (m.p.second == Black)
+			GameBoard[m.x][m.y].Num_Black += 1;
+		else
+			GameBoard[m.x][m.y].Num_White += 1;
+	}else{
 		// move/anti?
 		vector<int> &d = *m.Drops;
 		char dirn = m.Direction;
@@ -254,12 +262,10 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 								moves.insert(make_pair(eval(),md));
 								antimove(md);
 							}
-
 						}
 					}
 				}
 			}
-
 		}
 	}
 }
