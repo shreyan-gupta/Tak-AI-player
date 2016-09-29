@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
 	Size = 3;
 	// bool move = Test::checkMove();
 	// if (move) cout << "move, antimove Check karo \n";
-	bool valid = Test::checkPath();
+	bool valid = Test::checkValid();
 	if (valid) cout << "valid moves check karo \n";
 
 	return 0;

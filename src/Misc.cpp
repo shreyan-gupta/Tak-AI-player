@@ -57,6 +57,7 @@ string Move::to_string()
 
 Move::Move(int x, int y, Piece p) : Drops(NULL)
 {
+	this->CapMove = false;
 	this->Place_Move = true;
 	this->x = x;
 	this->y = y;
@@ -64,6 +65,7 @@ Move::Move(int x, int y, Piece p) : Drops(NULL)
 }
 
 Move::Move(int x, int y, char d, vector<int> *v){
+	this->CapMove = false;
 	this->Place_Move = false;
 	this->x = x;
 	this->y = y;

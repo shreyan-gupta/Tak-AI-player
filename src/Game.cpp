@@ -73,31 +73,81 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	}
 }
 
+void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
+	Player &p = (p_type == Black)? p_black : p_white;
+	bool is_cap = (m.p.first == Cap);
+	bool place = (m.Place_Move);
+	if(!anti){
+		if(place){
+			if(is_cap){
+				p.x = m.x;
+				p.y = m.y;
+				p.CapsLeft = false;
+			}else{
+				p.StonesLeft -= 1;
+			}
+		}else{
+			int x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
+			int y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
+			if(is_cap){
+				p.x = x_new;
+				p.y = y_new;
+			}
+			if(m.CapMove){
+				GameBoard[x_new][y_new].Stack.front().first = Flat;
+			}
+		}
+	}else{
+		if(place){
+			if(is_cap){
+				p.x = -1;
+				p.y = -1;
+				p.CapsLeft = true;
+			}else{
+				p.StonesLeft += 1;
+			}
+		}else{
+			int x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
+			int y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
+			if(is_cap){
+				p.x = m.x;
+				p.y = m.y;
+			}
+			if(m.CapMove){
+				GameBoard[x_new][y_new].Stack[1].first = Stand;
+			}
+		}
+	}
+}
+
 void Game::makemove(Move &m)
 {
-	// TODO
+	Player &p = (m.p.second == Black)? p_black : p_white;
+	UpdatePlayer(m.p.second,m,false);
 	if (m.Place_Move){
 		// x,y pe posn mein push kardo. (stack must be empty abhi.)
-		// push WHAT?? 
 		GameBoard[m.x][m.y].Stack.push_front(m.p);
-		if (m.p.second == Black)
-		{
-			GameBoard[m.x][m.y].Num_Black += 1;
-			p_black.CapsLeft = (m.p.first != Cap);
-			// cout << "place black \n";
-			p_black.x = (m.p.first == Cap) ? m.x : -1;
-			p_black.y = (m.p.first == Cap) ? m.y : -1;
-			p_black.StonesLeft -= ((m.p.first == Cap) ? 0 : 1);
-		}
-		else
-		{
-			GameBoard[m.x][m.y].Num_White += 1;
-			p_white.CapsLeft = (m.p.first != Cap);
-			// cout << "place white \n";
-			p_white.x = (m.p.first == Cap) ? m.x : -1;
-			p_white.y = (m.p.first == Cap) ? m.y : -1;
-			p_white.StonesLeft -= ((m.p.first == Cap) ? 0 : 1);
-		}
+		if(m.p.second == Black) GameBoard[m.x][m.y].Num_Black += 1;
+		else GameBoard[m.x][m.y].Num_White += 1;
+
+		// if (m.p.second == Black)
+		// {
+		// 	GameBoard[m.x][m.y].Num_Black += 1;
+		// 	p_black.CapsLeft = (m.p.first != Cap);
+		// 	// cout << "place black \n";
+		// 	p_black.x = (m.p.first == Cap) ? m.x : -1;
+		// 	p_black.y = (m.p.first == Cap) ? m.y : -1;
+		// 	p_black.StonesLeft -= ((m.p.first == Cap) ? 0 : 1);
+		// }
+		// else
+		// {
+		// 	GameBoard[m.x][m.y].Num_White += 1;
+		// 	p_white.CapsLeft = (m.p.first != Cap);
+		// 	// cout << "place white \n";
+		// 	p_white.x = (m.p.first == Cap) ? m.x : -1;
+		// 	p_white.y = (m.p.first == Cap) ? m.y : -1;
+		// 	p_white.StonesLeft -= ((m.p.first == Cap) ? 0 : 1);
+		// }
 
 	}
 	else{
@@ -109,28 +159,11 @@ void Game::makemove(Move &m)
 		int drop_x = m.x + x_add;
 		int drop_y = m.y + y_add;
 
-		std::deque<Piece> & mainstack = GameBoard[m.x][m.y].Stack;
+		std::deque<Piece> &mainstack = GameBoard[m.x][m.y].Stack;
 
 		for (int i = 0 ; i < d.size() ; i ++)
 		{
 			int num_drops = d[i];
-			if (i == d.size() - 1 && mainstack.front().first == Cap)
-			{
-				if (mainstack.front().second == Black)
-				{
-					p_black.x = drop_x;
-					p_black.y = drop_y;
-				}
-				else
-				{
-					p_white.x = drop_x;
-					p_white.y = drop_y;
-				}
-
-				// TOCHECK Update cap coords ->
-				if (m.CapMove)
-					GameBoard[drop_x][drop_y].Stack.front().first = Flat; // change hoga na isse?
-			}
 			for (int j = num_drops - 1 ; j > -1 ; j --)
 			{
 				Piece jth = mainstack[mainstack.size() - 1 - j];
@@ -158,34 +191,13 @@ void Game::makemove(Move &m)
 	}
 }
 
-void Game::antimove(Move &m)
-{
+void Game::antimove(Move &m){
+	Player &p = (m.p.second == Black)? p_black : p_white;
+	UpdatePlayer(m.p.second,m,true);
 	if (m.Place_Move){
 		GameBoard[m.x][m.y].Stack.pop_front();
-		if (m.p.second == Black)
-		{
-			GameBoard[m.x][m.y].Num_Black -= 1;
-			p_black.CapsLeft = (m.p.first == Cap);
-			if (m.p.first == Cap)
-			{
-				cout << "anti place cap black \n";
-				p_black.x = -1;
-				p_black.y = -1;
-			}
-			p_black.StonesLeft += ((m.p.first != Cap) ? 1 : 0);
-		}
-		else
-		{
-			GameBoard[m.x][m.y].Num_White -= 1;
-			p_white.CapsLeft = (m.p.first == Cap);
-			if (m.p.first == Cap)
-			{
-				cout << "anti place cap white \n";
-				p_white.x = -1;
-				p_white.y = -1;
-			}
-			p_white.StonesLeft += ((m.p.first != Cap) ? 1 : 0);
-		}
+		if(m.p.second == Black) GameBoard[m.x][m.y].Num_Black -= 1;
+		else GameBoard[m.x][m.y].Num_White -= 1;
 	}
 	else{
 		Position &current_p = GameBoard[m.x][m.y];
@@ -195,8 +207,6 @@ void Game::antimove(Move &m)
 		int y = m.y + y_add;
 		for(auto &l : *m.Drops){
 			auto &S = GameBoard[x][y].Stack;
-			// TODOOOOOOO for CapMove = true!!!
-			// for(auto itr = GameBoard[x][y].Stack.begin()+l-1; itr != GameBoard[x][y].Stack.begin(); --itr){
 			for(int pos = l-1; pos >= 0; --pos){
 				current_p.Stack.push_front(S[pos]);
 				if(S[pos].second == Black){ 
@@ -212,27 +222,27 @@ void Game::antimove(Move &m)
 			x += x_add;
 			y += y_add;
 		}
-		if (m.CapMove)
-		{
-			auto &z = GameBoard[x-x_add][y-y_add].Stack;
-			z.front().first = Stand;
-		}
-		if (current_p.Stack.front().first == Cap)
-		{
-			if (current_p.Stack.front().second == Black)
-			{
-				printf("%d %d Black new\n", m.x, m.y);
-				p_black.x = m.x;
-				p_black.y = m.y;
-			}
-			else
-			{
-				// cout << "white cap back move \n";
-				printf("%d %d White new\n", m.x, m.y);
-				p_white.x = m.x;
-				p_white.y = m.y;
-			}
-		}
+		// if (m.CapMove)
+		// {
+		// 	auto &z = GameBoard[x-x_add][y-y_add].Stack;
+		// 	z.front().first = Stand;
+		// }
+		// if (current_p.Stack.front().first == Cap)
+		// {
+		// 	if (current_p.Stack.front().second == Black)
+		// 	{
+		// 		printf("%d %d Black new\n", m.x, m.y);
+		// 		p_black.x = m.x;
+		// 		p_black.y = m.y;
+		// 	}
+		// 	else
+		// 	{
+		// 		// cout << "white cap back move \n";
+		// 		printf("%d %d White new\n", m.x, m.y);
+		// 		p_white.x = m.x;
+		// 		p_white.y = m.y;
+		// 	}
+		// }
 	}
 }
 
@@ -242,28 +252,16 @@ std::tuple<int,int,int,int> Game::GetStackable(int x, int y, bool cap)
 	int r = 0;
 	int u = 0;
 	int d = 0;
-	while (x-d-1 >= 0 && GameBoard[x-d-1][y].stackable())
-		d ++;
-	while (x+u+1 < size && GameBoard[x+u+1][y].stackable())
-		u++;
-	while (y-r-1 >=0 && GameBoard[x][y-r-1].stackable())
-		r ++;
-	while (y+l+1 < size && GameBoard[x][y+l+1].stackable())
-		l ++;
-	if (cap)
-	{
+	while (x-d-1 >= 0 && GameBoard[x-d-1][y].stackable())	d ++;
+	while (x+u+1 < size && GameBoard[x+u+1][y].stackable())	u ++;
+	while (y-r-1 >=0 && GameBoard[x][y-r-1].stackable())	r ++;
+	while (y+l+1 < size && GameBoard[x][y+l+1].stackable())	l ++;
+	if (cap){
 		// cout << "capable breh! \n";
-		if (x-d-1 >= 0 && GameBoard[x-d-1][y].capable())
-		{
-			cout << "CAPABLE! \n";
-			d ++;
-		}
-		if (x+u+1 < size && GameBoard[x+u+1][y].capable())
-			u ++;
-		if (y-r-1 >= 0 && GameBoard[x][y-r-1].capable())
-			r ++;
-		if (y+l+1 < size && GameBoard[x][y+l+1].capable())
-			l ++;
+		if (x-d-1 >= 0 && GameBoard[x-d-1][y].capable())	d ++;	else d = -1;
+		if (x+u+1 < size && GameBoard[x+u+1][y].capable())	u ++;	else u = -1;
+		if (y-r-1 >= 0 && GameBoard[x][y-r-1].capable())	r ++;	else r = -1;
+		if (y+l+1 < size && GameBoard[x][y+l+1].capable())	l ++;	else l = -1;
 	}
 	return make_tuple(l,r,u,d);
 }
@@ -271,100 +269,75 @@ std::tuple<int,int,int,int> Game::GetStackable(int x, int y, bool cap)
 
 
 void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &moves){
-	if((player == Black && p_black.CapsLeft != 0) || (player == White && p_white.CapsLeft != 0))
-	for(int i=0; i<size; ++i){
-		for(int j=0; j<size; ++j){
-			if(GameBoard[i][j].empty()){
-				Move m(i, j, piece(Cap,player));
-				makemove(m);
-				// moves.insert(make_pair(eval(), m));
-				antimove(m);
+	Player &p = (player == Black) ? p_black : p_white;
+	if(p.CapsLeft){
+		for(int i=0; i<size; ++i){
+			for(int j=0; j<size; ++j){
+				if(GameBoard[i][j].empty()){
+					Move m(i, j, piece(Cap,player));
+					makemove(m);
+					moves.insert(make_pair(eval(), m));
+					antimove(m);
+				}
 			}
 		}
-	}
-	else
-	{
+	}else{
 		// cap stone on board!
-		cout << "Sup \n";
-		Player & p = (player == Black) ? p_black : p_white;
-		std::tuple<int,int,int,int> range = GetStackable(p.x, p.y, true);
+		tuple<int,int,int,int> range = GetStackable(p.x, p.y, true);
 		int shiftmax = std::min((int)size,(int)GameBoard[p.x][p.y].Stack.size());
 
-		printf("%d %d %d %d\n", get<0>(range), get<1>(range), get<2>(range), get<3>(range));
-		// cap move : 
+		printf("Stackable %d %d %d %d\n", get<0>(range), get<1>(range), get<2>(range), get<3>(range));
+		// cap move :
 		int i = p.x;
 		int j = p.y;
 
-		for (int i1 = 1 ; i1 <= shiftmax ; i1 ++)
-		{
-			for (int m = 1 ; m <= std::get<0>(range) ; m ++)
-			{
-				// left
-				for (auto &d : AllPerms[i1][m])
-				{
-					if (d[d.size() - 1] == 1 && GameBoard[i][j-d.size()].capable())
-					{
-						Move ml(i,j,'<',&d);
-						ml.CapMove = true;
-						makemove(ml);
-						moves.insert(make_pair(eval(),ml));
-						antimove(ml);					
-					}
+		for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
+			if(std::get<0>(range) != -1)
+			for (auto &d : AllPerms[i1][std::get<0>(range)]){
+				if (d.back() == 1){
+					Move ml(i,j,'<',&d);
+					ml.CapMove = true;
+					makemove(ml);
+					moves.insert(make_pair(eval(),ml));
+					antimove(ml);
 				}
 			}
-			for (int m = 1 ; m <= std::get<1>(range) ; m ++)
-			{
-				// right
-				for (auto &d : AllPerms[i1][m])
-				{
-					if (d[d.size() - 1] == 1 && GameBoard[i][j+d.size()].capable())
-					{
-						Move mr(i,j,'>',&d);
-						mr.CapMove = true;
-						makemove(mr);
-						moves.insert(make_pair(eval(),mr));
-						antimove(mr);					
-					}
+			if(std::get<1>(range) != -1)
+			for (auto &d : AllPerms[i1][std::get<1>(range)]){
+				if (d.back() == 1){
+					Move ml(i,j,'>',&d);
+					ml.CapMove = true;
+					makemove(ml);
+					moves.insert(make_pair(eval(),ml));
+					antimove(ml);
 				}
 			}
-
-			for (int m = 1 ; m <= std::get<2>(range) ; m ++)
-			{
-				// up
-				for (auto &d : AllPerms[i1][m])
-				{
-					if (d[d.size() - 1] == 1 && GameBoard[i+d.size()][j].capable())
-					{
-						Move mu(i,j,'+',&d);
-						mu.CapMove = true;
-						makemove(mu);
-						moves.insert(make_pair(eval(),mu));
-						antimove(mu);					
-					}
+			if(std::get<2>(range) != -1)
+			for (auto &d : AllPerms[i1][std::get<2>(range)]){
+				if (d.back() == 1){
+					Move ml(i,j,'+',&d);
+					ml.CapMove = true;
+					makemove(ml);
+					moves.insert(make_pair(eval(),ml));
+					antimove(ml);
 				}
-
 			}
-			for (int m = 1 ; m <= std::get<3>(range) ; m ++)
-			{
-				// down
-				for (auto &d : AllPerms[i1][m])
-				{
-					if (d[d.size() - 1] == 1 && GameBoard[i=d.size()][j].capable())
-					{
-						cout << "------------NICE \n";
-						Move md(i,j,'-',&d);
-						md.CapMove = true;
-						makemove(md);
-						moves.insert(make_pair(eval(),md));
-						antimove(md);				
-					}
+			if(std::get<3>(range) != -1)
+			for (auto &d : AllPerms[i1][std::get<3>(range)]){
+				if (d.back() == 1){
+					Move ml(i,j,'-',&d);
+					ml.CapMove = true;
+					makemove(ml);
+					moves.insert(make_pair(eval(),ml));
+					antimove(ml);
 				}
-			}			
+			}
 		}
-
 	}
+
 	// placing caps done.
-	if((player==Black && p_black.StonesLeft != 0) || (player==White && p_white.StonesLeft != 0))
+	if(p.StonesLeft != 0)
+	
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()){
@@ -377,69 +350,71 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 				makemove(m2);
 				moves.insert(make_pair(eval(), m2));
 				antimove(m2);
-			}
-			else
-			{
-				// if (GameBoard[i][j].top_piece().second == White)
-				// 	printf("%d %d White\n", i, j);
-				// else
-				// 	printf("%d %d Black\n", i, j);
-				 if (GameBoard[i][j].top_piece().second == player)
-				{
-					// all possible stack moves.
-					cout << "stack move \n";
-					int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
-					// printf("%d %d Stack mera hai, shiftmax = %d \n", i, j, shiftmax);
-					for (int i1 = 1 ; i1 <= shiftmax ; i1 ++)
+			}else if (GameBoard[i][j].top_piece().second == player) {
+				// all possible stack moves.
+				cout << "stack move \n";
+				int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
+				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
+					// how many stackable in each dirn?
+					tuple<int,int,int,int> range = GetStackable(i,j,false);
+					printf("%d %d %d %d\n", get<0>(range), get<1>(range), get<2>(range), get<3>(range));
+					
+					// char dir[] = {'<', '>', '+', '-'};
+					// for(int r=0; r<4; ++r){
+					// 	for (int m=1; m<=std::get<r>(range); ++m){
+					// 		for (auto &d : AllPerms[i1][m]){
+					// 			Move mv(i,j,dir[r],&d);
+					// 			makemove(mv);
+					// 			moves.insert(make_pair(eval(),mv));
+					// 			antimove(mv);
+					// 		}
+					// 	}
+					// }
+
+					for (int m = 1 ; m <= std::get<0>(range) ; m ++){
+						// left
+						for (auto &d : AllPerms[i1][m])
+						{
+							Move ml(i,j,'<',&d);
+							makemove(ml);
+							moves.insert(make_pair(eval(),ml));
+							antimove(ml);
+						}
+					}
+
+					for (int m = 1 ; m <= std::get<1>(range) ; m ++)
 					{
-						// how many stackable in each dirn?
-						tuple<int,int,int,int> range = GetStackable(i,j,false);
-						printf("%d %d %d %d\n", get<0>(range), get<1>(range), get<2>(range), get<3>(range));
-						for (int m = 1 ; m <= std::get<0>(range) ; m ++)
+						// right
+						for (auto &d : AllPerms[i1][m])
 						{
-							// left
-							for (auto &d : AllPerms[i1][m])
-							{
-								Move ml(i,j,'<',&d);
-								// makemove(ml);
-								// // moves.insert(make_pair(eval(),ml));
-								// antimove(ml);
-							}
+							Move mr(i,j,'>',&d);
+							makemove(mr);
+							moves.insert(make_pair(eval(),mr));
+							antimove(mr);
 						}
-						for (int m = 1 ; m <= std::get<1>(range) ; m ++)
+					}
+
+					for (int m = 1 ; m <= std::get<2>(range) ; m ++)
+					{
+						// up
+						for (auto &d : AllPerms[i1][m])
 						{
-							// right
-							for (auto &d : AllPerms[i1][m])
-							{
-								Move mr(i,j,'>',&d);
-								// makemove(mr);
-								// // moves.insert(make_pair(eval(),mr));
-								// antimove(mr);
-							}
+							Move mu(i,j,'+',&d);
+							makemove(mu);
+							moves.insert(make_pair(eval(),mu));
+							antimove(mu);
 						}
 
-						for (int m = 1 ; m <= std::get<2>(range) ; m ++)
+					}
+					for (int m = 1 ; m <= std::get<3>(range) ; m ++)
+					{
+						// down
+						for (auto &d : AllPerms[i1][m])
 						{
-							// up
-							for (auto &d : AllPerms[i1][m])
-							{
-								Move mu(i,j,'+',&d);
-								// makemove(mu);
-								// // moves.insert(make_pair(eval(),mu));
-								// antimove(mu);
-							}
-
-						}
-						for (int m = 1 ; m <= std::get<3>(range) ; m ++)
-						{
-							// down
-							for (auto &d : AllPerms[i1][m])
-							{
-								Move md(i,j,'-',&d);
-								// makemove(md);
-								// // moves.insert(make_pair(eval(),md));
-								// antimove(md);
-							}
+							Move md(i,j,'-',&d);
+							makemove(md);
+							moves.insert(make_pair(eval(),md));
+							antimove(md);
 						}
 					}
 				}

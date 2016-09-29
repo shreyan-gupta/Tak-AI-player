@@ -112,6 +112,7 @@ public:
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
 	tuple<int,int,int,int> GetStackable(int, int, bool);
 	void decide_move(Eval_Move&, bool, int, int);
+	void UpdatePlayer(Player_Type, Move&, bool);
 };
 
 extern vector<vector<vector<vector<int> > > > AllPerms;
