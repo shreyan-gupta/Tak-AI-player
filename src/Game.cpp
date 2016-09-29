@@ -39,7 +39,7 @@ string Game::to_string()
 eval_type Game::eval(){
 	eval_type e = 0;
 	for(int i=0; i< 4; ++i){
-		e += CALL_MEMBER_FN(this, f[i]) ();
+		e += weight[i] * CALL_MEMBER_FN(this, f[i]) ();
 	}
 	return e;
 }

@@ -1,6 +1,22 @@
 
 #include "Header.h"
 
+bool Test::checkPath(){
+	Game g(3);
+	multimap<eval_type,Move> moves;
+	Move m1(2,0,piece(Flat,White));
+	Move m2(2,1,piece(Flat,White));
+	// Move m3(2,2,piece(Flat,White));
+
+	g.makemove(m1);
+	g.makemove(m2);
+	// g.makemove(m3);
+	cout << g.to_string();
+	g.generate_valid_moves(White,moves);
+	for(auto &i : moves)
+		cout << i.first << " " << i.second.to_string() << "\n";
+}
+
 bool Test::checkMove()
 {
 	std::cout << "Moves -> \n";
