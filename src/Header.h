@@ -37,6 +37,7 @@ namespace Test
 {
 	bool checkMove();
 	bool checkValid();
+	bool checkPath();
 }
 
 using namespace std;

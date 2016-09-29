@@ -2,6 +2,7 @@
 using namespace Types;
 
 void search(bool type, int x, int y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, int size){
+	// printf("Search %d %d %d\n", x, y, found);
 	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
 	if(type && y == size-1){
 		found = true;
@@ -23,13 +24,16 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 }
 
 int Game::feature0(){
+	// cout << this->to_string() << "\n";
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
 	for(int i=0; i<size; ++i){
 		if(GameBoard[i][0].empty() || explored[i][0]) continue;
 		bool found = false;
 		int x = i;
 		int y = 0;
+		// cout << "Piece " << GameBoard[i][0].top_piece().second << " " << x << y << endl;
 		search(true,x,y,GameBoard[i][0].top_piece().second, GameBoard, explored, found, size);
+		// printf("FOUND %d\n", found);
 		if(found){
 			if(GameBoard[i][0].top_piece().second == White) return 1;
 			else return -1;
@@ -40,7 +44,9 @@ int Game::feature0(){
 		bool found = false;
 		int x = 0;
 		int y = j;
+		// cout << "Piece " << GameBoard[0][j].top_piece().second << " " << x << y << endl;
 		search(false,x,y,GameBoard[0][j].top_piece().second, GameBoard, explored, found, size);
+		// printf("FOUND %d\n", found);
 		if(found){
 			if(GameBoard[0][j].top_piece().second == White) return 1;
 			else return -1;
