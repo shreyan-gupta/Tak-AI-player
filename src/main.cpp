@@ -11,7 +11,7 @@ int main(int argc, char const *argv[])
 {
 	/* code */
 	getAllPerms(5);
-	cout << "ABC! \n";
+	// cout << "ABC! \n";
 	// for (int i = 0 ; i <= 5 ; i ++)
 	// {
 	// 	for (int j = 0 ; j < 5 ; j ++)
@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
 	// 		std::cout << "\n";
 	// 	}
 	// }
-	cout << "YO! \n";
+	// cout << "YO! \n";
 	Size = 3;
 	// bool move = Test::checkMove();
 	// if (move) cout << "move, antimove Check karo \n";

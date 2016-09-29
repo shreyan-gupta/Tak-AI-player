@@ -34,14 +34,16 @@ bool Test::checkValid()
 	std::cout << "Valid Moves -> \n";
 	Game g(3);
 
-	Move m(2,1,piece(Flat,White));
+	Move m(2,1,piece(Cap,White));
 	cout << m.to_string() << std::endl;
 	g.makemove(m);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
 	std::cout << g.to_string() << std::endl;
 
-	Move mm(1,1,piece(Flat,Black));
+	Move mm(1,1,piece(Stand,Black));
 	cout << mm.to_string() << std::endl;
 	g.makemove(mm);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
 	std::cout << g.to_string() << std::endl;
 
 	printf("Moves for white\n");
@@ -49,14 +51,24 @@ bool Test::checkValid()
 	g.generate_valid_moves(White,moves);
 	for (auto &i : moves)
 		cout << i.first << " " << i.second.to_string() << endl;
-	printf("Done Generating moves\n");
+	printf("Done Generating moves, is there a up move(1) ? \n");
 
-	printf("Top of Stack %d\n", g.GameBoard[2][1].Stack.front().second);
-	
-	Move m1(2,1,'-',&AllPerms[1][1][0]);
-	cout << m1.to_string() << std::endl;
-	g.makemove(m1);
-	std::cout << g.to_string() << std::endl;
+	// printf("Top of Stack %d\n", g.GameBoard[2][1].Stack.front().second);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	g.antimove(mm);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+
+	Move m2(1,1,piece(Cap,Black));
+	cout << m2.to_string() << endl;
+	g.makemove(m2);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	cout << g.to_string() << endl;
+
+	// Move m1(2,1,'-',&AllPerms[1][1][0]);
+	// m1.CapMove = true;
+	// cout << m1.to_string() << std::endl;
+	// g.makemove(m1);
+	// std::cout << g.to_string() << std::endl;
 
 	cout << "MOVES FOR White \n";
 
@@ -64,5 +76,6 @@ bool Test::checkValid()
 	g.generate_valid_moves(White,moves1);
 	for (auto &i : moves1)
 		cout << i.first << " " << i.second.to_string() << endl;
+	cout << "up (1) nhi hai na?? \n";
 	return true;
 }

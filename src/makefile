@@ -5,7 +5,7 @@ OBJ = main.o Misc.o Game.o Features.o Test.o
 all : out
 
 out : $(OBJ)
-	g++ $(LFLAGS) $(OBJ) -o out
+	g++ $(LFLAGS) $(OBJ) -g -o out
 
 main.o : main.cpp Header.h
 	g++ $(CFLAGS) main.cpp

@@ -54,11 +54,13 @@ struct Position
 	Piece top_piece();
 	bool empty();
 	bool stackable();
+	bool capable();
 	string to_string();
 };
 
 struct Move
 {
+	bool CapMove = false;
 	bool Place_Move; 	// true if place else false
 	int x;
 	int y;
@@ -107,7 +109,7 @@ public:
 	void makemove(Move&);		// inputs yet to define
 	void antimove(Move&);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	tuple<int,int,int,int> GetStackable(int, int);
+	tuple<int,int,int,int> GetStackable(int, int, bool);
 	void decide_move(Eval_Move&, bool, int, int);
 };
 
@@ -132,4 +134,14 @@ inline bool Position::stackable(){
 	else return false;
 }
 
+inline bool Position::capable()
+{
+	if (empty()) return false;
+	else if (Stack.front().first == Stand)
+	{
+		// cout << "stand! \n";
+		return true;
+	}
+	else return false;
+}
 #endif
