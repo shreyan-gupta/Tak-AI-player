@@ -35,10 +35,14 @@ string Game::to_string()
 }
 
 eval_type Game::eval(){
+	string s = to_string();
+	auto ptr = duplicates.find(s);
+	if(ptr != duplicates.end()) return ptr->second;
 	eval_type e = 0;
 	for(int i=0; i< 4; ++i){
 		e += weight[i] * CALL_MEMBER_FN(this, f[i]) ();
 	}
+	duplicates[s] = e;
 	return e;
 }
 
@@ -48,7 +52,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	generate_valid_moves(player, allmoves);
 	
 	if(depth == max_depth){
-		auto ptr = allmoves.begin();
+		auto ptr = allmoves.begin(); // arent thesein increasing order?????
+		cout << "Depth achieved, final move : " << ptr->second.to_string() << endl;
 		best_move.e = ptr->first;
 		best_move.m = ptr->second;
 		return;
@@ -62,13 +67,57 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 		// make anti move.
 		
 		makemove(i.second);
+		cout << "Trying move " << i.second.to_string();
+		if (player == White)
+			cout << " -- WHITE \n";
+		else
+			cout << "         --BLACK \n";
 		decide_move(opponent_move, !player, depth+1, max_depth);
 		if(player == White && opponent_move > best_move){
 			best_move = opponent_move;
 		}else if(player == Black && opponent_move < best_move){
 			best_move = opponent_move;
 		}
+		antimove(i.second);
 	}
+}
+
+void Game::make_opponent_move(string s)
+{
+	char first = s.at(0);
+	Move m;
+	m.x = Size - (s.at(2) - '0');
+	m.y = s.at(1) - 'a';
+	if (first == 'F' || first == 'S' || first == 'C')
+	{
+		m.Place_Move = true;
+		switch (first)
+		{
+			case ('F'):
+				m.p = piece(Flat,opponent_type);
+				break;
+			case ('S'):
+				m.p = piece(Stand,opponent_type);
+				break;
+			case ('C'):
+				m.p = piece(Cap,opponent_type);
+				break;
+		}
+	}
+	else
+	{
+		m.Place_Move = false;
+		m.Direction = s.at(3);
+		if (s.at(3) == '+')
+			m.Direction = '-';
+		else if (s.at(3) == '-')
+			m.Direction = '+';
+		vector<int> drops (s.length() - 4,1);
+		for (int i = 0 ; i < s.length() - 4 ; i ++)
+			drops[i] = (int)(s.at(i+4) - '0');
+		m.Drops = &drops;
+	}
+	makemove(m);
 }
 
 void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
@@ -249,7 +298,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 		GetStackable(p.x, p.y, true, range);
 		int shiftmax = std::min((int)size,(int)GameBoard[p.x][p.y].Stack.size());
 
-		printf("Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
+		// printf("Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 		// cap move :
 		int i = p.x;
 		int j = p.y;
@@ -331,14 +380,14 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 				antimove(m2);
 			}else if (GameBoard[i][j].top_piece().second == player) {
 				// all possible stack moves.
-				cout << "stack move \n";
+				// cout << "stack move \n";
 				int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
 				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
 					// how many stackable in each dirn?
 					vector<int> range(4);
  					// tuple<int,int,int,int> range = GetStackable(i,j,false);
  					GetStackable(i,j,false,range);
-					printf("Bla %d %d %d %d\n", range[0], range[1], range[2], range[3]);
+					// printf("Bla %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 					
 					char dir[] = {'<', '>', '+', '-'};
 					for(int r=0; r<4; ++r){

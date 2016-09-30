@@ -73,6 +73,8 @@ Move::Move(int x, int y, char d, vector<int> *v){
 	this->Drops = v;
 }
 
+Move::Move() {}
+
 bool Eval_Move::operator<(const Eval_Move &other_move){
 	return (this->e < other_move.e);
 }
@@ -83,6 +85,7 @@ bool Eval_Move::operator>(const Eval_Move &other_move){
 
 Eval_Move::Eval_Move(eval_type &e, Move &m) : e(e), m(m) {}
 Eval_Move::Eval_Move(const Eval_Move &other_move) : e(other_move.e), m(other_move.m) {}
+Eval_Move::Eval_Move() {}
 
 string Position::to_string(){
 	int val=0;
@@ -103,7 +106,7 @@ string Position::to_string(){
 }
 
 
-vector<vector<vector<vector<int> > > > AllPerms;
+vector< vector< vector< vector<int> > > > AllPerms;
 
 void getAllPerms(int dim)
 {

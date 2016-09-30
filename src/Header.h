@@ -10,6 +10,7 @@
 #include <sstream>
 #include <random>
 #include <cstdio>
+#include <unordered_map>
 
 enum Stone{
 	Flat, Stand, Cap
@@ -57,6 +58,8 @@ struct Position
 	bool stackable();
 	bool capable();
 	string to_string();
+	void top5(pair<int,int> &);
+	bool favorableStack(Player_Type); // tells if there's a wall/cap around stack of player.
 };
 
 struct Move
@@ -71,11 +74,14 @@ struct Move
 	string to_string(); // print ke liye!
 	Move(int, int, Piece);
 	Move(int, int, char, vector<int> *);
+	Move();
+	// Move(string);
 };
 
 struct Eval_Move{
 	eval_type e;
 	Move m;
+	Eval_Move();
 	Eval_Move(eval_type&, Move&);
 	Eval_Move(const Eval_Move&);
 	bool operator<(const Eval_Move &other_move);
@@ -93,6 +99,7 @@ struct Player{
 class Game
 {
 private:
+	unordered_map<string, eval_type> duplicates;
 	int feature0();
 	int feature1();
 	int feature2();
@@ -114,10 +121,13 @@ public:
 	void GetStackable(int, int, bool, vector<int>&);
 	void decide_move(Eval_Move&, bool, int, int);
 	void UpdatePlayer(Player_Type, Move&, bool);
+	void make_opponent_move(string);
 };
 
 extern vector<vector<vector<vector<int> > > > AllPerms;
 extern int Size;
+extern bool opponent_type;
+extern int TimeLimit;
 
 inline Piece piece(Stone s, bool p){
 	return make_pair(s,p);
@@ -147,4 +157,30 @@ inline bool Position::capable()
 	}
 	else return false;
 }
+
+inline void Position::top5(pair<int,int> &p)
+{
+	int count = 0;
+	p.first = 0;
+	p.second = 0;
+	for (auto it = Stack.begin() ; it != Stack.end() && count < 5 ; it ++)
+	{
+		if ((*it).second == White) p.first ++;
+		else p.second ++;
+		count ++;
+	}
+}
+
+inline eval_type Position::favorableStack(Player_Type ptype)
+{
+	if (Stack.begin() == ptype)
+	{
+		
+	}
+	else
+	{
+
+	}
+}
+
 #endif

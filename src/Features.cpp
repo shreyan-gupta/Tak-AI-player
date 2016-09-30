@@ -62,7 +62,7 @@ int Game::feature1(){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()) continue;
 			if(GameBoard[i][j].top_piece().second == White) ++count;
-			else --count;
+			// ADD MORE IF NO WALL/CAP?? TODOOOO
 		}
 	}
 	return count;
@@ -71,11 +71,13 @@ int Game::feature1(){
 // How many of the same type below the stack
 int Game::feature2(){
 	int count = 0;
+	pair<int,int> top5;
 	for(auto &i : GameBoard){
 		for(auto &j : i){
 			if(j.empty()) continue;
-			if(j.top_piece().second == White) count += j.Num_White;
-			else count -= j.Num_Black;
+			j.top5(top5);
+			if(j.top_piece().second == White) count += top5.first;
+			else count -= top5.second;
 		}
 	}
 	return count;
@@ -83,6 +85,6 @@ int Game::feature2(){
 
 int Game::feature3()
 {
-	
+	// your stacks surrounded by walls/caps?
 	return 0;
 }

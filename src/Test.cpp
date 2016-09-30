@@ -70,9 +70,9 @@ bool Test::checkValid()
 	printf("Done Generating moves, is there a up move(1) ? \n");
 
 	// printf("Top of Stack %d\n", g.GameBoard[2][1].Stack.front().second);
-	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	// printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
 	g.antimove(mm);
-	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	// printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
 
 	Move m2(1,1,piece(Cap,Black));
 	cout << m2.to_string() << endl;

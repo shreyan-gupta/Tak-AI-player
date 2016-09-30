@@ -1,6 +1,7 @@
 #include "Header.h"
 
-int Size;
+int Size, TimeLimit;
+bool opponent_type;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cout << i;
@@ -9,23 +10,28 @@ void printVec(vector<int> & v){
 
 int main(int argc, char const *argv[])
 {
-	/* code */
-	getAllPerms(5);
-	// cout << "ABC! \n";
-	// for (int i = 0 ; i <= 5 ; i ++)
-	// {
-	// 	for (int j = 0 ; j < 5 ; j ++)
-	// 	{
-	// 		std::cout << i << " " << j << std::endl;
-	// 		for (auto &k : AllPerms[i][j])
-	// 			printVec(k);
-	// 		std::cout << "\n";
-	// 	}
-	// }
-	// cout << "YO! \n";
-	Size = 3;
-	// bool move = Test::checkMove();
-	// if (move) cout << "move, antimove Check karo \n";
+	// SET opponent_type !!!!
+	int player_no;
+	cin >> player_no >> Size >> TimeLimit;
+	Game g(Size);
+	opponent_type = (player_no == 2) ? White : Black;
+	getAllPerms(Size);
+
+	if (!opponent_type == White)
+		cout << "I am White"  << endl;
+	while (true)
+	{
+		string s;
+		cin >> s;
+		g.make_opponent_move(s);
+		cout << g.to_string() << endl;
+		Eval_Move mymove;
+		g.decide_move(mymove,!opponent_type,0,4);
+		cout << (mymove.m.to_string()) << endl;
+		g.makemove(mymove.m);
+	}
+
+
 	bool valid = Test::checkValid();
 	if (valid) cout << "valid moves check karo \n";
 
