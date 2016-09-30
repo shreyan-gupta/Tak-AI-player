@@ -23,6 +23,62 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 		search(type, x, y-1, player, GameBoard, explored, found, size);
 }
 
+float favourableStack(vector< vector<Position> > & Board, int i, int j)
+{
+	Position &p = Board[i][j];
+	Player_Type s_top = p.Stack.front().second;
+	float mult = (s_top == White) ? 1 : -1;
+	bool opp_Wall_around = false;
+	bool opp_around = false;
+	if (i+1 < Size)
+	{
+		if (Board[i+1][j].Stack.front().second != s_top)
+		{
+			opp_Wall_around = (Board[i+1][j].Stack.front().first == Stand);
+			opp_around = true;
+		}
+	}
+	if (i-1 >= 0)
+	{
+		if (Board[i-1][j].Stack.front().second != s_top)
+		{
+			opp_Wall_around = opp_Wall_around || (Board[i-1][j].Stack.front().first == Stand);
+			opp_around = true;
+		}		
+	}
+	if (j+1 < Size && !opp_Wall_around)
+	{
+		if (Board[i][j+1].Stack.front().second != s_top)
+		{
+			opp_Wall_around = opp_Wall_around || (Board[i][j+1].Stack.front().first == Stand);
+			opp_around = true;
+		}
+	}
+	if (j-1 >= 0 && !opp_Wall_around)
+	{
+		if (Board[i][j-1].Stack.front().second != s_top)
+		{
+			opp_Wall_around = opp_Wall_around || (Board[i][j-1].Stack.front().first == Stand);
+			opp_around = true;
+		}
+	}
+
+	float ans = 0.0;
+	if (opp_around)
+	{
+		if (p.Stack.front().first != Stand)
+		{
+			if (opp_Wall_around) ans = 0.2;
+			else ans = 0.5;
+		}
+		else
+			ans = 0.7;
+	}
+	else
+		ans = 1.0;
+	return mult*ans;
+}
+
 int Game::feature0(){
 	// cout << this->to_string() << "\n";
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
@@ -57,11 +113,11 @@ int Game::feature0(){
 
 // Number of white and black on board
 int Game::feature1(){
-	int count = 0;
+	float count = 0;
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()) continue;
-			if(GameBoard[i][j].top_piece().second == White) ++count;
+			count += favourableStack(GameBoard, i, j);
 			// ADD MORE IF NO WALL/CAP?? TODOOOO
 		}
 	}

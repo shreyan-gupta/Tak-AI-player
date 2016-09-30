@@ -95,3 +95,24 @@ bool Test::checkValid()
 	cout << "up (1) nhi hai na?? \n";
 	return true;
 }
+
+
+bool Test::checkfavourable()
+{
+	Game g(3);
+
+	Move m(2,1,piece(Flat,White));
+	cout << m.to_string() << std::endl;
+	g.makemove(m);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	std::cout << g.to_string() << std::endl;
+
+	Move mm(1,1,piece(Cap,Black));
+	cout << mm.to_string() << std::endl;
+	g.makemove(mm);
+	printf("%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	std::cout << g.to_string() << std::endl;
+
+	cout << favourableStack(g.GameBoard, 2,1) << endl;
+
+}

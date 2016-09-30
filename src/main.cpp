@@ -11,6 +11,11 @@ void printVec(vector<int> & v){
 int main(int argc, char const *argv[])
 {
 	// SET opponent_type !!!!
+	Size = 3;
+	getAllPerms(3);
+	bool valid = Test::checkfavourable();
+	if (valid) cout << "valid moves check karo \n";
+
 	int player_no;
 	cin >> player_no >> Size >> TimeLimit;
 	Game g(Size);
@@ -32,8 +37,6 @@ int main(int argc, char const *argv[])
 	}
 
 
-	bool valid = Test::checkValid();
-	if (valid) cout << "valid moves check karo \n";
 
 	return 0;
 }

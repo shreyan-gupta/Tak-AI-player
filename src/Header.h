@@ -39,14 +39,12 @@ namespace Test
 	bool checkMove();
 	bool checkValid();
 	bool checkPath();
+	bool checkfavourable();
 }
 
 using namespace std;
 using namespace Types;
 
-void printVec(vector<int>&);
-Piece piece(Stone, bool);
-void getAllPerms(int);
 
 struct Position
 {
@@ -59,7 +57,6 @@ struct Position
 	bool capable();
 	string to_string();
 	void top5(pair<int,int> &);
-	bool favorableStack(Player_Type); // tells if there's a wall/cap around stack of player.
 };
 
 struct Move
@@ -95,6 +92,13 @@ struct Player{
 	Player_Type type;
 	Player(bool,int);
 };
+
+
+void printVec(vector<int>&);
+Piece piece(Stone, bool);
+void getAllPerms(int);
+float favourableStack(vector< vector< Position> > &, int, int);
+
 
 class Game
 {
@@ -168,18 +172,6 @@ inline void Position::top5(pair<int,int> &p)
 		if ((*it).second == White) p.first ++;
 		else p.second ++;
 		count ++;
-	}
-}
-
-inline eval_type Position::favorableStack(Player_Type ptype)
-{
-	if (Stack.begin() == ptype)
-	{
-		
-	}
-	else
-	{
-
 	}
 }
 
