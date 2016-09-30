@@ -74,6 +74,7 @@ struct Move
 	string to_string(); // print ke liye!
 	Move(int, int, Piece);
 	Move(int, int, char, vector<int> *);
+	// Move()
 	Move();
 	// Move(string);
 };
@@ -171,16 +172,17 @@ inline void Position::top5(pair<int,int> &p)
 	}
 }
 
-inline eval_type Position::favorableStack(Player_Type ptype)
-{
-	if (Stack.begin() == ptype)
-	{
-		
-	}
-	else
-	{
+// inline eval_type Position::favorableStack(Player_Type ptype)
+// {
+// 	if (Stack.begin() == ptype)
+// 	{
 
-	}
-}
+// 	}
+// 	else
+// 	{
+
+// 	}
+// 	return 0;
+// }
 
 #endif
