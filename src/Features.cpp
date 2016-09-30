@@ -81,6 +81,8 @@ int Game::feature2(){
 	return count;
 }
 
-int Game::feature3(){
+int Game::feature3()
+{
+	
 	return 0;
 }

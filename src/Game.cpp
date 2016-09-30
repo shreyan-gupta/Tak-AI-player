@@ -65,9 +65,9 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 		
 		makemove(i.second);
 		decide_move(opponent_move, !player, depth+1, max_depth);
-		if(player && opponent_move > best_move){
+		if(player == White && opponent_move > best_move){
 			best_move = opponent_move;
-		}else if(!player && opponent_move < best_move){
+		}else if(player == Black && opponent_move < best_move){
 			best_move = opponent_move;
 		}
 	}
@@ -129,25 +129,6 @@ void Game::makemove(Move &m)
 		GameBoard[m.x][m.y].Stack.push_front(m.p);
 		if(m.p.second == Black) GameBoard[m.x][m.y].Num_Black += 1;
 		else GameBoard[m.x][m.y].Num_White += 1;
-
-		// if (m.p.second == Black)
-		// {
-		// 	GameBoard[m.x][m.y].Num_Black += 1;
-		// 	p_black.CapsLeft = (m.p.first != Cap);
-		// 	// cout << "place black \n";
-		// 	p_black.x = (m.p.first == Cap) ? m.x : -1;
-		// 	p_black.y = (m.p.first == Cap) ? m.y : -1;
-		// 	p_black.StonesLeft -= ((m.p.first == Cap) ? 0 : 1);
-		// }
-		// else
-		// {
-		// 	GameBoard[m.x][m.y].Num_White += 1;
-		// 	p_white.CapsLeft = (m.p.first != Cap);
-		// 	// cout << "place white \n";
-		// 	p_white.x = (m.p.first == Cap) ? m.x : -1;
-		// 	p_white.y = (m.p.first == Cap) ? m.y : -1;
-		// 	p_white.StonesLeft -= ((m.p.first == Cap) ? 0 : 1);
-		// }
 
 	}
 	else{
@@ -222,27 +203,6 @@ void Game::antimove(Move &m){
 			x += x_add;
 			y += y_add;
 		}
-		// if (m.CapMove)
-		// {
-		// 	auto &z = GameBoard[x-x_add][y-y_add].Stack;
-		// 	z.front().first = Stand;
-		// }
-		// if (current_p.Stack.front().first == Cap)
-		// {
-		// 	if (current_p.Stack.front().second == Black)
-		// 	{
-		// 		printf("%d %d Black new\n", m.x, m.y);
-		// 		p_black.x = m.x;
-		// 		p_black.y = m.y;
-		// 	}
-		// 	else
-		// 	{
-		// 		// cout << "white cap back move \n";
-		// 		printf("%d %d White new\n", m.x, m.y);
-		// 		p_white.x = m.x;
-		// 		p_white.y = m.y;
-		// 	}
-		// }
 	}
 }
 
