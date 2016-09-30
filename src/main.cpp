@@ -17,8 +17,10 @@ int main(int argc, char const *argv[])
 	// bool valid = Test::checkfavourable();
 	// if (valid) cout << "valid moves check karo \n";
 
-	int player_no;
-	cin >> player_no >> Size >> TimeLimit;
+	int player_no = 2;
+	TimeLimit = 1000;
+	Size = 3;
+	// cin >> player_no >> Size >> TimeLimit;
 	// int player_no;
 	// cin >> player_no >> Size >> TimeLimit;
 	Game g(Size);
@@ -37,6 +39,7 @@ int main(int argc, char const *argv[])
 		cout << g.to_string() << endl;
 		g.makemove(mymove.m);
 		cout << (mymove.m.to_string()) << endl;
+		cout << g.to_string() << endl;
 	}
 
 

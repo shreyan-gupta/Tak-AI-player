@@ -23,7 +23,7 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 		search(type, x, y-1, player, GameBoard, explored, found, size);
 }
 
-float favourableStack(vector< vector<Position> > & Board, int i, int j)
+float favourableStack(vector< vector<Position> > &Board, int i, int j)
 {
 	Position &p = Board[i][j];
 	Player_Type s_top = p.Stack.front().second;
@@ -32,7 +32,7 @@ float favourableStack(vector< vector<Position> > & Board, int i, int j)
 	bool opp_around = false;
 	if (i+1 < Size)
 	{
-		if (Board[i+1][j].Stack.front().second != s_top)
+		if (!Board[i+1][j].empty() && Board[i+1][j].Stack.front().second != s_top)
 		{
 			opp_Wall_around = (Board[i+1][j].Stack.front().first == Stand);
 			opp_around = true;
@@ -40,7 +40,7 @@ float favourableStack(vector< vector<Position> > & Board, int i, int j)
 	}
 	if (i-1 >= 0)
 	{
-		if (Board[i-1][j].Stack.front().second != s_top)
+		if (!Board[i-1][j].empty() && Board[i-1][j].Stack.front().second != s_top)
 		{
 			opp_Wall_around = opp_Wall_around || (Board[i-1][j].Stack.front().first == Stand);
 			opp_around = true;
@@ -48,7 +48,7 @@ float favourableStack(vector< vector<Position> > & Board, int i, int j)
 	}
 	if (j+1 < Size && !opp_Wall_around)
 	{
-		if (Board[i][j+1].Stack.front().second != s_top)
+		if (!Board[i][j+1].empty() && Board[i][j+1].Stack.front().second != s_top)
 		{
 			opp_Wall_around = opp_Wall_around || (Board[i][j+1].Stack.front().first == Stand);
 			opp_around = true;
@@ -56,7 +56,7 @@ float favourableStack(vector< vector<Position> > & Board, int i, int j)
 	}
 	if (j-1 >= 0 && !opp_Wall_around)
 	{
-		if (Board[i][j-1].Stack.front().second != s_top)
+		if (!Board[i][j-1].empty() && Board[i][j-1].Stack.front().second != s_top)
 		{
 			opp_Wall_around = opp_Wall_around || (Board[i][j-1].Stack.front().first == Stand);
 			opp_around = true;
@@ -117,6 +117,7 @@ int Game::feature1(){
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()) continue;
+			// printf("Not Empty %d %d %d\n",i,j,GameBoard[i][j].empty());
 			count += favourableStack(GameBoard, i, j);
 			// ADD MORE IF NO WALL/CAP?? TODOOOO
 		}

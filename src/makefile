@@ -1,11 +1,11 @@
 CFLAGS = -c -std=c++11 -O3 -march=native -g
-LFLAGS = -std=c++11 -O3 -march=native
+LFLAGS = -std=c++11 -O3 -march=native -g
 OBJ = main.o Misc.o Game.o Features.o Test.o
 
 all : out
 
 out : $(OBJ)
-	g++ $(LFLAGS) $(OBJ) -g -o out
+	g++ $(LFLAGS) $(OBJ) -o out
 
 main.o : main.cpp Header.h
 	g++ $(CFLAGS) main.cpp
@@ -28,3 +28,6 @@ clean :
 
 run : out
 	./out
+
+debug : out
+	gdb out
