@@ -26,10 +26,8 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 string Game::to_string()
 {
 	string str = "";
-	for (int i = 0 ; i < size ; i ++)
-	{
-		for (int j = 0 ; j < size ; j ++)
-		{
+	for (int i = 0 ; i < size ; i ++){
+		for (int j = 0 ; j < size ; j ++){
 			str += GameBoard[i][j].to_string() + "_"; // this is a position.
 		}
 	}
@@ -206,8 +204,7 @@ void Game::antimove(Move &m){
 	}
 }
 
-std::tuple<int,int,int,int> Game::GetStackable(int x, int y, bool cap)
-{
+void Game::GetStackable(int x, int y, bool cap, vector<int> &result){
 	int l = 0;
 	int r = 0;
 	int u = 0;
@@ -223,7 +220,11 @@ std::tuple<int,int,int,int> Game::GetStackable(int x, int y, bool cap)
 		if (y-r-1 >= 0 && GameBoard[x][y-r-1].capable())	r ++;	else r = -1;
 		if (y+l+1 < size && GameBoard[x][y+l+1].capable())	l ++;	else l = -1;
 	}
-	return make_tuple(l,r,u,d);
+	result[0] = l;
+	result[1] = r;
+	result[2] = u;
+	result[3] = d;
+	// return make_tuple(l,r,u,d);
 }
 
 
@@ -243,55 +244,73 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 		}
 	}else{
 		// cap stone on board!
-		tuple<int,int,int,int> range = GetStackable(p.x, p.y, true);
+		vector<int> range(4);
+		// tuple<int,int,int,int> range = GetStackable(p.x, p.y, true);
+		GetStackable(p.x, p.y, true, range);
 		int shiftmax = std::min((int)size,(int)GameBoard[p.x][p.y].Stack.size());
 
-		printf("Stackable %d %d %d %d\n", get<0>(range), get<1>(range), get<2>(range), get<3>(range));
+		printf("Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 		// cap move :
 		int i = p.x;
 		int j = p.y;
 
 		for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
-			if(std::get<0>(range) != -1)
-			for (auto &d : AllPerms[i1][std::get<0>(range)]){
-				if (d.back() == 1){
-					Move ml(i,j,'<',&d);
-					ml.CapMove = true;
-					makemove(ml);
-					moves.insert(make_pair(eval(),ml));
-					antimove(ml);
+			char dir[4] = {'<', '>', '+', '-'};
+			for(int r=0; r<4; ++r){
+				// printf("r=%d range_r=%d\n",r,range[r]);
+				if(range[r] != -1)
+				for(auto &d : AllPerms[i1][range[r]]){
+					if(d.back() == 1){
+						Move m(i,j,dir[r],&d);
+						m.CapMove = true;
+						makemove(m);
+						moves.insert(make_pair(eval(),m));
+						antimove(m);
+					}
 				}
 			}
-			if(std::get<1>(range) != -1)
-			for (auto &d : AllPerms[i1][std::get<1>(range)]){
-				if (d.back() == 1){
-					Move ml(i,j,'>',&d);
-					ml.CapMove = true;
-					makemove(ml);
-					moves.insert(make_pair(eval(),ml));
-					antimove(ml);
-				}
-			}
-			if(std::get<2>(range) != -1)
-			for (auto &d : AllPerms[i1][std::get<2>(range)]){
-				if (d.back() == 1){
-					Move ml(i,j,'+',&d);
-					ml.CapMove = true;
-					makemove(ml);
-					moves.insert(make_pair(eval(),ml));
-					antimove(ml);
-				}
-			}
-			if(std::get<3>(range) != -1)
-			for (auto &d : AllPerms[i1][std::get<3>(range)]){
-				if (d.back() == 1){
-					Move ml(i,j,'-',&d);
-					ml.CapMove = true;
-					makemove(ml);
-					moves.insert(make_pair(eval(),ml));
-					antimove(ml);
-				}
-			}
+
+
+			// if(std::get<0>(range) != -1)
+			// for (auto &d : AllPerms[i1][std::get<0>(range)]){
+			// 	if (d.back() == 1){
+			// 		Move ml(i,j,'<',&d);
+			// 		ml.CapMove = true;
+			// 		makemove(ml);
+			// 		moves.insert(make_pair(eval(),ml));
+			// 		antimove(ml);
+			// 	}
+			// }
+			// if(std::get<1>(range) != -1)
+			// for (auto &d : AllPerms[i1][std::get<1>(range)]){
+			// 	if (d.back() == 1){
+			// 		Move ml(i,j,'>',&d);
+			// 		ml.CapMove = true;
+			// 		makemove(ml);
+			// 		moves.insert(make_pair(eval(),ml));
+			// 		antimove(ml);
+			// 	}
+			// }
+			// if(std::get<2>(range) != -1)
+			// for (auto &d : AllPerms[i1][std::get<2>(range)]){
+			// 	if (d.back() == 1){
+			// 		Move ml(i,j,'+',&d);
+			// 		ml.CapMove = true;
+			// 		makemove(ml);
+			// 		moves.insert(make_pair(eval(),ml));
+			// 		antimove(ml);
+			// 	}
+			// }
+			// if(std::get<3>(range) != -1)
+			// for (auto &d : AllPerms[i1][std::get<3>(range)]){
+			// 	if (d.back() == 1){
+			// 		Move ml(i,j,'-',&d);
+			// 		ml.CapMove = true;
+			// 		makemove(ml);
+			// 		moves.insert(make_pair(eval(),ml));
+			// 		antimove(ml);
+			// 	}
+			// }
 		}
 	}
 
@@ -316,67 +335,69 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 				int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
 				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
 					// how many stackable in each dirn?
-					tuple<int,int,int,int> range = GetStackable(i,j,false);
-					printf("%d %d %d %d\n", get<0>(range), get<1>(range), get<2>(range), get<3>(range));
+					vector<int> range(4);
+ 					// tuple<int,int,int,int> range = GetStackable(i,j,false);
+ 					GetStackable(i,j,false,range);
+					printf("Bla %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 					
-					// char dir[] = {'<', '>', '+', '-'};
-					// for(int r=0; r<4; ++r){
-					// 	for (int m=1; m<=std::get<r>(range); ++m){
-					// 		for (auto &d : AllPerms[i1][m]){
-					// 			Move mv(i,j,dir[r],&d);
-					// 			makemove(mv);
-					// 			moves.insert(make_pair(eval(),mv));
-					// 			antimove(mv);
-					// 		}
+					char dir[] = {'<', '>', '+', '-'};
+					for(int r=0; r<4; ++r){
+						for (int m=1; m<=range[r]; ++m){
+							for (auto &d : AllPerms[i1][m]){
+								Move mv(i,j,dir[r],&d);
+								makemove(mv);
+								moves.insert(make_pair(eval(),mv));
+								antimove(mv);
+							}
+						}
+					}
+
+					// for (int m = 1 ; m <= std::get<0>(range) ; m ++){
+					// 	// left
+					// 	for (auto &d : AllPerms[i1][m])
+					// 	{
+					// 		Move ml(i,j,'<',&d);
+					// 		makemove(ml);
+					// 		moves.insert(make_pair(eval(),ml));
+					// 		antimove(ml);
 					// 	}
 					// }
 
-					for (int m = 1 ; m <= std::get<0>(range) ; m ++){
-						// left
-						for (auto &d : AllPerms[i1][m])
-						{
-							Move ml(i,j,'<',&d);
-							makemove(ml);
-							moves.insert(make_pair(eval(),ml));
-							antimove(ml);
-						}
-					}
+					// for (int m = 1 ; m <= std::get<1>(range) ; m ++)
+					// {
+					// 	// right
+					// 	for (auto &d : AllPerms[i1][m])
+					// 	{
+					// 		Move mr(i,j,'>',&d);
+					// 		makemove(mr);
+					// 		moves.insert(make_pair(eval(),mr));
+					// 		antimove(mr);
+					// 	}
+					// }
 
-					for (int m = 1 ; m <= std::get<1>(range) ; m ++)
-					{
-						// right
-						for (auto &d : AllPerms[i1][m])
-						{
-							Move mr(i,j,'>',&d);
-							makemove(mr);
-							moves.insert(make_pair(eval(),mr));
-							antimove(mr);
-						}
-					}
+					// for (int m = 1 ; m <= std::get<2>(range) ; m ++)
+					// {
+					// 	// up
+					// 	for (auto &d : AllPerms[i1][m])
+					// 	{
+					// 		Move mu(i,j,'+',&d);
+					// 		makemove(mu);
+					// 		moves.insert(make_pair(eval(),mu));
+					// 		antimove(mu);
+					// 	}
 
-					for (int m = 1 ; m <= std::get<2>(range) ; m ++)
-					{
-						// up
-						for (auto &d : AllPerms[i1][m])
-						{
-							Move mu(i,j,'+',&d);
-							makemove(mu);
-							moves.insert(make_pair(eval(),mu));
-							antimove(mu);
-						}
-
-					}
-					for (int m = 1 ; m <= std::get<3>(range) ; m ++)
-					{
-						// down
-						for (auto &d : AllPerms[i1][m])
-						{
-							Move md(i,j,'-',&d);
-							makemove(md);
-							moves.insert(make_pair(eval(),md));
-							antimove(md);
-						}
-					}
+					// }
+					// for (int m = 1 ; m <= std::get<3>(range) ; m ++)
+					// {
+					// 	// down
+					// 	for (auto &d : AllPerms[i1][m])
+					// 	{
+					// 		Move md(i,j,'-',&d);
+					// 		makemove(md);
+					// 		moves.insert(make_pair(eval(),md));
+					// 		antimove(md);
+					// 	}
+					// }
 				}
 			}
 		}

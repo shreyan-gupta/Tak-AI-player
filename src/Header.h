@@ -110,7 +110,8 @@ public:
 	void makemove(Move&);		// inputs yet to define
 	void antimove(Move&);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	tuple<int,int,int,int> GetStackable(int, int, bool);
+	// tuple<int,int,int,int> GetStackable(int, int, bool);
+	void GetStackable(int, int, bool, vector<int>&);
 	void decide_move(Eval_Move&, bool, int, int);
 	void UpdatePlayer(Player_Type, Move&, bool);
 };
