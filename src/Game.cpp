@@ -46,32 +46,41 @@ eval_type Game::eval(){
 	return e;
 }
 
+void n_tabs(int n){
+	for(int i=0; i<n; ++i) cout << "  ";
+}
+
 void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth){
 	
+	n_tabs(depth); printf("Plyr:%d Depth:%d\n",player,depth);
+	// n_tabs(depth); printf("%s\n", );
+
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
+
+	n_tabs(depth); printf("Generated moves depth %d \n",depth);
 	
 	if(depth == max_depth){
-		auto ptr = allmoves.begin(); // arent thesein increasing order?????
-		cout << "Depth achieved, final move : " << ptr->second.to_string() << endl;
-		best_move.e = ptr->first;
-		best_move.m = ptr->second;
+		if(player == White){
+			auto ptr = allmoves.rbegin();
+			best_move.e = ptr->first;
+			best_move.m = ptr->second;
+		}else{
+			auto ptr = allmoves.begin();
+			best_move.e = ptr->first;
+			best_move.m = ptr->second;
+		}
+		n_tabs(depth); printf("%s : Best move\n",best_move.m.to_string().c_str());
 		return;
 	}
 
-	Eval_Move opponent_move(E_MIN, NULL_MOVE);
-	//iterate over all valid moves
+	Eval_Move opponent_move;
+	if(player == White) best_move.e = E_MIN;
+	else best_move.e = E_MAX;
+
 	for (auto &i : allmoves){
-		// makemove.
-		// ask !player to decide his best move
-		// make anti move.
-		
+		n_tabs(depth); printf("%s\n",i.second.to_string().c_str());
 		makemove(i.second);
-		cout << "Trying move " << i.second.to_string();
-		if (player == White)
-			cout << " -- WHITE \n";
-		else
-			cout << "         --BLACK \n";
 		decide_move(opponent_move, !player, depth+1, max_depth);
 		if(player == White && opponent_move > best_move){
 			best_move = opponent_move;
@@ -269,8 +278,8 @@ void Game::GetStackable(int x, int y, bool cap, vector<int> &result){
 		if (y-r-1 >= 0 && GameBoard[x][y-r-1].capable())	r ++;	else r = -1;
 		if (y+l+1 < size && GameBoard[x][y+l+1].capable())	l ++;	else l = -1;
 	}
-	result[0] = l;
-	result[1] = r;
+	result[0] = r;
+	result[1] = l;
 	result[2] = u;
 	result[3] = d;
 	// return make_tuple(l,r,u,d);
@@ -387,13 +396,15 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 					vector<int> range(4);
  					// tuple<int,int,int,int> range = GetStackable(i,j,false);
  					GetStackable(i,j,false,range);
-					// printf("Bla %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 					
 					char dir[] = {'<', '>', '+', '-'};
+					// printf("Coordinates %d %d\n",i,j);
+					// printf("Cap direction <%d >%d +%d -%d\n", range[0], range[1], range[2], range[3]);
 					for(int r=0; r<4; ++r){
 						for (int m=1; m<=range[r]; ++m){
 							for (auto &d : AllPerms[i1][m]){
 								Move mv(i,j,dir[r],&d);
+								// printf("Cap move : %s\n",mv.to_string().c_str());
 								makemove(mv);
 								moves.insert(make_pair(eval(),mv));
 								antimove(mv);

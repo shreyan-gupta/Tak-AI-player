@@ -71,6 +71,7 @@ struct Move
 	string to_string(); // print ke liye!
 	Move(int, int, Piece);
 	Move(int, int, char, vector<int> *);
+	// Move()
 	Move();
 	// Move(string);
 };
