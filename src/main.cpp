@@ -20,11 +20,12 @@ int main(int argc, char const *argv[])
 	int player_no = 2;
 	TimeLimit = 1000;
 	Size = 3;
-	// cin >> player_no >> Size >> TimeLimit;
+	cin >> player_no >> Size >> TimeLimit;
+	cerr << player_no << Size << TimeLimit;
 	// int player_no;
 	// cin >> player_no >> Size >> TimeLimit;
 	Game g(Size);
-	// opponent_type = (player_no == 2) ? White : Black;
+	opponent_type = (player_no == 2) ? White : Black;
 	getAllPerms(Size);
 
 	if (!opponent_type == White)
@@ -33,12 +34,14 @@ int main(int argc, char const *argv[])
 	{
 		string s;
 		cin >> s;
+		cerr << "out received MOVE : " << s << endl;
 		g.make_opponent_move(s);
 		Eval_Move mymove;
 		g.decide_move(mymove,!opponent_type,0,2);
 		cerr << g.to_string() << endl;
 		g.makemove(mymove.m);
-		cerr << (mymove.m.to_string()) << endl;
+		cerr << (mymove.m.to_string()) << endl;		
+		cout << (mymove.m.to_string()) << endl;
 		cerr << g.to_string() << endl;
 	}
 
