@@ -18,8 +18,8 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	f[2] = &Game::feature2;
 	f[3] = &Game::feature3;
 	weight[0] = 10000;
-	weight[1] = 1;
-	weight[2] = 1;
+	weight[1] = 20;
+	weight[2] = 15;
 	weight[3] = 1;
 }
 

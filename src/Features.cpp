@@ -68,14 +68,14 @@ float favourableStack(vector< vector<Position> > &Board, int i, int j)
 	{
 		if (p.Stack.front().first != Stand)
 		{
-			if (opp_Wall_around) ans = 0.2;
-			else ans = 0.5;
+			if (opp_Wall_around) ans = 2;
+			else ans = 5;
 		}
 		else
-			ans = 0.7;
+			ans = 7;
 	}
 	else
-		ans = 1.0;
+		ans = 10;
 	return mult*ans;
 }
 
@@ -142,6 +142,6 @@ int Game::feature2(){
 
 int Game::feature3()
 {
-	// your stacks surrounded by walls/caps?
+	// your no of walls!
 	return 0;
 }
