@@ -1,6 +1,10 @@
 #include "Header.h"
 using namespace Types;
 
+inline bool pathable(int x, int y, bool player, vector< vector<Position> > &GameBoard){
+	return (!GameBoard[x][y].empty() && GameBoard[x][y].top_piece().first != Stand && GameBoard[x][y].top_piece().second == player);
+}
+
 void search(bool type, int x, int y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, int size){
 	// fprintf(stderr, "Search %d %d %d\n", x, y, found);
 	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
@@ -14,13 +18,13 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 		return;
 	}
 	explored[x][y] = true;
-	if(y!=size-1 && !GameBoard[x][y+1].empty() && GameBoard[x][y+1].top_piece().second == player) 
+	if(y!=size-1 && pathable(x,y+1,player,GameBoard)) 
 		search(type, x, y+1, player, GameBoard, explored, found, size);
-	if(x!=size-1 && !GameBoard[x+1][y].empty() && GameBoard[x+1][y].top_piece().second == player) 
+	if(x!=size-1 && pathable(x+1,y,player,GameBoard)) 
 		search(type, x+1, y, player, GameBoard, explored, found, size);
-	if(x!=0 && !GameBoard[x-1][y].empty() && GameBoard[x-1][y].top_piece().second == player) 
+	if(x!=0 && pathable(x-1,y,player,GameBoard)) 
 		search(type, x-1, y, player, GameBoard, explored, found, size);
-	if(y!=0 && !GameBoard[x][y-1].empty() && GameBoard[x][y-1].top_piece().second == player) 
+	if(y!=0 && pathable(x,y-1,player,GameBoard)) 
 		search(type, x, y-1, player, GameBoard, explored, found, size);
 }
 
@@ -30,6 +34,7 @@ int favourableStack(vector< vector<Position> > &Board, int i, int j)
 	Player_Type s_top = p.Stack.front().second;
 	float mult = (s_top == White) ? 1 : -1;
 	bool opp_Wall_around = false;
+	bool opp_cap_around = false;
 	bool opp_around = false;
 	if (i+1 < Size)
 	{
@@ -37,6 +42,7 @@ int favourableStack(vector< vector<Position> > &Board, int i, int j)
 		{
 			opp_Wall_around = (Board[i+1][j].Stack.front().first == Stand);
 			opp_around = true;
+			opp_cap_around = (Board[i+1][j].Stack.front().first == Cap);
 		}
 	}
 	if (i-1 >= 0)
@@ -45,6 +51,7 @@ int favourableStack(vector< vector<Position> > &Board, int i, int j)
 		{
 			opp_Wall_around = opp_Wall_around || (Board[i-1][j].Stack.front().first == Stand);
 			opp_around = true;
+			opp_cap_around = (Board[i-1][j].Stack.front().first == Cap);
 		}		
 	}
 	if (j+1 < Size && !opp_Wall_around)
@@ -53,6 +60,7 @@ int favourableStack(vector< vector<Position> > &Board, int i, int j)
 		{
 			opp_Wall_around = opp_Wall_around || (Board[i][j+1].Stack.front().first == Stand);
 			opp_around = true;
+			opp_cap_around = (Board[i][j+1].Stack.front().first == Cap);
 		}
 	}
 	if (j-1 >= 0 && !opp_Wall_around)
@@ -61,26 +69,30 @@ int favourableStack(vector< vector<Position> > &Board, int i, int j)
 		{
 			opp_Wall_around = opp_Wall_around || (Board[i][j-1].Stack.front().first == Stand);
 			opp_around = true;
+			opp_cap_around = (Board[i][j-1].Stack.front().first == Cap);
 		}
 	}
 
 	float ans = 0.0;
 	if (opp_around)
 	{
-		if (p.Stack.front().first != Stand)
+		if (p.Stack.front().first == Flat)
 		{
 			if (opp_Wall_around) ans = 2;
 			else ans = 5;
 		}
+		else if (p.Stack.front().first == Stand)
+			ans = 6;
 		else
-			ans = 7;
+			ans = 15;
 	}
 	else
-		ans = 10;
+		ans = 12;
 	return mult*ans;
 }
 
-int Game::feature0(){
+// path
+eval_type Game::feature0(){
 	// cerr << this->to_string() << "\n";
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
 	for(int i=0; i<size; ++i){
@@ -113,12 +125,11 @@ int Game::feature0(){
 }
 
 // Number of white and black on board
-int Game::feature1(){
+eval_type Game::feature1(){
 	float count = 0;
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()) continue;
-			// fprintf(stderr, "Not Empty %d %d %d\n",i,j,GameBoard[i][j].empty());
 			count += favourableStack(GameBoard, i, j);
 			// ADD MORE IF NO WALL/CAP?? TODOOOO
 		}
@@ -127,7 +138,7 @@ int Game::feature1(){
 }
 
 // How many of the same type below the stack
-int Game::feature2(){
+eval_type Game::feature2(){
 	int count = 0;
 	pair<int,int> top5;
 	for(auto &i : GameBoard){
@@ -142,7 +153,7 @@ int Game::feature2(){
 }
 
 // Clustering pieces
-int Game::feature3()
+eval_type Game::feature3()
 {
 	// your no of walls!
 	int count = 0;
