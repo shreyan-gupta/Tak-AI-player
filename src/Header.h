@@ -98,7 +98,7 @@ struct Player{
 void printVec(vector<int>&);
 Piece piece(Stone, bool);
 void getAllPerms(int);
-float favourableStack(vector< vector< Position> > &, int, int);
+int favourableStack(vector< vector< Position> > &, int, int);
 
 
 class Game
