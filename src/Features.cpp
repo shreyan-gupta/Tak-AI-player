@@ -2,7 +2,7 @@
 using namespace Types;
 
 void search(bool type, int x, int y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, int size){
-	// printf("Search %d %d %d\n", x, y, found);
+	// fprintf(stderr, "Search %d %d %d\n", x, y, found);
 	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
 	if(type && y == size-1){
 		found = true;
@@ -80,16 +80,16 @@ float favourableStack(vector< vector<Position> > &Board, int i, int j)
 }
 
 int Game::feature0(){
-	// cout << this->to_string() << "\n";
+	// cerr << this->to_string() << "\n";
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
 	for(int i=0; i<size; ++i){
 		if(GameBoard[i][0].empty() || explored[i][0]) continue;
 		bool found = false;
 		int x = i;
 		int y = 0;
-		// cout << "Piece " << GameBoard[i][0].top_piece().second << " " << x << y << endl;
+		// cerr << "Piece " << GameBoard[i][0].top_piece().second << " " << x << y << endl;
 		search(true,x,y,GameBoard[i][0].top_piece().second, GameBoard, explored, found, size);
-		// printf("FOUND %d\n", found);
+		// fprintf(stderr, "FOUND %d\n", found);
 		if(found){
 			if(GameBoard[i][0].top_piece().second == White) return 1;
 			else return -1;
@@ -100,9 +100,9 @@ int Game::feature0(){
 		bool found = false;
 		int x = 0;
 		int y = j;
-		// cout << "Piece " << GameBoard[0][j].top_piece().second << " " << x << y << endl;
+		// cerr << "Piece " << GameBoard[0][j].top_piece().second << " " << x << y << endl;
 		search(false,x,y,GameBoard[0][j].top_piece().second, GameBoard, explored, found, size);
-		// printf("FOUND %d\n", found);
+		// fprintf(stderr, "FOUND %d\n", found);
 		if(found){
 			if(GameBoard[0][j].top_piece().second == White) return 1;
 			else return -1;
@@ -117,7 +117,7 @@ int Game::feature1(){
 	for(int i=0; i<size; ++i){
 		for(int j=0; j<size; ++j){
 			if(GameBoard[i][j].empty()) continue;
-			// printf("Not Empty %d %d %d\n",i,j,GameBoard[i][j].empty());
+			// fprintf(stderr, "Not Empty %d %d %d\n",i,j,GameBoard[i][j].empty());
 			count += favourableStack(GameBoard, i, j);
 			// ADD MORE IF NO WALL/CAP?? TODOOOO
 		}
@@ -140,8 +140,8 @@ int Game::feature2(){
 	return count;
 }
 
+// Clustering pieces
 int Game::feature3()
 {
-	// your stacks surrounded by walls/caps?
 	return 0;
 }

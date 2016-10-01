@@ -47,18 +47,18 @@ eval_type Game::eval(){
 }
 
 void n_tabs(int n){
-	for(int i=0; i<n; ++i) cout << "  ";
+	for(int i=0; i<n; ++i) cerr << "  ";
 }
 
 void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth){
 	
-	// n_tabs(depth); printf("Plyr:%d Depth:%d\n",player,depth);
-	// n_tabs(depth); printf("%s\n", );
+	// n_tabs(depth); fprintf(stderr, "Plyr:%d Depth:%d\n",player,depth);
+	// n_tabs(depth); fprintf(stderr, "%s\n", );
 
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
 
-	// n_tabs(depth); printf("Generated moves depth %d \n",depth);
+	// n_tabs(depth); fprintf(stderr, "Generated moves depth %d \n",depth);
 	
 	if(depth == max_depth){
 		if(player == White){
@@ -70,7 +70,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			best_move.e = ptr->first;
 			best_move.m = ptr->second;
 		}
-		// n_tabs(depth); printf("%s : Best move\n",best_move.m.to_string().c_str());
+		// n_tabs(depth); fprintf(stderr, "%s : Best move\n",best_move.m.to_string().c_str());
 		return;
 	}
 
@@ -79,7 +79,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	else best_move.e = E_MAX;
 
 	for (auto &i : allmoves){
-		// n_tabs(depth); printf("%s\n",i.second.to_string().c_str());
+		// n_tabs(depth); fprintf(stderr, "%s\n",i.second.to_string().c_str());
 		makemove(i.second);
 		decide_move(opponent_move, !player, depth+1, max_depth);
 		if(player == White && opponent_move > best_move){
@@ -123,13 +123,13 @@ void Game::make_opponent_move(string s)
 		else if (s.at(3) == '-')
 			m.Direction = '+';
 		vector<int> drops (s.length() - 4,1);
-		printf("%d\n", s.length() - 4);
+		fprintf(stderr, "%d\n", s.length() - 4);
 		for (int i = 0 ; i < s.length() - 4 ; i ++)
 			drops[i] = (int)(s.at(i+4) - '0');
 		m.Drops = &drops;
 		printVec(*m.Drops);
 		makemove(m);
-		cout << "Oppo move is :::: " << m.to_string() << endl;
+		cerr << "Oppo move is :::: " << m.to_string() << endl;
 	}
 }
 
@@ -210,7 +210,7 @@ void Game::makemove(Move &m)
 				Piece jth = mainstack[j];
 					// if (m.x == 2 && m.y == 1)
 					// {
-					// 	printf("%d %d %d, 2 1 se uthaya ye piece\n", jth.second, mainstack.size(), j);
+					// 	fprintf(stderr, "%d %d %d, 2 1 se uthaya ye piece\n", jth.second, mainstack.size(), j);
 					// }
 				GameBoard[drop_x][drop_y].Stack.push_front(jth);
 				if (jth.second == Black)
@@ -277,7 +277,7 @@ void Game::GetStackable(int x, int y, bool cap, vector<int> &result){
 	while (y-l-1 >=0 && GameBoard[x][y-l-1].stackable())	l ++;
 	while (y+r+1 < size && GameBoard[x][y+r+1].stackable())	r ++;
 	if (cap){
-		// cout << "capable breh! \n";
+		// cerr << "capable breh! \n";
 		if (x-d-1 >= 0 && GameBoard[x-d-1][y].capable())	d ++;	else d = -1;
 		if (x+u+1 < size && GameBoard[x+u+1][y].capable())	u ++;	else u = -1;
 		if (y-l-1 >= 0 && GameBoard[x][y-l-1].capable())	l ++;	else l = -1;
@@ -305,10 +305,10 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 					antimove(m);
 						string s2 = to_string();
 						if(s1.compare(s2) != 0){
-							printf("ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-							printf("Board is %s\n",s1.c_str());
-							printf("Board is %s\n",s2.c_str());
-							printf("At move %s\n",m.to_string().c_str());
+							fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
+							fprintf(stderr, "Board is %s\n",s1.c_str());
+							fprintf(stderr, "Board is %s\n",s2.c_str());
+							fprintf(stderr, "At move %s\n",m.to_string().c_str());
 						}
 				}
 			}
@@ -320,7 +320,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 		GetStackable(p.x, p.y, true, range);
 		int shiftmax = std::min((int)size,(int)GameBoard[p.x][p.y].Stack.size());
 
-		// printf("Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
+		// fprintf(stderr, "Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 		// cap move :
 		int i = p.x;
 		int j = p.y;
@@ -328,7 +328,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 		for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
 			char dir[4] = {'<', '>', '+', '-'};
 			for(int r=0; r<4; ++r){
-				// printf("r=%d range_r=%d\n",r,range[r]);
+				// fprintf(stderr, "r=%d range_r=%d\n",r,range[r]);
 				if(range[r] != -1)
 				for(auto &d : AllPerms[i1][range[r]]){
 					if(d.back() == 1){
@@ -340,10 +340,10 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 						antimove(m);
 							string s2 = to_string();
 							if(s1.compare(s2) != 0){
-								printf("ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-								printf("Board is %s\n",s1.c_str());
-								printf("Board is %s\n",s2.c_str());
-								printf("At move %s\n",m.to_string().c_str());
+								fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
+								fprintf(stderr, "Board is %s\n",s1.c_str());
+								fprintf(stderr, "Board is %s\n",s2.c_str());
+								fprintf(stderr, "At move %s\n",m.to_string().c_str());
 							}
 					}
 				}
@@ -365,10 +365,10 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 				antimove(m1);
 					string s2 = to_string();
 					if(s1.compare(s2) != 0){
-						printf("ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-						printf("Board is %s\n",s1.c_str());
-						printf("Board is %s\n",s2.c_str());
-						printf("At move %s\n",m1.to_string().c_str());
+						fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
+						fprintf(stderr, "Board is %s\n",s1.c_str());
+						fprintf(stderr, "Board is %s\n",s2.c_str());
+						fprintf(stderr, "At move %s\n",m1.to_string().c_str());
 					}
 				Move m2(i, j, piece(Stand,player));
 					s1 = to_string();
@@ -377,15 +377,15 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 				antimove(m2);
 					s2 = to_string();
 					if(s1.compare(s2) != 0){
-						printf("ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-						printf("Board is %s\n",s1.c_str());
-						printf("Board is %s\n",s2.c_str());
-						printf("At move %s\n",m2.to_string().c_str());
+						fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
+						fprintf(stderr, "Board is %s\n",s1.c_str());
+						fprintf(stderr, "Board is %s\n",s2.c_str());
+						fprintf(stderr, "At move %s\n",m2.to_string().c_str());
 					}
 			
 			}else if (GameBoard[i][j].top_piece().second == player) {
 				// all possible stack moves.
-				// cout << "stack move \n";
+				// cerr << "stack move \n";
 				int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
 				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
 					// how many stackable in each dirn?
@@ -395,8 +395,8 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 					
 					char dir[] = {'<', '>', '+', '-'};
 						// if (GameBoard[i][j].top_piece().first == Cap){
-						// 	printf("Coordinates %d %d\n",i,j);
-						// 	printf("Cap direction <%d >%d +%d -%d\n", range[0], range[1], range[2], range[3]);						
+						// 	fprintf(stderr, "Coordinates %d %d\n",i,j);
+						// 	fprintf(stderr, "Cap direction <%d >%d +%d -%d\n", range[0], range[1], range[2], range[3]);						
 						// }
 					for(int r=0; r<4; ++r){
 						for (int m=1; m<=range[r]; ++m){
@@ -409,11 +409,11 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 								antimove(mv);
 									string s2 = to_string();
 									if(s1.compare(s2) != 0){
-										printf("ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-										printf("Board now %s\n",s1.c_str());
-										printf("Board after move %s\n",s3.c_str());
-										printf("Board later %s\n",s2.c_str());
-										printf("At move %s\n",mv.to_string().c_str());
+										fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
+										fprintf(stderr, "Board now %s\n",s1.c_str());
+										fprintf(stderr, "Board after move %s\n",s3.c_str());
+										fprintf(stderr, "Board later %s\n",s2.c_str());
+										fprintf(stderr, "At move %s\n",mv.to_string().c_str());
 									}
 							}
 						}
