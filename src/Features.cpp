@@ -7,6 +7,7 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 	if(type && y == size-1){
 		found = true;
 		return;
+		
 	}
 	if(!type && x == size-1){
 		found = true;
