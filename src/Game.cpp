@@ -91,7 +91,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	}
 }
 
-void Game::make_opponent_move(string s)
+void Game::make_opponent_move(string s, bool player)
 {
 	char first = s.at(0);
 	Move m;
@@ -103,13 +103,13 @@ void Game::make_opponent_move(string s)
 		switch (first)
 		{
 			case ('F'):
-				m.p = piece(Flat,opponent_type);
+				m.p = piece(Flat,player);
 				break;
 			case ('S'):
-				m.p = piece(Stand,opponent_type);
+				m.p = piece(Stand,player);
 				break;
 			case ('C'):
-				m.p = piece(Cap,opponent_type);
+				m.p = piece(Cap,player);
 				break;
 		}
 		makemove(m);
