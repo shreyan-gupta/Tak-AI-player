@@ -9,6 +9,8 @@ void printVec(vector<int> & v){
 	std::cerr << ",";
 }
 
+const int max_depth = 2;
+
 int main(int argc, char const *argv[])
 {
 	// SET opponent_type !!!!
@@ -44,7 +46,7 @@ int main(int argc, char const *argv[])
 		while (true)
 		{
 			Eval_Move mymove;
-			g.decide_move(mymove,!opponent_type,0,2);
+			g.decide_move(mymove,!opponent_type,0,max_depth);
 			cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
 			cerr << (mymove.m.to_string()) << endl;
@@ -54,10 +56,10 @@ int main(int argc, char const *argv[])
 			string s_opp;
 			cin >> s_opp;
 			cerr << "out received MOVE : " << s_opp << endl;
-			g.make_opponent_move(s_opp,opponent_type);			
+			g.make_opponent_move(s_opp,opponent_type);
+			Test::print_index();
 		}
 	}
-
 	else
 	{
 		string s;
@@ -66,7 +68,7 @@ int main(int argc, char const *argv[])
 		g.make_opponent_move(s, !opponent_type);
 		string s_opp;
 		if (g.GameBoard[0][0].empty())
-			s_opp = "Fa" + Size;
+			s_opp = "Fa" + to_string(Size);
 		else
 			s_opp = "Fa1";
 
@@ -80,17 +82,15 @@ int main(int argc, char const *argv[])
 			cerr << "out received MOVE : " << s << endl;
 			g.make_opponent_move(s, opponent_type);
 			Eval_Move mymove;
-			g.decide_move(mymove,!opponent_type,0,2);
+			g.decide_move(mymove,!opponent_type,0,max_depth);
 			cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
 			cerr << (mymove.m.to_string()) << endl;
 			cout << (mymove.m.to_string()) << endl;
 			cerr << g.to_string() << endl;
+			Test::print_index();
 		}
 	}
-
-
-
 
 	return 0;
 }

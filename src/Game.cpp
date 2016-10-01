@@ -17,10 +17,10 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	f[1] = &Game::feature1;
 	f[2] = &Game::feature2;
 	f[3] = &Game::feature3;
-	weight[0] = 10000;
-	weight[1] = 20;
+	weight[0] = 100000;
+	weight[1] = 100000;
 	weight[2] = 15;
-	weight[3] = 12;
+	weight[3] = 50;
 }
 
 string Game::to_string()
@@ -53,10 +53,13 @@ void n_tabs(int n){
 void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth){
 	
 	// n_tabs(depth); fprintf(stderr, "Plyr:%d Depth:%d\n",player,depth);
-	// n_tabs(depth); fprintf(stderr, "%s\n", );
 
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
+
+	// for(auto &i : allmoves){
+	// 	cerr << i.first << " " << i.second.to_string() << endl;
+	// }
 
 	// n_tabs(depth); fprintf(stderr, "Generated moves depth %d \n",depth);
 	
@@ -78,17 +81,59 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	if(player == White) best_move.e = E_MIN;
 	else best_move.e = E_MAX;
 
-	for (auto &i : allmoves){
-		// n_tabs(depth); fprintf(stderr, "%s\n",i.second.to_string().c_str());
-		makemove(i.second);
-		decide_move(opponent_move, !player, depth+1, max_depth);
-		if(player == White && opponent_move > best_move){
-			best_move = opponent_move;
-		}else if(player == Black && opponent_move < best_move){
-			best_move = opponent_move;
+	int index = 0;
+	int best_index;
+
+	if(player == White){
+		auto best_ptr = allmoves.rbegin();
+		for(auto ptr = allmoves.rbegin(); ptr != allmoves.rend() && index < 100; ++ptr){
+			++index;
+			makemove(ptr->second);
+			decide_move(opponent_move, !player, depth+1, max_depth);
+			if(opponent_move.e > best_move.e){
+				best_index = index;
+				best_move.e = opponent_move.e;
+				best_ptr = ptr;
+			}
+			antimove(ptr->second);
+			best_move.m = ptr->second;
+			sum_index[depth] += best_index;
+			++count_index[depth];
+			max_index[depth] = max(best_index, max_index[depth]);
 		}
-		antimove(i.second);
+	}else{
+		auto best_ptr = allmoves.begin();
+		for(auto ptr = allmoves.begin(); ptr != allmoves.end() && index < 100; ++ptr){
+			++index;
+			makemove(ptr->second);
+			decide_move(opponent_move, !player, depth+1, max_depth);
+			if(opponent_move.e < best_move.e){
+				best_index = index;
+				best_move.e = opponent_move.e;
+				best_ptr = ptr;
+			}
+			antimove(ptr->second);
+			best_move.m = ptr->second;
+			sum_index[depth] += best_index;
+			++count_index[depth];
+			max_index[depth] = max(best_index, max_index[depth]);
+		}
 	}
+
+
+	// for (auto &i : allmoves){
+	// 	// n_tabs(depth); fprintf(stderr, "%s\n",i.second.to_string().c_str());
+	// 	makemove(i.second);
+	// 	decide_move(opponent_move, !player, depth+1, max_depth);
+	// 	if(player == White && opponent_move > best_move){
+	// 		best_move.e = opponent_move.e;
+	// 		best_move.m = i.second;
+	// 	}else if(player == Black && opponent_move < best_move){
+	// 		best_move.e = opponent_move.e;
+	// 		best_move.m = i.second;
+	// 	}
+	// 	antimove(i.second);
+	// }
 }
 
 void Game::make_opponent_move(string s, bool player)
@@ -129,7 +174,7 @@ void Game::make_opponent_move(string s, bool player)
 		m.Drops = &drops;
 		printVec(*m.Drops);
 		makemove(m);
-		cerr << "Oppo move is :::: " << m.to_string() << endl;
+		// cerr << "Oppo move is :::: " << m.to_string() << endl;
 	}
 }
 
@@ -185,6 +230,11 @@ void Game::makemove(Move &m)
 	Player &p = (m.p.second == Black)? p_black : p_white;
 	UpdatePlayer(m.p.second,m,false);
 	if (m.Place_Move){
+			if(!GameBoard[m.x][m.y].empty()){
+				fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!\n");
+				fprintf(stderr, "Game Board : %s\n", to_string().c_str());
+				fprintf(stderr, "Move : %s\n", m.to_string().c_str());
+			}
 		// x,y pe posn mein push kardo. (stack must be empty abhi.)
 		GameBoard[m.x][m.y].Stack.push_front(m.p);
 		if(m.p.second == Black) GameBoard[m.x][m.y].Num_Black += 1;
@@ -205,6 +255,11 @@ void Game::makemove(Move &m)
 		for (int i = d.size() - 1 ; i >=  0 ; i--)
 		{
 			int num_drops = d[i];
+				// if (!GameBoard[drop_x][drop_y].stackable() && !m.CapMove){
+				// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!! Stackable\n");
+				// 	fprintf(stderr, "Game Board : %s\n", to_string().c_str());
+				// 	fprintf(stderr, "Move : %s\n", m.to_string().c_str());
+				// }
 			for (int j = num_drops - 1 ; j > -1 ; j --)
 			{
 				Piece jth = mainstack[j];
@@ -383,14 +438,14 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 						fprintf(stderr, "At move %s\n",m2.to_string().c_str());
 					}
 			
-			}else if (GameBoard[i][j].top_piece().second == player) {
+			}
+			else if (GameBoard[i][j].top_piece().second == player) {
 				// all possible stack moves.
 				// cerr << "stack move \n";
 				int shiftmax = std::min((int)size, (int)GameBoard[i][j].Stack.size()); // max pieces.
 				for (int i1 = 1 ; i1 <= shiftmax ; i1 ++){
 					// how many stackable in each dirn?
 					vector<int> range(4);
- 					// tuple<int,int,int,int> range = GetStackable(i,j,false);
  					GetStackable(i,j,false,range);
 					
 					char dir[] = {'<', '>', '+', '-'};

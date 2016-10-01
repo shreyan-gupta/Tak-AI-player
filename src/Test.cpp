@@ -1,5 +1,20 @@
-
 #include "Header.h"
+
+int sum_index[10];
+int count_index[10];
+int max_index[10];
+
+void Test::print_index(){
+	FILE *debug;
+	debug = fopen("debug.txt", "a");
+	for(int i=0; i<4; ++i){
+		fprintf(debug, "Depth %d avg %f max %d\n", i, (1.0*sum_index[i]/count_index[i]), max_index[i]);
+		sum_index[i] = 0;
+		count_index[i] = 0;
+		max_index[i] = 0;
+	}
+	fclose(debug);
+}
 
 bool Test::checkPath(){
 	Game g(3);

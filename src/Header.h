@@ -22,7 +22,7 @@ namespace Types{
 	typedef bool Player_Type;	// Black = false, White = true
 	typedef std::pair<Stone,Player_Type> Piece;
 	typedef float eval_type;
-	typedef int (Game::*Feature) (void);
+	typedef eval_type (Game::*Feature) (void);
 	const bool Black = false;
 	const bool White = true;
 
@@ -40,6 +40,7 @@ namespace Test
 	bool checkValid();
 	bool checkPath();
 	bool checkfavourable();
+	void print_index();
 }
 
 using namespace std;
@@ -105,10 +106,10 @@ class Game
 {
 private:
 	unordered_map<string, eval_type> duplicates;
-	int feature0();
-	int feature1();
-	int feature2();
-	int feature3();
+	eval_type feature0();
+	eval_type feature1();
+	eval_type feature2();
+	eval_type feature3();
 public:
 	string to_string();
 	int size;
@@ -122,17 +123,20 @@ public:
 	void makemove(Move&);		// inputs yet to define
 	void antimove(Move&);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	// tuple<int,int,int,int> GetStackable(int, int, bool);
 	void GetStackable(int, int, bool, vector<int>&);
 	void decide_move(Eval_Move&, bool, int, int);
 	void UpdatePlayer(Player_Type, Move&, bool);
-	void make_opponent_move(string);
+	void make_opponent_move(string,bool);
 };
 
 extern vector<vector<vector<vector<int> > > > AllPerms;
 extern int Size;
 extern bool opponent_type;
 extern int TimeLimit;
+
+extern int sum_index[10];
+extern int count_index[10];
+extern int max_index[10];
 
 inline Piece piece(Stone s, bool p){
 	return make_pair(s,p);
