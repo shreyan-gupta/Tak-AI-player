@@ -12,6 +12,28 @@
 #include <cstdio>
 #include <unordered_map>
 
+
+// w[0] = 100000 -> Path 
+// w[1] = Closer to center -> abs(i-half) + abs(j-half)
+
+// w[4] -> your pieces in top 5 of any your stack.
+// w[5] -> oppo ke pieces below yours
+
+// w[6] -> Flat, Stack top
+// w[7] -> Stand, Stack top
+// w[8] -> Cap, Stack top
+
+// w[9]  -> Flat 	Flat 	same
+// w[10] -> Flat 	Stand 	same
+// w[11] -> Flat 	Cap 	same
+// w[12] -> Stand 	Stand 	same
+// w[13] -> Stand 	Cap 	same
+// w[14] -> Flat 	Stand 	diff
+// w[2]  -> Flat 	Cap 	diff
+// w[3]  -> Stand 	Cap 	diff
+
+
+
 enum Stone{
 	Flat, Stand, Cap
 };
@@ -89,7 +111,7 @@ struct Eval_Move{
 
 struct Player{
 	int StonesLeft;
-	bool CapsLeft;
+	bool CapLeft;
 	int x, y;
 	Player_Type type;
 	Player(bool,int);
@@ -99,7 +121,7 @@ struct Player{
 void printVec(vector<int>&);
 Piece piece(Stone, bool);
 void getAllPerms(int);
-int favourableStack(vector< vector< Position> > &, int, int);
+// int favourableStack(vector< vector< Position> > &, int, int);
 
 
 class Game
@@ -110,12 +132,14 @@ private:
 	eval_type feature1();
 	eval_type feature2();
 	eval_type feature3();
+	eval_type nbr(Piece, Piece);
+	eval_type stone_weight(Stone);
 public:
 	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
 	Feature f[4];
-	eval_type weight[4];
+	eval_type w[15];
 	Player p_black, p_white;
 
 	Game(int);

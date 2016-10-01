@@ -4,7 +4,7 @@ using namespace Types;
 Player::Player(bool player_type, int pieces){
 	type = player_type;
 	StonesLeft = pieces;
-	CapsLeft = true;
+	CapLeft = true;
 	x = -1;
 	y = -1;
 }

@@ -3,13 +3,13 @@
 int Size = 3; 
 int TimeLimit =1;
 bool opponent_type = White;
+const int max_depth = 4;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cerr << i;
 	std::cerr << ",";
 }
 
-const int max_depth = 2;
 
 int main(int argc, char const *argv[])
 {
@@ -22,6 +22,7 @@ int main(int argc, char const *argv[])
 	int player_no = 2;
 	TimeLimit = 1000;
 	Size = 3;
+	cerr << "Enter player_no, size, TimeLimit\n";
 	cin >> player_no >> Size >> TimeLimit;
 	cerr << player_no << Size << TimeLimit;
 	// int player_no;
@@ -81,6 +82,7 @@ int main(int argc, char const *argv[])
 			cin >> s;
 			cerr << "out received MOVE : " << s << endl;
 			g.make_opponent_move(s, opponent_type);
+			cerr << g.to_string() << endl;
 			Eval_Move mymove;
 			g.decide_move(mymove,!opponent_type,0,max_depth);
 			cerr << g.to_string() << endl;

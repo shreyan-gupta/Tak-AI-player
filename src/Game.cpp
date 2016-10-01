@@ -17,10 +17,31 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	f[1] = &Game::feature1;
 	f[2] = &Game::feature2;
 	f[3] = &Game::feature3;
-	weight[0] = 100000;
-	weight[1] = 100000;
-	weight[2] = 15;
-	weight[3] = 50;
+	
+	float piece_factor = 1;
+	float nbr_factor = 0.7;
+	float top_factor = 1;
+
+
+	w[0] = 1000000;
+
+	w[1] = 0.35;
+
+	w[4] = piece_factor * 3;
+	w[5] = piece_factor * 2;
+
+	w[6] = top_factor * 7;
+	w[7] = top_factor * 2;
+	w[8] = top_factor * 11;
+
+	w[9]  = nbr_factor * 9.5;
+	w[10] = nbr_factor * 5;
+	w[11] = nbr_factor * 8.5;
+	w[12] = nbr_factor * -2;
+	w[13] = nbr_factor * 6.5;
+	w[14] = nbr_factor * -2;
+	w[2]  = nbr_factor * -5;
+	w[3]  = nbr_factor * -7;
 }
 
 string Game::to_string()
@@ -38,10 +59,14 @@ eval_type Game::eval(){
 	string s = to_string();
 	auto ptr = duplicates.find(s);
 	if(ptr != duplicates.end()) return ptr->second;
+	
+	// fprintf(stderr, "----- Call eval \n");
+
 	eval_type e = 0;
-	for(int i=0; i< 4; ++i){
-		e += weight[i] * CALL_MEMBER_FN(this, f[i]) ();
+	for(int i=0; i<4; ++i){
+		e += CALL_MEMBER_FN(this, f[i]) ();
 	}
+
 	duplicates[s] = e;
 	return e;
 }
@@ -58,7 +83,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	generate_valid_moves(player, allmoves);
 
 	// for(auto &i : allmoves){
-	// 	cerr << i.first << " " << i.second.to_string() << endl;
+	// 	// if (i.first < -500000 && player == || i.first > 500000)
+	// 		cerr << i.first << " XXXXX " << i.second.to_string() << endl;
 	// }
 
 	// n_tabs(depth); fprintf(stderr, "Generated moves depth %d \n",depth);
@@ -82,42 +108,58 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	else best_move.e = E_MAX;
 
 	int index = 0;
-	int best_index;
+	int best_index = 0;
 
 	if(player == White){
 		auto best_ptr = allmoves.rbegin();
-		for(auto ptr = allmoves.rbegin(); ptr != allmoves.rend() && index < 100; ++ptr){
+		if (best_ptr->first > w[0]/2){
+			best_move.e = best_ptr->first;
+			best_move.m = best_ptr->second;
+			return;
+		}
+		for(auto ptr = allmoves.rbegin(); ptr != allmoves.rend() && index < best_index + 5; ++ptr){
 			++index;
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth);
 			if(opponent_move.e > best_move.e){
+					if (abs(opponent_move.e - 1000000) < 10000)
+						fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
 				best_ptr = ptr;
 			}
 			antimove(ptr->second);
-			best_move.m = ptr->second;
-			sum_index[depth] += best_index;
-			++count_index[depth];
-			max_index[depth] = max(best_index, max_index[depth]);
 		}
-	}else{
+		best_move.m = best_ptr->second;
+
+		sum_index[depth] += best_index;
+		++count_index[depth];
+		max_index[depth] = max(best_index, max_index[depth]);
+	}
+	else{
 		auto best_ptr = allmoves.begin();
-		for(auto ptr = allmoves.begin(); ptr != allmoves.end() && index < 100; ++ptr){
+		if (best_ptr->first < -w[0]/2){
+			best_move.e = best_ptr->first;
+			best_move.m = best_ptr->second;
+			return;
+		}
+		for(auto ptr = allmoves.begin(); ptr != allmoves.end() && index < best_index + 5; ++ptr){
 			++index;
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth);
 			if(opponent_move.e < best_move.e){
+					if (abs(opponent_move.e - 1000000) < 10000)
+						fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
 				best_ptr = ptr;
 			}
 			antimove(ptr->second);
-			best_move.m = ptr->second;
-			sum_index[depth] += best_index;
-			++count_index[depth];
-			max_index[depth] = max(best_index, max_index[depth]);
 		}
+		best_move.m = best_ptr->second;
+		sum_index[depth] += best_index;
+		++count_index[depth];
+		max_index[depth] = max(best_index, max_index[depth]);
 	}
 
 
@@ -187,7 +229,7 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 			if(is_cap){
 				p.x = m.x;
 				p.y = m.y;
-				p.CapsLeft = false;
+				p.CapLeft = false;
 			}else{
 				p.StonesLeft -= 1;
 			}
@@ -207,7 +249,7 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 			if(is_cap){
 				p.x = -1;
 				p.y = -1;
-				p.CapsLeft = true;
+				p.CapLeft = true;
 			}else{
 				p.StonesLeft += 1;
 			}
@@ -349,7 +391,7 @@ void Game::GetStackable(int x, int y, bool cap, vector<int> &result){
 
 void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &moves){
 	Player &p = (player == Black) ? p_black : p_white;
-	if(p.CapsLeft){
+	if(p.CapLeft){
 		for(int i=0; i<size; ++i){
 			for(int j=0; j<size; ++j){
 				if(GameBoard[i][j].empty()){

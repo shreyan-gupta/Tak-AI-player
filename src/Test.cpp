@@ -129,6 +129,6 @@ bool Test::checkfavourable()
 	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
 	std::cerr << g.to_string() << std::endl;
 
-	cerr << favourableStack(g.GameBoard, 2,1) << endl;
+	// cerr << favourableStack(g.GameBoard, 2,1) << endl;
 	return true;
 }
