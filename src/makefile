@@ -22,6 +22,9 @@ Misc.o : Misc.cpp Header.h
 Test.o : Test.cpp Header.h
 	g++ $(CFLAGS) Test.cpp
 
+client : Client.cpp
+	g++ $(LFLAGS) -o client Client.cpp
+
 clean : 
 	rm *.o
 	rm out
