@@ -5,8 +5,8 @@ int TimeLimit =1;
 bool opponent_type = White;
 
 void printVec(vector<int> & v){
-	for (auto &i : v) std::cout << i;
-	std::cout << ",";
+	for (auto &i : v) std::cerr << i;
+	std::cerr << ",";
 }
 
 int main(int argc, char const *argv[])
@@ -15,7 +15,7 @@ int main(int argc, char const *argv[])
 	// Size = 3;
 	// getAllPerms(3);
 	// bool valid = Test::checkfavourable();
-	// if (valid) cout << "valid moves check karo \n";
+	// if (valid) cerr << "valid moves check karo \n";
 
 	int player_no = 2;
 	TimeLimit = 1000;
@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 	getAllPerms(Size);
 
 	if (!opponent_type == White)
-		cout << "You are White"  << endl;
+		cerr << "You are White"  << endl;
 	while (true)
 	{
 		string s;
@@ -36,10 +36,10 @@ int main(int argc, char const *argv[])
 		g.make_opponent_move(s);
 		Eval_Move mymove;
 		g.decide_move(mymove,!opponent_type,0,2);
-		cout << g.to_string() << endl;
+		cerr << g.to_string() << endl;
 		g.makemove(mymove.m);
-		cout << (mymove.m.to_string()) << endl;
-		cout << g.to_string() << endl;
+		cerr << (mymove.m.to_string()) << endl;
+		cerr << g.to_string() << endl;
 	}
 
 

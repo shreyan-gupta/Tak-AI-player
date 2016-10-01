@@ -157,7 +157,7 @@ inline bool Position::capable()
 	if (empty()) return false;
 	else if (Stack.front().first == Stand)
 	{
-		// cout << "stand! \n";
+		// cerr << "stand! \n";
 		return true;
 	}
 	else return false;
