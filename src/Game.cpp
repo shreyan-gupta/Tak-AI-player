@@ -20,7 +20,7 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	weight[0] = 10000;
 	weight[1] = 20;
 	weight[2] = 15;
-	weight[3] = 1;
+	weight[3] = 12;
 }
 
 string Game::to_string()

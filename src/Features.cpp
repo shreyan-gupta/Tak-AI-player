@@ -23,7 +23,7 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 		search(type, x, y-1, player, GameBoard, explored, found, size);
 }
 
-float favourableStack(vector< vector<Position> > &Board, int i, int j)
+int favourableStack(vector< vector<Position> > &Board, int i, int j)
 {
 	Position &p = Board[i][j];
 	Player_Type s_top = p.Stack.front().second;
@@ -143,5 +143,23 @@ int Game::feature2(){
 int Game::feature3()
 {
 	// your no of walls!
-	return 0;
+	int count = 0;
+	for (int i = 0 ; i < size ; i ++)
+	{
+		for (int j = 0 ; j < size ; j ++)
+		{
+			if (!GameBoard[i][j].empty())
+			{
+				Piece &p = GameBoard[i][j].Stack.front();
+				if (p.first == Stand)
+				{
+					if (p.second == White)
+						count --;
+					else
+						count ++;
+				}
+			}
+		}
+	}
+	return count;
 }
