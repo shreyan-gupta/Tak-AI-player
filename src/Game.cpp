@@ -88,6 +88,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
 
+	// if(depth == 1)
 	// for(auto &i : allmoves){
 	// 	// if (i.first < -500000 && player == || i.first > 500000)
 	// 		cerr << i.first << " XXXXX " << i.second.to_string() << endl;
@@ -112,8 +113,6 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	}
 
 	Eval_Move opponent_move;
-	// eval_type alpha = -2*w[0];
-	// eval_type beta = 2*w[0];
 	if(player == White) best_move.e = E_MIN;
 	else best_move.e = E_MAX;
 
@@ -122,26 +121,27 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 
 	if(player == White){
 		auto best_ptr = allmoves.rbegin();
+		// if(depth < 2) fprintf(stderr, "!!! d %d White First move %s Eval %f \n", depth, best_ptr->second.to_string().c_str(), best_ptr->first);
 		if (best_ptr->first > w[0]/2){
 			best_move.e = best_ptr->first;
 			best_move.m = best_ptr->second;
-			fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
+			if(depth < 2) fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
 			return;
 		}
 		bool x = true;
 		for(auto ptr = allmoves.rbegin(); x; ++ptr){
 			++index;
-			// if(ptr == allmoves.rend()){
-			// 	fprintf(stderr, "Yeh kya ho raha hai??? Best move.e %f Index %d Size %d Best index + 5 %d\n",best_move.e, index, allmoves.size(), best_index+5);
-			// }
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e > best_move.e){
-					if (abs(opponent_move.e - 1000000) < 10000)
-						fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
+					// if (abs(opponent_move.e - 1000000) < 10000)
+						// fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
 				best_ptr = ptr;
+					// if(depth < 2){
+					// 	fprintf(stderr, "d %d index %d White Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
+					// }
 			}
 			antimove(ptr->second);
 			alpha = max(alpha, best_move.e);
@@ -165,10 +165,11 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 	}
 	else{
 		auto best_ptr = allmoves.begin();
+		// if(depth < 2) fprintf(stderr, "!!! d %d Black First move %s Eval %f\n", depth, best_ptr->second.to_string().c_str(), best_ptr->first);
 		if (best_ptr->first < -w[0]/2){
 			best_move.e = best_ptr->first;
 			best_move.m = best_ptr->second;
-			fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
+			if(depth < 2) fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
 			return;
 		}
 		bool x = true;
@@ -180,11 +181,14 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e < best_move.e){
-					if (abs(opponent_move.e - 1000000) < 10000)
-						fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
+					// if (abs(opponent_move.e - 1000000) < 10000)
+						// fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
 				best_ptr = ptr;
+					// if(depth < 2){
+					// 	fprintf(stderr, "d %d index %d Black Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
+					// }
 			}
 			antimove(ptr->second);
 			beta = min(beta, best_move.e);
@@ -280,7 +284,7 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 		}else{
 			int x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
 			int y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
-			if(is_cap){
+			if(GameBoard[m.x][m.y].top_piece().first == Cap){
 				p.x = x_new;
 				p.y = y_new;
 			}
@@ -300,7 +304,7 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 		}else{
 			int x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
 			int y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
-			if(is_cap){
+			if(GameBoard[x_new][y_new].top_piece().first == Cap){
 				p.x = m.x;
 				p.y = m.y;
 			}
@@ -415,8 +419,8 @@ void Game::GetStackable(int x, int y, bool cap, vector<int> &result){
 	int d = 0;
 	while (x-d-1 >= 0 && GameBoard[x-d-1][y].stackable())	d ++;
 	while (x+u+1 < size && GameBoard[x+u+1][y].stackable())	u ++;
-	while (y-l-1 >=0 && GameBoard[x][y-l-1].stackable())	l ++;
 	while (y+r+1 < size && GameBoard[x][y+r+1].stackable())	r ++;
+	while (y-l-1 >=0 && GameBoard[x][y-l-1].stackable())	l ++;
 	if (cap){
 		// cerr << "capable breh! \n";
 		if (x-d-1 >= 0 && GameBoard[x-d-1][y].capable())	d ++;	else d = -1;
@@ -428,6 +432,8 @@ void Game::GetStackable(int x, int y, bool cap, vector<int> &result){
 	result[1] = r;
 	result[2] = u;
 	result[3] = d;
+
+	// fprintf(stderr, "coord %d %d direction <%d >%d -%d +%d\n",x,y,l,r,u,d);
 	// return make_tuple(l,r,u,d);
 }
 
@@ -461,7 +467,8 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 		GetStackable(p.x, p.y, true, range);
 		int shiftmax = std::min((int)size,(int)GameBoard[p.x][p.y].Stack.size());
 
-		// fprintf(stderr, "Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
+		// if(p.x == 1 && p.y == 1)
+		// 	fprintf(stderr, "Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
 		// cap move :
 		int i = p.x;
 		int j = p.y;
@@ -535,9 +542,9 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
  					GetStackable(i,j,false,range);
 					
 					char dir[] = {'<', '>', '+', '-'};
-						// if (GameBoard[i][j].top_piece().first == Cap){
-						// 	fprintf(stderr, "Coordinates %d %d\n",i,j);
-						// 	fprintf(stderr, "Cap direction <%d >%d +%d -%d\n", range[0], range[1], range[2], range[3]);						
+						// if (i==1 && j==1){
+						// 	// fprintf(stderr, "Coordinates %d %d\n",i,j);
+						// 	fprintf(stderr, "direction <%d >%d -%d +%d\n", range[0], range[1], range[2], range[3]);						
 						// }
 					for(int r=0; r<4; ++r){
 						for (int m=1; m<=range[r]; ++m){

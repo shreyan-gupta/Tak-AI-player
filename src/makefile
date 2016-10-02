@@ -4,6 +4,12 @@ OBJ = main.o Misc.o Game.o Features.o Test.o
 
 all : out
 
+out1 : $(OBJ)
+	g++ $(LFLAGS) $(OBJ) -o out1
+
+out2 : $(OBJ)
+	g++ $(LFLAGS) $(OBJ) -o out2
+
 out : $(OBJ)
 	g++ $(LFLAGS) $(OBJ) -o out
 
@@ -27,7 +33,7 @@ client : Client.cpp
 
 clean : 
 	rm *.o
-	rm out
+	rm out*
 
 run : out
 	./out

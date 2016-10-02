@@ -142,7 +142,7 @@ public:
 	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
-	Feature f[5];
+	Feature f[6];
 	eval_type w[17];
 	Player p_black, p_white;
 

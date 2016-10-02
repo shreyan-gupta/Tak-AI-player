@@ -3,16 +3,29 @@
 int Size = 3; 
 int TimeLimit =1;
 bool opponent_type = White;
-const int max_depth = 6;
+const int max_depth = 5;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cerr << i;
 	std::cerr << ",";
 }
 
+void test_lrud(int x, int y){
+	Game g(5);
+	vector<int> v(4);
+	g.GetStackable(x,y,false,v);
+}
+
 
 int main(int argc, char const *argv[])
 {
+	// for(int i=0; i<5; ++i){
+	// 	for(int j=0; j<5; ++j){
+	// 		test_lrud(i,j);
+	// 	}
+	// }
+	// return 0;
+
 	// SET opponent_type !!!!
 	// Size = 3;
 	// getAllPerms(3);

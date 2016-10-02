@@ -106,6 +106,7 @@ eval_type Game::feature0(){
 			else return -w[0];
 		}
 	}
+	explored = vector< vector<bool> >(size, vector<bool>(size, false));
 	for(int j=0; j<size; ++j){
 		if(GameBoard[0][j].empty() || explored[0][j]) continue;
 		bool found = false;
