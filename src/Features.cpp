@@ -249,6 +249,11 @@ eval_type Game::feature3(){
 	return count;
 }
 
+eval_type game::feature4()
+{
+	return 0;
+}
+
 // Number of white and black on board
 // eval_type Game::feature4(){
 // 	float count = 0;
