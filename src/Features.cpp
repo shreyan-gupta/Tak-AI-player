@@ -249,9 +249,54 @@ eval_type Game::feature3(){
 	return count;
 }
 
-eval_type game::feature4()
+eval_type Game::feature4()
 {
-	return 0;
+	eval_type count = 0;
+	if ((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
+	{
+		// who won??
+		for (int i = 0 ; i < size ; i ++)
+		{
+			for (int j = 0 ; j < size ; j ++)
+			{
+				if (GameBoard[i][j].empty()) continue;
+				if (GameBoard[i][j].top_piece().second == White) count ++;
+				else count --;
+			}
+		}
+	}
+	return count*w[15];
+}
+
+
+eval_type Game::feature5(){
+	vector<vector<int> > influence (Size, vector<int> (Size,0));
+	int mult = 0;
+	eval_type count = 0;
+	for (int i = 0 ; i < Size ; i ++)
+	{
+		for (int j = 0 ; j < Size ; j ++)
+		{
+			if (GameBoard[i][j].empty()) continue;
+			mult = (GameBoard[i][j].top_piece().second == White) 1 : -1;
+			influence[i][j] += mult;
+			if (i > 0)
+				influence[i-1][j] += mult;
+			if (i < size-1)
+				influence[i+1][j] += mult;
+			if (j > 0)
+				influence[i][j-1] += mult;
+			if (j < size-1)
+				influence[i][j+1] += mult;
+		}
+	}
+	// counted all!!
+	for (int i = 0 ; i < size ; i ++)
+	{
+		for (int j = 0 ; j < size ; j ++)
+			count += influence[i][j];
+	}
+	return count*w[16];
 }
 
 // Number of white and black on board

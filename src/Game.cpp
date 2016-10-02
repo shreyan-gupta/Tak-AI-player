@@ -17,6 +17,8 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	f[1] = &Game::feature1;
 	f[2] = &Game::feature2;
 	f[3] = &Game::feature3;
+	f[4] = &Game::feature4;
+	f[5] = &Game::feature5;
 	
 	float piece_factor = 1;
 	float nbr_factor = 0.7;
@@ -24,6 +26,7 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 
 
 	w[0] = 1000000;
+	w[15] = 800000;
 
 	w[1] = 0.35;
 
@@ -42,6 +45,9 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	w[14] = nbr_factor * -2;
 	w[2]  = nbr_factor * -5;
 	w[3]  = nbr_factor * -7;
+
+	w[16] = 5;
+
 }
 
 string Game::to_string()

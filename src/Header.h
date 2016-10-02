@@ -32,6 +32,8 @@
 // w[2]  -> Flat 	Cap 	diff
 // w[3]  -> Stand 	Cap 	diff
 
+// w[15] -> No piece left win
+
 
 
 enum Stone{
@@ -132,14 +134,16 @@ private:
 	eval_type feature1();
 	eval_type feature2();
 	eval_type feature3();
+	eval_type feature4();
+	eval_type feature5();
 	eval_type nbr(Piece, Piece);
 	eval_type stone_weight(Stone);
 public:
 	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
-	Feature f[4];
-	eval_type w[15];
+	Feature f[5];
+	eval_type w[17];
 	Player p_black, p_white;
 
 	Game(int);
