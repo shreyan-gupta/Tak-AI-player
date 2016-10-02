@@ -69,7 +69,7 @@ eval_type Game::eval(){
 	// fprintf(stderr, "----- Call eval \n");
 
 	eval_type e = 0;
-	for(int i=0; i<4; ++i){
+	for(int i=0; i<6; ++i){
 		e += CALL_MEMBER_FN(this, f[i]) ();
 	}
 

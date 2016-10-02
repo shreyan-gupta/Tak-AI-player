@@ -278,7 +278,7 @@ eval_type Game::feature5(){
 		for (int j = 0 ; j < Size ; j ++)
 		{
 			if (GameBoard[i][j].empty()) continue;
-			mult = (GameBoard[i][j].top_piece().second == White) 1 : -1;
+			mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
 			influence[i][j] += mult;
 			if (i > 0)
 				influence[i-1][j] += mult;
