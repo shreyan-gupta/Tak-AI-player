@@ -6,12 +6,10 @@ inline bool pathable(int x, int y, bool player, vector< vector<Position> > &Game
 }
 
 void search(bool type, int x, int y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, int size){
-	// fprintf(stderr, "Search %d %d %d\n", x, y, found);
 	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
 	if(type && y == size-1){
 		found = true;
 		return;
-		
 	}
 	if(!type && x == size-1){
 		found = true;
@@ -27,69 +25,6 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 	if(y!=0 && pathable(x,y-1,player,GameBoard)) 
 		search(type, x, y-1, player, GameBoard, explored, found, size);
 }
-
-// int favourableStack(vector< vector<Position> > &Board, int i, int j)
-// {
-// 	Position &p = Board[i][j];
-// 	Player_Type s_top = p.Stack.front().second;
-// 	float mult = (s_top == White) ? 1 : -1;
-// 	bool opp_Wall_around = false;
-// 	bool opp_cap_around = false;
-// 	bool opp_around = false;
-// 	if (i+1 < Size)
-// 	{
-// 		if (!Board[i+1][j].empty() && Board[i+1][j].Stack.front().second != s_top)
-// 		{
-// 			opp_Wall_around = (Board[i+1][j].Stack.front().first == Stand);
-// 			opp_around = true;
-// 			opp_cap_around = (Board[i+1][j].Stack.front().first == Cap);
-// 		}
-// 	}
-// 	if (i-1 >= 0)
-// 	{
-// 		if (!Board[i-1][j].empty() && Board[i-1][j].Stack.front().second != s_top)
-// 		{
-// 			opp_Wall_around = opp_Wall_around || (Board[i-1][j].Stack.front().first == Stand);
-// 			opp_around = true;
-// 			opp_cap_around = (Board[i-1][j].Stack.front().first == Cap);
-// 		}		
-// 	}
-// 	if (j+1 < Size && !opp_Wall_around)
-// 	{
-// 		if (!Board[i][j+1].empty() && Board[i][j+1].Stack.front().second != s_top)
-// 		{
-// 			opp_Wall_around = opp_Wall_around || (Board[i][j+1].Stack.front().first == Stand);
-// 			opp_around = true;
-// 			opp_cap_around = (Board[i][j+1].Stack.front().first == Cap);
-// 		}
-// 	}
-// 	if (j-1 >= 0 && !opp_Wall_around)
-// 	{
-// 		if (!Board[i][j-1].empty() && Board[i][j-1].Stack.front().second != s_top)
-// 		{
-// 			opp_Wall_around = opp_Wall_around || (Board[i][j-1].Stack.front().first == Stand);
-// 			opp_around = true;
-// 			opp_cap_around = (Board[i][j-1].Stack.front().first == Cap);
-// 		}
-// 	}
-
-// 	float ans = 0.0;
-// 	if (opp_around)
-// 	{
-// 		if (p.Stack.front().first == Flat)
-// 		{
-// 			if (opp_Wall_around) ans = 2;
-// 			else ans = 5;
-// 		}
-// 		else if (p.Stack.front().first == Stand)
-// 			ans = 6;
-// 		else
-// 			ans = 15;
-// 	}
-// 	else
-// 		ans = 12;
-// 	return mult*ans;
-// }
 
 // path
 eval_type Game::feature0(){
@@ -189,36 +124,6 @@ eval_type Game::feature2(){
 	return count;
 }
 
-// neighbour weights
-// eval_type Game::feature2(){
-// 	eval_type count = 0;
-// 	if(p_white.CapLeft){
-// 		int x = p_white.x;
-// 		int y = p_white.y;
-// 		if(y != size-1 && !GameBoard[x][y+1].empty() && GameBoard[x][y+1].top_piece().second == Black)
-// 			count += cap_neighbour(GameBoard[x][y+1].top_piece().first);
-// 		if(x != size-1 && !GameBoard[x+1][y].empty() && GameBoard[x+1][y].top_piece().second == Black)
-// 			count += cap_neighbour(GameBoard[x+1][y].top_piece().first);
-// 		if(y != 0 && !GameBoard[x][y-1].empty() && GameBoard[x][y-1].top_piece().second == Black)
-// 			count += cap_neighbour(GameBoard[x][y-1].top_piece().first);
-// 		if(x != 0 && !GameBoard[x-1][y].empty() && GameBoard[x-1][y].top_piece().second == Black)
-// 			count += cap_neighbour(GameBoard[x-1][y].top_piece().first);
-// 	}
-// 	if(p_black.CapLeft){
-// 		int x = p_black.x;
-// 		int y = p_black.y;
-// 		if(y != size-1 && !GameBoard[x][y+1].empty() && GameBoard[x][y+1].top_piece().second == White)
-// 			count -= cap_neighbour(GameBoard[x][y+1].top_piece().first);
-// 		if(x != size-1 && !GameBoard[x+1][y].empty() && GameBoard[x+1][y].top_piece().second == White)
-// 			count -= cap_neighbour(GameBoard[x+1][y].top_piece().first);
-// 		if(y != 0 && !GameBoard[x][y-1].empty() && GameBoard[x][y-1].top_piece().second == White)
-// 			count -= cap_neighbour(GameBoard[x][y-1].top_piece().first);
-// 		if(x != 0 && !GameBoard[x-1][y].empty() && GameBoard[x-1][y].top_piece().second == White)
-// 			count -= cap_neighbour(GameBoard[x-1][y].top_piece().first);
-// 	}
-// 	return count;
-// }
-
 eval_type Game::stone_weight(Stone s){
 	switch(s){
 		case Flat : return w[6];
@@ -250,23 +155,23 @@ eval_type Game::feature3(){
 	return count;
 }
 
-eval_type Game::feature4()
-{
+eval_type Game::feature4(){
 	eval_type count = 0;
-	if ((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
-	{
-		// who won??
-		for (int i = 0 ; i < size ; i ++)
-		{
-			for (int j = 0 ; j < size ; j ++)
-			{
-				if (GameBoard[i][j].empty()) continue;
-				if (GameBoard[i][j].top_piece().second == White) count ++;
-				else count --;
+	bool full = true;
+	for (int i = 0 ; i < size ; ++i){
+		for (int j = 0 ; j < size ; ++j){
+			if (GameBoard[i][j].empty()){
+				full = false;
+				continue;
 			}
+			if (GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == White) ++count;
+			else if(GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == Black) --count;
 		}
 	}
-	return count*w[15];
+	if(full) return count*w[15];
+	else if((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
+		return count*w[15];
+	else return 0;
 }
 
 

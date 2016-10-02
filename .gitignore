@@ -26,7 +26,7 @@
 
 # Executables
 /src/*.exe
-/src/out
+/src/out*
 /src/*.stackdump
 *.exe
 *.out

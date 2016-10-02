@@ -10,22 +10,31 @@ void printVec(vector<int> & v){
 	std::cerr << ",";
 }
 
-void test_lrud(int x, int y){
-	Game g(5);
-	vector<int> v(4);
-	g.GetStackable(x,y,false,v);
+void test_cap(Game &g){
+	if(g.p_black.x != -1 && g.p_black.y != -1){
+		if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first != Cap){
+			string s;
+			if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first == Cap) s = "Cap";
+			else if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first == Flat) s = "Flat";
+			else s = "Stand";
+			fprintf(stderr, "Black Cap ki coordinates are wrong!!! %d %d %s\n",g.p_black.x, g.p_black.y, s.c_str());
+		}
+	}
+
+	if(g.p_white.x != -1 && g.p_white.y != -1){
+		if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first != Cap){
+			string s;
+			if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first == Cap) s = "Cap";
+			else if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first == Flat) s = "Flat";
+			else s = "Stand";
+			fprintf(stderr, "White Cap ki coordinates are wrong!!! %d %d %s\n",g.p_white.x, g.p_white.y, s.c_str());
+		}
+	}
 }
 
 
 int main(int argc, char const *argv[])
 {
-	// for(int i=0; i<5; ++i){
-	// 	for(int j=0; j<5; ++j){
-	// 		test_lrud(i,j);
-	// 	}
-	// }
-	// return 0;
-
 	// SET opponent_type !!!!
 	// Size = 3;
 	// getAllPerms(3);
@@ -64,7 +73,10 @@ int main(int argc, char const *argv[])
 			cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
 			fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
-			// cerr << (mymove.m.to_string()) << endl;
+			// fprintf(stderr, "White CAP %d %d\n",g.p_white.x, g.p_white.y);
+			// fprintf(stderr, "Black CAP %d %d\n",g.p_black.x, g.p_black.y);
+			test_cap(g);
+
 			cout << (mymove.m.to_string()) << endl;
 			cerr << g.to_string() << endl;
 
@@ -72,6 +84,7 @@ int main(int argc, char const *argv[])
 			cin >> s_opp;
 			cerr << "out received MOVE : " << s_opp << endl;
 			g.make_opponent_move(s_opp,opponent_type);
+			
 			Test::print_index();
 		}
 	}
@@ -102,9 +115,13 @@ int main(int argc, char const *argv[])
 			cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
 			fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
-			// cerr << (mymove.m.to_string()) << endl;
+			// fprintf(stderr, "White CAP %d %d\n",g.p_white.x, g.p_white.y);
+			// fprintf(stderr, "Black CAP %d %d\n",g.p_black.x, g.p_black.y);
+			test_cap(g);
+
 			cout << (mymove.m.to_string()) << endl;
 			cerr << g.to_string() << endl;
+			
 			Test::print_index();
 		}
 	}
