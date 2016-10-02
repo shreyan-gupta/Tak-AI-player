@@ -148,7 +148,7 @@ public:
 	void antimove(Move&);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
 	void GetStackable(int, int, bool, vector<int>&);
-	void decide_move(Eval_Move&, bool, int, int);
+	void decide_move(Eval_Move&, bool, int, int, eval_type, eval_type);
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void make_opponent_move(string,bool);
 };

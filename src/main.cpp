@@ -3,7 +3,7 @@
 int Size = 3; 
 int TimeLimit =1;
 bool opponent_type = White;
-const int max_depth = 4;
+const int max_depth = 6;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cerr << i;
@@ -47,10 +47,11 @@ int main(int argc, char const *argv[])
 		while (true)
 		{
 			Eval_Move mymove;
-			g.decide_move(mymove,!opponent_type,0,max_depth);
+			g.decide_move(mymove, !opponent_type, 0, max_depth, -2*g.w[0], 2*g.w[0]);
 			cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
-			cerr << (mymove.m.to_string()) << endl;
+			fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
+			// cerr << (mymove.m.to_string()) << endl;
 			cout << (mymove.m.to_string()) << endl;
 			cerr << g.to_string() << endl;
 
@@ -84,10 +85,11 @@ int main(int argc, char const *argv[])
 			g.make_opponent_move(s, opponent_type);
 			cerr << g.to_string() << endl;
 			Eval_Move mymove;
-			g.decide_move(mymove,!opponent_type,0,max_depth);
+			g.decide_move(mymove, !opponent_type, 0, max_depth, -2*g.w[0], 2*g.w[0]);
 			cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
-			cerr << (mymove.m.to_string()) << endl;
+			fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
+			// cerr << (mymove.m.to_string()) << endl;
 			cout << (mymove.m.to_string()) << endl;
 			cerr << g.to_string() << endl;
 			Test::print_index();

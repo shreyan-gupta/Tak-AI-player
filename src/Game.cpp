@@ -31,7 +31,7 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	w[5] = piece_factor * 2;
 
 	w[6] = top_factor * 7;
-	w[7] = top_factor * 2;
+	w[7] = top_factor * 5;
 	w[8] = top_factor * 11;
 
 	w[9]  = nbr_factor * 9.5;
@@ -75,7 +75,7 @@ void n_tabs(int n){
 	for(int i=0; i<n; ++i) cerr << "  ";
 }
 
-void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth){
+void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth, eval_type alpha, eval_type beta){
 	
 	// n_tabs(depth); fprintf(stderr, "Plyr:%d Depth:%d\n",player,depth);
 
@@ -94,16 +94,20 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			auto ptr = allmoves.rbegin();
 			best_move.e = ptr->first;
 			best_move.m = ptr->second;
+			// alpha = ptr->first;		// max pe opp ka beta
 		}else{
 			auto ptr = allmoves.begin();
 			best_move.e = ptr->first;
-			best_move.m = ptr->second;
+			best_move.m = ptr->second;		
+			// beta = ptr->first;	// min pe opp ka alpha
 		}
 		// n_tabs(depth); fprintf(stderr, "%s : Best move\n",best_move.m.to_string().c_str());
 		return;
 	}
 
 	Eval_Move opponent_move;
+	// eval_type alpha = -2*w[0];
+	// eval_type beta = 2*w[0];
 	if(player == White) best_move.e = E_MIN;
 	else best_move.e = E_MAX;
 
@@ -115,12 +119,17 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 		if (best_ptr->first > w[0]/2){
 			best_move.e = best_ptr->first;
 			best_move.m = best_ptr->second;
+			fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
 			return;
 		}
-		for(auto ptr = allmoves.rbegin(); ptr != allmoves.rend() && index < best_index + 5; ++ptr){
+		bool x = true;
+		for(auto ptr = allmoves.rbegin(); x; ++ptr){
 			++index;
+			// if(ptr == allmoves.rend()){
+			// 	fprintf(stderr, "Yeh kya ho raha hai??? Best move.e %f Index %d Size %d Best index + 5 %d\n",best_move.e, index, allmoves.size(), best_index+5);
+			// }
 			makemove(ptr->second);
-			decide_move(opponent_move, !player, depth+1, max_depth);
+			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e > best_move.e){
 					if (abs(opponent_move.e - 1000000) < 10000)
 						fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
@@ -129,6 +138,18 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 				best_ptr = ptr;
 			}
 			antimove(ptr->second);
+			alpha = max(alpha, best_move.e);
+			if(best_move.e >= beta){
+				best_move.m = best_ptr->second;
+				return;
+			}
+			x = (index < best_index + 5);
+			if(!x && best_move.e < -w[0]/2){
+				// fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
+				x = true;
+			}
+			x = (x && (++ptr) != allmoves.rend());
+			--ptr;
 		}
 		best_move.m = best_ptr->second;
 
@@ -141,12 +162,17 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 		if (best_ptr->first < -w[0]/2){
 			best_move.e = best_ptr->first;
 			best_move.m = best_ptr->second;
+			fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
 			return;
 		}
-		for(auto ptr = allmoves.begin(); ptr != allmoves.end() && index < best_index + 5; ++ptr){
+		bool x = true;
+		for(auto ptr = allmoves.begin(); x; ++ptr){
 			++index;
+			// if(ptr == allmoves.end()){
+			// 	fprintf(stderr, "Yeh kya ho raha hai??? Best move.e %f Index %d Size %d Best index + 5 %d\n",best_move.e, index, allmoves.size(), best_index+5);
+			// }
 			makemove(ptr->second);
-			decide_move(opponent_move, !player, depth+1, max_depth);
+			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e < best_move.e){
 					if (abs(opponent_move.e - 1000000) < 10000)
 						fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
@@ -155,6 +181,18 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 				best_ptr = ptr;
 			}
 			antimove(ptr->second);
+			beta = min(beta, best_move.e);
+			if(best_move.e <= alpha){
+				best_move.m = best_ptr->second;
+				return;
+			}
+			x = (index < best_index + 5);
+			if(!x && best_move.e > w[0]/2){
+				// fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
+				x = true;
+			}
+			x = (x && (++ptr) != allmoves.end());
+			--ptr;
 		}
 		best_move.m = best_ptr->second;
 		sum_index[depth] += best_index;
