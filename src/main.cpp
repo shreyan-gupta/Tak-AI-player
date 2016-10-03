@@ -32,6 +32,13 @@ void test_cap(Game &g){
 	}
 }
 
+int moves = 0;
+
+int manage_depth(){
+	if(moves < Size/2 + 1) return 2;
+	else return 5;
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -46,15 +53,20 @@ int main(int argc, char const *argv[])
 	Size = 3;
 	cerr << "Enter player_no, size, TimeLimit\n";
 	cin >> player_no >> Size >> TimeLimit;
-	cerr << player_no << Size << TimeLimit;
-	// int player_no;
-	// cin >> player_no >> Size >> TimeLimit;
-	Game g(Size);
+
+	int pieces;
+	switch(Size){
+		case 5 : pieces = 21; break;
+		case 6 : pieces = 30; break;
+		case 7 : pieces = 40; break;
+		default : pieces = 10;
+	}
+
+	Game g(Size, pieces);
 	opponent_type = (player_no == 2) ? White : Black;
 	getAllPerms(Size);
 
-	if (!opponent_type == White)
-		cerr << "You are White"  << endl;
+		// if (!opponent_type == White) cerr << "You are White"  << endl;
 	if (player_no == 1)
 	{
 		// i give oppo move:
@@ -65,64 +77,63 @@ int main(int argc, char const *argv[])
 		string mypiece_opp;
 		cin >> mypiece_opp;
 		g.make_opponent_move(mypiece_opp,!opponent_type);
+		++moves;
 
 		while (true)
 		{
 			Eval_Move mymove;
-			g.decide_move(mymove, !opponent_type, 0, max_depth, -2*g.w[0], 2*g.w[0]);
-			cerr << g.to_string() << endl;
+			g.decide_move(mymove, !opponent_type, 0, manage_depth(), -2*g.w[0], 2*g.w[0]);
+				cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
-			fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
-			// fprintf(stderr, "White CAP %d %d\n",g.p_white.x, g.p_white.y);
-			// fprintf(stderr, "Black CAP %d %d\n",g.p_black.x, g.p_black.y);
-			test_cap(g);
+				fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
+				test_cap(g);
 
 			cout << (mymove.m.to_string()) << endl;
-			cerr << g.to_string() << endl;
+				cerr << g.to_string() << endl;
 
 			string s_opp;
 			cin >> s_opp;
-			cerr << "out received MOVE : " << s_opp << endl;
+				cerr << "out received MOVE : " << s_opp << endl;
 			g.make_opponent_move(s_opp,opponent_type);
-			
-			Test::print_index();
+				Test::print_index();
+			++moves;
 		}
 	}
 	else
 	{
 		string s;
 		cin >> s;
-		cerr << "out received MOVE : " << s << endl;
+			cerr << "out received MOVE : " << s << endl;
 		g.make_opponent_move(s, !opponent_type);
 		string s_opp;
 		if (g.GameBoard[0][0].empty())
 			s_opp = "Fa" + to_string(Size);
 		else
 			s_opp = "Fa1";
-
+		++moves;
 		cout << s_opp << endl;
 		g.make_opponent_move(s_opp,opponent_type);
-
+		
 		while (true)
 		{
 			string s;
 			cin >> s;
-			cerr << "out received MOVE : " << s << endl;
+				cerr << "out received MOVE : " << s << endl;
 			g.make_opponent_move(s, opponent_type);
-			cerr << g.to_string() << endl;
+				cerr << g.to_string() << endl;
 			Eval_Move mymove;
-			g.decide_move(mymove, !opponent_type, 0, max_depth, -2*g.w[0], 2*g.w[0]);
-			cerr << g.to_string() << endl;
+			g.decide_move(mymove, !opponent_type, 0, manage_depth(), -2*g.w[0], 2*g.w[0]);
+				cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
-			fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
-			// fprintf(stderr, "White CAP %d %d\n",g.p_white.x, g.p_white.y);
-			// fprintf(stderr, "Black CAP %d %d\n",g.p_black.x, g.p_black.y);
-			test_cap(g);
+				fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
+				// fprintf(stderr, "White CAP %d %d\n",g.p_white.x, g.p_white.y);
+				// fprintf(stderr, "Black CAP %d %d\n",g.p_black.x, g.p_black.y);
+				test_cap(g);
 
 			cout << (mymove.m.to_string()) << endl;
-			cerr << g.to_string() << endl;
-			
-			Test::print_index();
+				cerr << g.to_string() << endl;
+				Test::print_index();
+			++moves;
 		}
 	}
 

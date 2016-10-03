@@ -34,7 +34,7 @@
 
 // w[15] -> No piece left win
 
-
+// w[16] -> sum of influence
 
 enum Stone{
 	Flat, Stand, Cap
@@ -146,7 +146,7 @@ public:
 	eval_type w[17];
 	Player p_black, p_white;
 
-	Game(int);
+	Game(int, int);
 	eval_type eval();
 	void makemove(Move&);		// inputs yet to define
 	void antimove(Move&);

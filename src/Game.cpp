@@ -9,10 +9,11 @@ eval_type E_MAX = +99999999999;
 Piece NULL_PIECE = make_pair(Flat, false);
 Move NULL_MOVE = Move(-1, -1, NULL_PIECE);
 
-Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
+Game::Game(int size, int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces))
 {
 	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
+
 	f[0] = &Game::feature0;
 	f[1] = &Game::feature1;
 	f[2] = &Game::feature2;
@@ -22,7 +23,7 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	
 	float piece_factor = 1;
 	float nbr_factor = 0.7;
-	float top_factor = 1;
+	float top_factor = 2;
 
 
 	w[0] = 1000000;
@@ -30,8 +31,8 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 
 	w[1] = 0.35;
 
-	w[4] = piece_factor * 3;
-	w[5] = piece_factor * 2;
+	w[4] = piece_factor * 4;
+	w[5] = piece_factor * 1;	// original 2
 
 	w[6] = top_factor * 7;
 	w[7] = top_factor * 5;
@@ -41,12 +42,12 @@ Game::Game(int size) : p_white(Player(White, 100)), p_black(Player(Black, 100))
 	w[10] = nbr_factor * 5;
 	w[11] = nbr_factor * 8.5;
 	w[12] = nbr_factor * -2;
-	w[13] = nbr_factor * 6.5;
+	w[13] = nbr_factor * 3;
 	w[14] = nbr_factor * -2;
-	w[2]  = nbr_factor * -5;
-	w[3]  = nbr_factor * -7;
+	w[2]  = nbr_factor * -4;
+	w[3]  = nbr_factor * -5;
 
-	w[16] = 5;
+	w[16] = 7;
 
 }
 
@@ -122,8 +123,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e > best_move.e){
-					// if (abs(opponent_move.e - 1000000) < 10000)
-						// fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
+					if (abs(opponent_move.e - 1000000) < 10000)
+						fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
 				best_ptr = ptr;
@@ -135,13 +136,13 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			alpha = max(alpha, best_move.e);
 			if(best_move.e >= beta){
 				best_move.m = best_ptr->second;
-				fprintf(stderr, "Prune index %d depth %d\n",index,depth);
+				// fprintf(stderr, "Prune index %d depth %d\n",index,depth);
 				return;
 			}
 			x = (index < best_index + 5 || best_move.e < -w[0]/2);
-			if(best_move.e < -w[0]/2){
-				fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
-			}
+			// if(best_move.e < -w[0]/2){
+			// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
+			// }
 		}
 		best_move.m = best_ptr->second;
 
@@ -163,8 +164,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e < best_move.e){
-					// if (abs(opponent_move.e - 1000000) < 10000)
-						// fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
+					if (abs(opponent_move.e - 1000000) < 10000)
+						fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
 				best_ptr = ptr;
@@ -176,13 +177,13 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			beta = min(beta, best_move.e);
 			if(best_move.e <= alpha){
 				best_move.m = best_ptr->second;
-				fprintf(stderr, "Prune index %d depth %d\n",index,depth);
+				// fprintf(stderr, "Prune index %d depth %d\n",index,depth);
 				return;
 			}
 			x = (index < best_index + 5 || best_move.e > w[0]/2);
-			if(best_move.e > w[0]/2){
-				fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
-			}
+			// if(best_move.e > w[0]/2){
+			// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
+			// }
 		}
 		best_move.m = best_ptr->second;
 		sum_index[depth] += best_index;
@@ -227,7 +228,14 @@ void Game::make_opponent_move(string s, bool player)
 		for (int i = 0 ; i < s.length() - 4 ; i ++)
 			drops[i] = (int)(s.at(i+4) - '0');
 		m.Drops = &drops;
-		printVec(*m.Drops);
+		int x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
+		int y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));		printVec(*m.Drops);
+		if (GameBoard[m.x][m.y].top_piece().first == Cap)
+		{
+			Position &p = GameBoard[x_new][y_new];
+			if (!p.empty() && p.top_piece().first == Stand)
+				m.CapMove = true;
+		}
 		makemove(m);
 		// cerr << "Oppo move is :::: " << m.to_string() << endl;
 	}
@@ -432,17 +440,17 @@ void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &mo
 					if(d.back() == 1){
 						Move m(i,j,dir[r],&d);
 						m.CapMove = true;
-							// string s1 = to_string();
+							string s1 = to_string();
 						makemove(m);
 						moves.insert(make_pair(eval(), m));
 						antimove(m);
-							// string s2 = to_string();
-							// if(s1.compare(s2) != 0){
-							// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-							// 	fprintf(stderr, "Board is %s\n",s1.c_str());
-							// 	fprintf(stderr, "Board is %s\n",s2.c_str());
-							// 	fprintf(stderr, "At move %s\n",m.to_string().c_str());
-							// }
+							string s2 = to_string();
+							if(s1.compare(s2) != 0){
+								fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
+								fprintf(stderr, "Board is %s\n",s1.c_str());
+								fprintf(stderr, "Board is %s\n",s2.c_str());
+								fprintf(stderr, "At move %s\n",m.to_string().c_str());
+							}
 					}
 				}
 			}

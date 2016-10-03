@@ -17,7 +17,7 @@ void Test::print_index(){
 }
 
 bool Test::checkPath(){
-	Game g(3);
+	Game g(3,100);
 	multimap<eval_type,Move> moves;
 	Move m1(2,0,piece(Flat,White));
 	Move m2(2,1,piece(Flat,White));
@@ -36,7 +36,7 @@ bool Test::checkPath(){
 bool Test::checkMove()
 {
 	std::cerr << "Moves -> \n";
-	Game g(3);
+	Game g(3,100);
 
 	// Piece p = piece(Flat,White);
 	Move m(2,1,piece(Flat,White));
@@ -64,7 +64,7 @@ bool Test::checkMove()
 bool Test::checkValid()
 {
 	std::cerr << "Valid Moves -> \n";
-	Game g(3);
+	Game g(3,100);
 
 	Move m(2,1,piece(Cap,White));
 	cerr << m.to_string() << std::endl;
@@ -115,7 +115,7 @@ bool Test::checkValid()
 
 bool Test::checkfavourable()
 {
-	Game g(3);
+	Game g(3,100);
 
 	Move m(2,1,piece(Flat,White));
 	cerr << m.to_string() << std::endl;
