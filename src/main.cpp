@@ -37,6 +37,12 @@ int moves = 0;
 int manage_depth(){
 	if(moves < Size/2 + 1) return 2;
 	else return 5;
+	// time left/(10 + 2*empty) itni aim for a depth.
+	// stop when time since this search*abhi branch factor > 2*aim...
+}
+
+void cmd_args(int argc, char const *argv[], Game g){
+	
 }
 
 

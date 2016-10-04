@@ -34,7 +34,7 @@ Game::Game(int size, int pieces) : p_white(Player(White, pieces)), p_black(Playe
 	w[4] = piece_factor * 4;
 	w[5] = piece_factor * 1;	// original 2
 
-	w[6] = top_factor * 7;
+	w[6] = top_factor * 11;
 	w[7] = top_factor * 5;
 	w[8] = top_factor * 11;
 
@@ -114,7 +114,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 		if (best_ptr->first > w[0]/2){
 			best_move.e = best_ptr->first;
 			best_move.m = best_ptr->second;
-			// if(depth < 2) fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
+			if(depth < 2) fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
 			return;
 		}
 		bool x = true;
@@ -123,7 +123,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			makemove(ptr->second);
 			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
 			if(opponent_move.e > best_move.e){
-					if (abs(opponent_move.e - 1000000) < 10000)
+					if (abs(opponent_move.e + 1000000) < 10000)
 						fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
 				best_index = index;
 				best_move.e = opponent_move.e;
@@ -136,7 +136,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			alpha = max(alpha, best_move.e);
 			if(best_move.e >= beta){
 				best_move.m = best_ptr->second;
-				// fprintf(stderr, "Prune index %d depth %d\n",index,depth);
+				// fprintf(stderr, "Prune %d depth %d\n",index,depth);
 				return;
 			}
 			x = (index < best_index + 5 || best_move.e < -w[0]/2);
@@ -155,8 +155,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 		if (best_ptr->first < -w[0]/2){
 			best_move.e = best_ptr->first;
 			best_move.m = best_ptr->second;
-			// if(depth < 2) fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
-			// return;
+			if(depth < 2) fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
+			return;
 		}
 		bool x = true;
 		for(auto ptr = allmoves.begin(); x && ptr != allmoves.end(); ++ptr){
@@ -177,7 +177,7 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			beta = min(beta, best_move.e);
 			if(best_move.e <= alpha){
 				best_move.m = best_ptr->second;
-				// fprintf(stderr, "Prune index %d depth %d\n",index,depth);
+				// fprintf(stderr, "Prune %d depth %d\n",index,depth);
 				return;
 			}
 			x = (index < best_index + 5 || best_move.e > w[0]/2);

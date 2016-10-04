@@ -35,7 +35,8 @@ eval_type Game::feature0(){
 		bool found = false;
 		int x = i;
 		int y = 0;
-		search(true,x,y,GameBoard[i][0].top_piece().second, GameBoard, explored, found, size);
+		if (GameBoard[i][0].top_piece().first != Stand)
+			search(true,x,y,GameBoard[i][0].top_piece().second, GameBoard, explored, found, size);
 		if(found){
 			if(GameBoard[i][0].top_piece().second == White) return w[0];
 			else return -w[0];
@@ -47,7 +48,8 @@ eval_type Game::feature0(){
 		bool found = false;
 		int x = 0;
 		int y = j;
-		search(false,x,y,GameBoard[0][j].top_piece().second, GameBoard, explored, found, size);
+		if (GameBoard[0][j].top_piece().first != Stand)
+			search(false,x,y,GameBoard[0][j].top_piece().second, GameBoard, explored, found, size);
 		if(found){
 			if(GameBoard[0][j].top_piece().second == White) return w[0];
 			else return -w[0];
