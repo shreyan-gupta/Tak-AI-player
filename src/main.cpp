@@ -43,7 +43,7 @@ int manage_depth(){
 }
 
 void cmd_args(int argc, char const *argv[], Game g){
-	
+
 }
 
 
