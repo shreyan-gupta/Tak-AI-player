@@ -7984,3 +7984,306 @@ Depth count 3 : 1954	4 : 562	5 : 112	6 : 16	Avg time 0.054759	0.190391	0.955357	
 Depth count 3 : 1759	4 : 447	5 : 101	6 : 12	Avg time 0.059125	0.232662	1.029703	8.666667	
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Playtak
+Depth count 3 : 6	4 : 1	Avg time 0.166667	1.000000	
+Depth count 3 : 7	4 : 1	Avg time 0.000000	0.000000	
+Depth count 3 : 13	4 : 2	Avg time 0.153846	1.000000	
+Depth count 3 : 17	4 : 2	Avg time 0.058824	0.500000	
+Depth count 3 : 152	4 : 32	Avg time 0.046053	0.218750	
+Depth count 3 : 104	4 : 16	Avg time 0.048077	0.312500	
+Depth count 3 : 307	4 : 70	Avg time 0.045603	0.200000	
+Depth count 3 : 340	4 : 66	Avg time 0.041176	0.212121	
+Depth count 3 : 375	4 : 86	Avg time 0.048000	0.209302	
+Depth count 3 : 451	4 : 85	Avg time 0.042129	0.223529	
+Depth count 3 : 579	4 : 131	Avg time 0.048359	0.213740	
+Depth count 3 : 545	4 : 102	Avg time 0.044037	0.235294	
+Depth count 3 : 639	4 : 147	Avg time 0.046948	0.204082	
+Depth count 3 : 776	4 : 147	Avg time 0.042526	0.224490	
+Depth count 3 : 735	4 : 171	Avg time 0.046259	0.198830	
+Depth count 3 : 913	4 : 174	Avg time 0.044907	0.235632	
+Depth count 3 : 981	4 : 214	Avg time 0.045872	0.210280	
+Depth count 3 : 1388	4 : 268	Avg time 0.047550	0.246269	
+Depth count 3 : 1183	4 : 256	Avg time 0.045647	0.210938	
+Depth count 3 : 1649	4 : 321	Avg time 0.047908	0.246106	
+Depth count 3 : 1305	4 : 285	Avg time 0.045977	0.210526	
+Depth count 3 : 1724	4 : 335	Avg time 0.047564	0.244776	
+Depth count 3 : 1385	4 : 306	Avg time 0.046931	0.212418	
+Depth count 3 : 1833	4 : 359	Avg time 0.046918	0.239554	
+Depth count 3 : 1440	4 : 327	Avg time 0.047917	0.211009	
+Depth count 3 : 1931	4 : 378	Avg time 0.046608	0.238095	
+Depth count 3 : 1542	4 : 364	Avg time 0.048638	0.206044	
+Depth count 3 : 2034	4 : 395	Avg time 0.046706	0.240506	
+Depth count 3 : 1692	4 : 400	Avg time 0.048463	0.205000	
+Depth count 3 : 2247	4 : 451	Avg time 0.047619	0.237251	
+Depth count 3 : 1772	4 : 424	Avg time 0.049661	0.207547	
+Depth count 3 : 2423	4 : 484	Avg time 0.047875	0.239669	
+Depth count 3 : 1845	4 : 446	Avg time 0.052575	0.217489	
+Depth count 3 : 6	4 : 1	Avg time 0.000000	0.000000	
+Depth count 3 : 7	4 : 1	Avg time 0.142857	1.000000	
+Depth count 3 : 18	4 : 2	Avg time 0.000000	0.000000	
+Depth count 3 : 13	4 : 2	Avg time 0.076923	0.500000	
+Depth count 3 : 139	4 : 30	Avg time 0.028777	0.133333	
+Depth count 3 : 125	4 : 21	Avg time 0.040000	0.238095	
+Depth count 3 : 352	4 : 77	Avg time 0.036932	0.168831	
+Depth count 3 : 229	4 : 42	Avg time 0.039301	0.214286	
+Depth count 3 : 564	4 : 115	Avg time 0.037234	0.182609	
+Depth count 3 : 329	4 : 75	Avg time 0.042553	0.186667	
+Depth count 3 : 693	4 : 142	Avg time 0.038961	0.190141	
+Depth count 3 : 437	4 : 95	Avg time 0.041190	0.189474	
+Depth count 3 : 842	4 : 172	Avg time 0.045131	0.220930	
+Depth count 3 : 620	4 : 132	Avg time 0.041935	0.196970	
+Depth count 3 : 1004	4 : 208	Avg time 0.042829	0.206731	
+Depth count 3 : 682	4 : 153	Avg time 0.043988	0.196078	
+Depth count 3 : 1338	4 : 273	Avg time 0.042601	0.208791	
+Depth count 3 : 975	4 : 212	Avg time 0.045128	0.207547	
+Depth count 3 : 1470	4 : 300	Avg time 0.044218	0.216667	
+Depth count 3 : 1075	4 : 234	Avg time 0.044651	0.205128	
+Depth count 3 : 1682	4 : 332	Avg time 0.044590	0.225904	
+Depth count 3 : 1349	4 : 317	Avg time 0.049666	0.211356	
+Depth count 3 : 1900	4 : 367	Avg time 0.045789	0.237057	
+Depth count 3 : 1602	4 : 375	Avg time 0.050562	0.216000	
+Depth count 3 : 1997	4 : 387	Avg time 0.046069	0.237726	
+Depth count 3 : 1646	4 : 385	Avg time 0.050425	0.215584	
+Depth count 3 : 2252	4 : 441	Avg time 0.046181	0.235828	
+Depth count 3 : 1749	4 : 399	Avg time 0.049743	0.218045	
+Depth count 3 : 2385	4 : 475	Avg time 0.047379	0.237895	
+Depth count 3 : 1827	4 : 415	Avg time 0.049808	0.219277	
+Depth count 3 : 2606	4 : 527	Avg time 0.049501	0.244782	
+Depth count 3 : 1937	4 : 435	Avg time 0.050594	0.225287	
+Depth count 3 : 3005	4 : 622	Avg time 0.051248	0.247588	
+Depth count 3 : 1994	4 : 461	Avg time 0.051655	0.223427	
+Depth count 3 : 3172	4 : 658	Avg time 0.051387	0.247720	
+Depth count 3 : 2042	4 : 475	Avg time 0.052889	0.227368	
+Depth count 3 : 3291	4 : 685	Avg time 0.051656	0.248175	
+Depth count 3 : 2335	4 : 532	Avg time 0.056103	0.246241	
+Depth count 3 : 3388	4 : 703	Avg time 0.052243	0.251778	
+Depth count 3 : 2539	4 : 587	Avg time 0.059078	0.255537	
+Depth count 3 : 3594	4 : 734	Avg time 0.053422	0.261580	
+Depth count 3 : 2744	4 : 664	Avg time 0.064869	0.268072	
+Depth count 3 : 3703	4 : 753	Avg time 0.053470	0.262948	
+Depth count 3 : 2744	4 : 664	Avg time 0.064869	0.268072	
+Depth count 3 : 3703	4 : 753	Avg time 0.053470	0.262948	
+Depth count 3 : 6	4 : 1	Avg time 0.000000	0.000000	
+Depth count 3 : 7	4 : 1	Avg time 0.142857	1.000000	
+Depth count 3 : 18	4 : 2	Avg time 0.000000	0.000000	
+Depth count 3 : 13	4 : 2	Avg time 0.153846	1.000000	
+Depth count 3 : 144	4 : 30	Avg time 0.034722	0.166667	
+Depth count 3 : 125	4 : 21	Avg time 0.040000	0.238095	
+Depth count 3 : 331	4 : 73	Avg time 0.036254	0.164384	
+Depth count 3 : 229	4 : 42	Avg time 0.039301	0.214286	
+Depth count 3 : 530	4 : 111	Avg time 0.035849	0.171171	
+Depth count 3 : 329	4 : 75	Avg time 0.042553	0.186667	
+Depth count 3 : 646	4 : 136	Avg time 0.037152	0.176471	
+Depth count 3 : 437	4 : 95	Avg time 0.041190	0.189474	
+Depth count 3 : 791	4 : 164	Avg time 0.042984	0.207317	
+Depth count 3 : 684	4 : 141	Avg time 0.039474	0.191489	
+Depth count 3 : 908	4 : 185	Avg time 0.042952	0.210811	
+Depth count 3 : 798	4 : 179	Avg time 0.040100	0.178771	
+Depth count 3 : 1035	4 : 208	Avg time 0.042512	0.211538	
+Depth count 3 : 810	4 : 185	Avg time 0.040741	0.178378	
+Depth count 3 : 1210	4 : 243	Avg time 0.042975	0.213992	
+Depth count 3 : 830	4 : 194	Avg time 0.040964	0.175258	
+Depth count 3 : 1271	4 : 250	Avg time 0.042486	0.216000	
+Depth count 3 : 860	4 : 208	Avg time 0.041860	0.173077	
+Depth count 3 : 1409	4 : 269	Avg time 0.041874	0.219331	
+Depth count 3 : 872	4 : 215	Avg time 0.042431	0.172093	
+Depth count 3 : 1468	4 : 281	Avg time 0.041553	0.217082	
+Depth count 3 : 879	4 : 221	Avg time 0.042093	0.167421	
+Depth count 3 : 1513	4 : 289	Avg time 0.040978	0.214533	
+Depth count 3 : 899	4 : 242	Avg time 0.044494	0.165289	
+Depth count 3 : 1513	4 : 289	Avg time 0.040978	0.214533	
+Depth count 3 : 6	4 : 1	Avg time 0.000000	0.000000	
+Depth count 3 : 13	4 : 2	Avg time 0.076923	0.500000	
+Depth count 3 : 25	4 : 8	Avg time 0.080000	0.250000	
+Depth count 3 : 36	4 : 14	Avg time 0.083333	0.214286	
+Depth count 3 : 89	4 : 28	Avg time 0.067416	0.214286	
+Depth count 3 : 105	4 : 37	Avg time 0.066667	0.189189	
+Depth count 3 : 145	4 : 46	Avg time 0.062069	0.195652	
+Depth count 3 : 166	4 : 53	Avg time 0.060241	0.188679	
+Depth count 3 : 340	4 : 91	Avg time 0.052941	0.197802	
+Depth count 3 : 524	4 : 140	Avg time 0.055344	0.207143	
+Depth count 3 : 576	4 : 156	Avg time 0.055556	0.205128	
+Depth count 3 : 751	4 : 209	Avg time 0.061252	0.220096	
+Depth count 3 : 812	4 : 232	Avg time 0.061576	0.215517	
+Depth count 3 : 818	4 : 233	Avg time 0.061125	0.214592	
+Depth count 3 : 916	4 : 261	Avg time 0.061135	0.214559	
+Depth count 3 : 987	4 : 281	Avg time 0.060790	0.213523	
+Depth count 3 : 1031	4 : 298	Avg time 0.063046	0.218121	
+Depth count 3 : 1256	4 : 346	Avg time 0.061306	0.222543	
+Depth count 3 : 1321	4 : 366	Avg time 0.061317	0.221311	
+Depth count 3 : 1457	4 : 398	Avg time 0.060398	0.221106	
+Depth count 3 : 1576	4 : 426	Avg time 0.060279	0.223005	
+Depth count 3 : 1712	4 : 465	Avg time 0.060748	0.223656	
+Depth count 3 : 1875	4 : 511	Avg time 0.061333	0.225049	
+Depth count 3 : 1931	4 : 526	Avg time 0.062662	0.230038	
+Depth count 3 : 1977	4 : 543	Avg time 0.064239	0.233886	
+Depth count 3 : 2045	4 : 567	Avg time 0.064548	0.232804	
+Depth count 3 : 2096	4 : 581	Avg time 0.065363	0.235800	
+Depth count 3 : 2172	4 : 602	Avg time 0.066298	0.239203	
+Depth count 3 : 2213	4 : 613	Avg time 0.066878	0.241436	
+Depth count 3 : 2270	4 : 628	Avg time 0.067401	0.243631	
+Depth count 3 : 2311	4 : 639	Avg time 0.067936	0.245696	
+Depth count 3 : 2368	4 : 654	Avg time 0.068834	0.249235	
+Depth count 3 : 2408	4 : 665	Avg time 0.069767	0.252632	
+Depth count 3 : 2428	4 : 681	Avg time 0.070428	0.251101	
+Depth count 3 : 2443	4 : 694	Avg time 0.070815	0.249280	
+Depth count 3 : 2455	4 : 701	Avg time 0.070876	0.248217	
+Depth count 3 : 2589	4 : 732	Avg time 0.073387	0.259563	
+Depth count 3 : 2641	4 : 754	Avg time 0.074972	0.262599	
+Depth count 3 : 2688	4 : 768	Avg time 0.075521	0.264323	
+Depth count 3 : 2764	4 : 787	Avg time 0.075253	0.264295	
+Depth count 3 : 2929	4 : 844	Avg time 0.074770	0.259479	
+Depth count 3 : 3170	4 : 883	Avg time 0.087066	0.312571	
+Depth count 3 : 3407	4 : 907	Avg time 0.095979	0.360529	
+Depth count 3 : 3456	4 : 917	Avg time 0.097222	0.366412	
+Depth count 3 : 4215	4 : 1029	Avg time 0.119336	0.488824	
+Depth count 3 : 4215	4 : 1029	Avg time 0.119573	0.489796	
+Depth count 3 : 7	4 : 1	Avg time 0.000000	0.000000	
+Depth count 3 : 13	4 : 2	Avg time 0.000000	0.000000	
+Depth count 3 : 172	4 : 39	Avg time 0.029070	0.128205	
+Depth count 3 : 216	4 : 52	Avg time 0.032407	0.134615	
+Depth count 3 : 312	4 : 78	Avg time 0.035256	0.141026	
+Depth count 3 : 538	4 : 124	Avg time 0.040892	0.177419	
+Depth count 3 : 668	4 : 177	Avg time 0.047904	0.180791	
+Depth count 3 : 725	4 : 201	Avg time 0.049655	0.179104	
+Depth count 3 : 738	4 : 215	Avg time 0.050136	0.172093	
+Depth count 3 : 757	4 : 239	Avg time 0.051519	0.163180	
+Depth count 3 : 775	4 : 248	Avg time 0.052903	0.165323	
+Depth count 3 : 794	4 : 258	Avg time 0.052897	0.162791	
+Depth count 3 : 794	4 : 258	Avg time 0.052897	0.162791	
+Depth count 3 : 6	4 : 1	Avg time 0.166667	1.000000	
+Depth count 3 : 12	4 : 2	Avg time 0.083333	0.500000	
+Depth count 3 : 58	4 : 13	Avg time 0.034483	0.153846	
+Depth count 3 : 173	4 : 47	Avg time 0.040462	0.148936	
+Depth count 3 : 306	4 : 78	Avg time 0.042484	0.166667	
+Depth count 3 : 361	4 : 96	Avg time 0.044321	0.166667	
+Depth count 3 : 401	4 : 111	Avg time 0.044888	0.162162	
+Depth count 3 : 442	4 : 128	Avg time 0.045249	0.156250	
+Depth count 3 : 460	4 : 134	Avg time 0.045652	0.156716	
+Depth count 3 : 474	4 : 140	Avg time 0.046414	0.157143	
+Depth count 3 : 648	4 : 176	Avg time 0.043210	0.159091	
+Depth count 3 : 726	4 : 197	Avg time 0.041322	0.152284	
+Depth count 3 : 779	4 : 208	Avg time 0.039795	0.149038	
+Depth count 3 : 830	4 : 221	Avg time 0.039759	0.149321	
+Depth count 3 : 845	4 : 230	Avg time 0.040237	0.147826	
+Depth count 3 : 869	4 : 236	Avg time 0.041427	0.152542	
+Depth count 3 : 961	4 : 252	Avg time 0.041623	0.158730	
+Depth count 3 : 975	4 : 258	Avg time 0.041026	0.155039	
+Depth count 3 : 1137	4 : 307	Avg time 0.043975	0.162866	
+Depth count 3 : 1148	4 : 313	Avg time 0.044425	0.162939	
+Depth count 3 : 1184	4 : 327	Avg time 0.045608	0.165138	
+Depth count 3 : 1259	4 : 375	Avg time 0.048451	0.162667	
+Depth count 3 : 1301	4 : 393	Avg time 0.049962	0.165394	
+Depth count 3 : 1329	4 : 400	Avg time 0.050414	0.167500	
+Depth count 3 : 1503	4 : 445	Avg time 0.053227	0.179775	
+Depth count 3 : 1636	4 : 471	Avg time 0.055012	0.191083	
+Depth count 3 : 1777	4 : 507	Avg time 0.055149	0.193294	
+Depth count 3 : 1828	4 : 524	Avg time 0.055252	0.192748	
+Depth count 3 : 1862	4 : 533	Avg time 0.055317	0.193246	
+Depth count 3 : 1908	4 : 550	Avg time 0.056080	0.194545	
+Depth count 3 : 2115	4 : 603	Avg time 0.060047	0.210614	
+Depth count 3 : 2129	4 : 608	Avg time 0.060592	0.212171	
+Depth count 3 : 2150	4 : 620	Avg time 0.061860	0.214516	
+Depth count 3 : 2150	4 : 620	Avg time 0.062326	0.216129	
+Depth count 3 : 6	4 : 1	5 : 0	6 : 0	Avg time 0.166667	1.000000	_______	
+Depth count 3 : 7	4 : 1	Avg time 0.000000	0.000000	
+Depth count 3 : 18	4 : 2	5 : 0	6 : 0	Avg time 0.055556	0.500000	_______	
+Depth count 3 : 13	4 : 2	Avg time 0.000000	0.000000	
+Depth count 3 : 144	4 : 30	5 : 8	6 : 1	Avg time 0.041667	0.200000	0.750000	
+Depth count 3 : 125	4 : 21	Avg time 0.032000	0.190476	
+Depth count 3 : 331	4 : 73	5 : 17	6 : 2	Avg time 0.039275	0.178082	0.764706	
+Depth count 3 : 229	4 : 42	Avg time 0.034934	0.190476	
+Depth count 3 : 530	4 : 111	5 : 28	6 : 3	Avg time 0.039623	0.189189	0.750000	
+Depth count 3 : 329	4 : 75	Avg time 0.039514	0.173333	
+Depth count 3 : 646	4 : 136	5 : 36	6 : 4	Avg time 0.040248	0.191176	0.722222	
+Depth count 3 : 437	4 : 95	Avg time 0.038902	0.178947	
+Depth count 3 : 791	4 : 164	5 : 43	6 : 5	Avg time 0.045512	0.219512	0.837209	
+Depth count 3 : 684	4 : 141	Avg time 0.038012	0.184397	
+Depth count 3 : 908	4 : 185	5 : 49	6 : 6	Avg time 0.045154	0.221622	0.836735	
+Depth count 3 : 798	4 : 179	Avg time 0.038847	0.173184	
+Depth count 3 : 1018	4 : 209	5 : 61	6 : 7	Avg time 0.044204	0.215311	0.737705	
+Depth count 3 : 810	4 : 185	Avg time 0.039506	0.172973	
+Depth count 3 : 1196	4 : 245	5 : 78	6 : 8	Avg time 0.045151	0.220408	0.692308	
+Depth count 3 : 822	4 : 192	Avg time 0.038929	0.166667	
+Depth count 3 : 1274	4 : 267	5 : 84	6 : 9	Avg time 0.044741	0.213483	0.678571	
+Depth count 3 : 972	4 : 289	Avg time 0.043210	0.145329	
+Depth count 3 : 1382	4 : 283	5 : 95	6 : 10	Avg time 0.042692	0.208481	0.621053	
+Depth count 3 : 991	4 : 295	Avg time 0.044400	0.149153	
+Depth count 3 : 1497	4 : 301	5 : 101	6 : 11	Avg time 0.042752	0.212625	0.633663	
+Depth count 3 : 1142	4 : 328	Avg time 0.048161	0.167683	
+Depth count 3 : 1609	4 : 317	5 : 107	6 : 12	Avg time 0.044127	0.223975	0.663551	
+Depth count 3 : 1349	4 : 373	Avg time 0.051149	0.184987	
+Depth count 3 : 1855	4 : 357	5 : 119	6 : 13	Avg time 0.044205	0.229692	0.689076	
+Depth count 3 : 1686	4 : 451	Avg time 0.053974	0.201774	
+Depth count 3 : 2245	4 : 419	5 : 134	6 : 14	Avg time 0.044543	0.238663	0.746269	
+Depth count 3 : 1893	4 : 498	Avg time 0.052826	0.200803	
+Depth count 3 : 2335	4 : 442	5 : 141	6 : 15	Avg time 0.044540	0.235294	0.737589	
+Depth count 3 : 2083	4 : 540	Avg time 0.052328	0.201852	
+Depth count 3 : 2606	4 : 483	5 : 149	6 : 16	Avg time 0.046048	0.248447	0.805369	
+Depth count 3 : 2233	4 : 573	Avg time 0.052396	0.204188	
+Depth count 3 : 2736	4 : 503	5 : 157	6 : 17	Avg time 0.047515	0.258449	0.828025	
+Depth count 3 : 2329	4 : 589	Avg time 0.053242	0.210526	
+Depth count 3 : 2980	4 : 550	5 : 172	6 : 18	Avg time 0.048322	0.261818	0.837209	
+Depth count 3 : 2398	4 : 606	Avg time 0.053795	0.212871	
+Depth count 3 : 3118	4 : 571	5 : 178	6 : 19	Avg time 0.049070	0.267951	0.859551	
+Depth count 3 : 2480	4 : 618	Avg time 0.054435	0.218447	
+Depth count 3 : 3194	4 : 595	5 : 182	6 : 20	Avg time 0.049781	0.267227	0.873626	
+Depth count 3 : 2553	4 : 635	Avg time 0.054446	0.218898	
+Depth count 3 : 3273	4 : 610	5 : 188	6 : 21	Avg time 0.049496	0.265574	0.861702	
+Depth count 3 : 2647	4 : 652	Avg time 0.054779	0.222393	
+Depth count 3 : 3441	4 : 642	5 : 197	6 : 22	Avg time 0.049404	0.264798	0.862944	
+Depth count 3 : 2840	4 : 689	Avg time 0.055634	0.229318	
+Depth count 3 : 3560	4 : 682	5 : 204	6 : 23	Avg time 0.049719	0.259531	0.867647	
+Depth count 3 : 2947	4 : 720	Avg time 0.056668	0.231944	
+Depth count 3 : 3616	4 : 693	5 : 210	6 : 24	Avg time 0.049502	0.258297	0.852381	
+Depth count 3 : 3032	4 : 739	Avg time 0.057388	0.235453	
+Depth count 3 : 3706	4 : 724	5 : 220	6 : 25	Avg time 0.049919	0.255525	0.840909	
+Depth count 3 : 3095	4 : 750	Avg time 0.057189	0.236000	
+Depth count 3 : 3759	4 : 735	5 : 226	6 : 26	Avg time 0.050013	0.255782	0.831858	
+Depth count 3 : 3196	4 : 776	Avg time 0.058198	0.239691	
+Depth count 3 : 3878	4 : 764	5 : 234	6 : 27	Avg time 0.050542	0.256545	0.837607	
+Depth count 3 : 3398	4 : 817	Avg time 0.059152	0.246022	
+Depth count 3 : 3890	4 : 770	5 : 235	6 : 28	Avg time 0.050643	0.255844	0.838298	
+Depth count 3 : 3458	4 : 830	Avg time 0.059572	0.248193	
+Depth count 3 : 3898	4 : 777	5 : 237	6 : 29	Avg time 0.050795	0.254826	0.835443	
+Depth count 3 : 3588	4 : 850	Avg time 0.061873	0.261176	
+Depth count 3 : 3943	4 : 792	5 : 239	6 : 30	Avg time 0.051230	0.255051	0.845188	
+Depth count 3 : 3665	4 : 866	Avg time 0.063029	0.266744	
+Depth count 3 : 4016	4 : 820	5 : 248	6 : 31	Avg time 0.052042	0.254878	0.842742	
+Depth count 3 : 3763	4 : 883	Avg time 0.065108	0.277463	
+Depth count 3 : 4041	4 : 834	5 : 251	6 : 32	Avg time 0.053205	0.257794	0.856574	
+Depth count 3 : 3873	4 : 904	Avg time 0.067906	0.290929	
+Depth count 3 : 4061	4 : 850	5 : 254	6 : 33	Avg time 0.053928	0.257647	0.862205	
+Depth count 3 : 3921	4 : 914	Avg time 0.069115	0.296499	
+Depth count 3 : 4135	4 : 867	5 : 259	6 : 34	Avg time 0.055139	0.262976	0.880309	
+Depth count 3 : 4037	4 : 929	Avg time 0.071092	0.308934	
+Depth count 3 : 4161	4 : 877	5 : 263	6 : 35	Avg time 0.055996	0.265678	0.885932	
+Depth count 3 : 4037	4 : 929	Avg time 0.071092	0.308934	
+Depth count 3 : 6	4 : 1	5 : 0	6 : 0	Avg time 0.000000	0.000000	_______	
+Depth count 3 : 7	4 : 1	Avg time 0.142857	1.000000	
+Depth count 3 : 18	4 : 2	5 : 0	6 : 0	Avg time 0.000000	0.000000	_______	
+Depth count 3 : 13	4 : 2	Avg time 0.153846	1.000000	
+Depth count 3 : 144	4 : 30	5 : 8	6 : 1	Avg time 0.027778	0.133333	0.500000	
+Depth count 3 : 125	4 : 21	Avg time 0.048000	0.285714	
+Depth count 3 : 331	4 : 73	5 : 17	6 : 2	Avg time 0.033233	0.150685	0.647059	
+Depth count 3 : 229	4 : 42	Avg time 0.048035	0.261905	
+Depth count 3 : 530	4 : 111	5 : 28	6 : 3	Avg time 0.037736	0.180180	0.714286	
+Depth count 3 : 329	4 : 75	Avg time 0.048632	0.213333	
+Depth count 3 : 646	4 : 136	5 : 36	6 : 4	Avg time 0.038700	0.183824	0.694444	
+Depth count 3 : 437	4 : 95	Avg time 0.045767	0.210526	
+Depth count 3 : 791	4 : 164	5 : 43	6 : 5	Avg time 0.044248	0.213415	0.813953	
+Depth count 3 : 684	4 : 141	Avg time 0.043860	0.212766	
+Depth count 3 : 908	4 : 185	5 : 49	6 : 6	Avg time 0.042952	0.210811	0.795918	
+Depth count 3 : 798	4 : 179	Avg time 0.045113	0.201117	
+Depth count 3 : 1035	4 : 208	5 : 61	6 : 7	Avg time 0.042512	0.211538	0.721311	
+Depth count 3 : 810	4 : 185	Avg time 0.044444	0.194595	
+Depth count 3 : 1210	4 : 243	5 : 77	6 : 8	Avg time 0.042975	0.213992	0.675325	
+Depth count 3 : 830	4 : 194	Avg time 0.045783	0.195876	
+Depth count 3 : 1271	4 : 250	5 : 83	6 : 9	Avg time 0.041699	0.212000	0.638554	
+Depth count 3 : 860	4 : 208	Avg time 0.046512	0.192308	
+Depth count 3 : 1409	4 : 269	5 : 95	6 : 10	Avg time 0.041874	0.219331	0.621053	
+Depth count 3 : 872	4 : 215	Avg time 0.047018	0.190698	
+Depth count 3 : 1470	4 : 281	5 : 102	6 : 11	Avg time 0.041497	0.217082	0.598039	
+Depth count 3 : 879	4 : 221	Avg time 0.047782	0.190045	
+Depth count 3 : 1515	4 : 289	5 : 108	6 : 12	Avg time 0.041584	0.217993	0.583333	
+Depth count 3 : 899	4 : 242	Avg time 0.048943	0.181818	
+Depth count 3 : 1515	4 : 289	5 : 108	6 : 12	Avg time 0.041584	0.217993	0.583333	

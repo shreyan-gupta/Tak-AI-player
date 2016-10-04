@@ -10,7 +10,7 @@ int prune_index[10] = {0,0,0,0,0,0,0,0,0,0};
 int depth_count[10] = {0,0,0,0,0,0,0,0,0,0};
 time_t total_time = 0;
 int moves = 0;
-int max_depth = 5;
+int max_depth = 6;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cerr << i;
@@ -21,7 +21,7 @@ void print_avg_time(){
 	FILE *debug;
 	debug = fopen("debug.txt", "a");
 	fprintf(debug, "Depth count ");
-	for(int i=3; i<max_depth; ++i){
+	for(int i=3; i<=max_depth; ++i){
 		fprintf(debug, "%d : %d\t", i, depth_count[i]);
 	}
 	fprintf(debug, "Avg time ");
