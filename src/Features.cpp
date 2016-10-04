@@ -145,14 +145,14 @@ eval_type Game::feature3(){
 			if(j.empty()) continue;
 			j.top5(top5);
 			if(j.top_piece().second == White){
-				count += stone_weight(j.top_piece().first);
+				// count += stone_weight(j.top_piece().first);
 				if(j.top_piece().first == Cap)
 					count += ((top5.first)*w[4] + (top5.second)*w[5]*1);
 				else 
 					count += ((top5.first)*w[4] + (top5.second)*w[5]);
 			}
 			else{
-				count -= stone_weight(j.top_piece().first);
+				// count -= stone_weight(j.top_piece().first);
 				if(j.top_piece().first == Cap)
 					count -= ((top5.first)*w[5] + (top5.second)*w[4]*1);
 				else 
@@ -193,6 +193,7 @@ eval_type Game::feature5(){
 		{
 			if (GameBoard[i][j].empty()) continue;
 			mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
+			mult *= stone_weight(GameBoard[i][j].top_piece().first);
 			influence[i][j] += mult;
 			if (i > 0)
 				influence[i-1][j] += mult;
