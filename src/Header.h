@@ -11,6 +11,7 @@
 #include <random>
 #include <cstdio>
 #include <unordered_map>
+#include <ctime>
 
 
 // w[0] = 100000 -> Path 
@@ -161,6 +162,7 @@ extern vector<vector<vector<vector<int> > > > AllPerms;
 extern int Size;
 extern bool opponent_type;
 extern int TimeLimit;
+extern time_t Start_time;
 
 extern int sum_index[10];
 extern int count_index[10];

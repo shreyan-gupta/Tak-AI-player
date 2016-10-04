@@ -4,6 +4,7 @@ int Size = 3;
 int TimeLimit =1;
 bool opponent_type = White;
 const int max_depth = 5;
+time_t Start_time;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cerr << i;
@@ -53,6 +54,7 @@ int main(int argc, char const *argv[])
 	// getAllPerms(3);
 	// bool valid = Test::checkfavourable();
 	// if (valid) cerr << "valid moves check karo \n";
+	Start_time = time_t(0);
 
 	int player_no = 2;
 	TimeLimit = 1000;

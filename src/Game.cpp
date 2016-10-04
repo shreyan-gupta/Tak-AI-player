@@ -79,7 +79,7 @@ eval_type Game::eval(){
 // }
 
 void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth, eval_type alpha, eval_type beta){
-	
+	time_t decide_start = time(0);
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
 
@@ -108,6 +108,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 
 	int index = 0;
 	int best_index = 0;
+
+
 
 	if(player == White){
 		auto best_ptr = allmoves.rbegin();
