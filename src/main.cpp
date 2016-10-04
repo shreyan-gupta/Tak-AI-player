@@ -3,63 +3,90 @@
 int Size = 3; 
 int TimeLimit =1;
 bool opponent_type = White;
-const int max_depth = 5;
-time_t Start_time;
+time_t start_time;
+
+int prune_count[10] = {0,0,0,0,0,0,0,0,0,0};
+int prune_index[10] = {0,0,0,0,0,0,0,0,0,0};
+int depth_count[10] = {0,0,0,0,0,0,0,0,0,0};
+time_t total_time = 0;
+int moves = 0;
+int max_depth = 5;
 
 void printVec(vector<int> & v){
 	for (auto &i : v) std::cerr << i;
 	std::cerr << ",";
 }
 
-void test_cap(Game &g){
-	if(g.p_black.x != -1 && g.p_black.y != -1){
-		if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first != Cap){
-			string s;
-			if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first == Cap) s = "Cap";
-			else if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first == Flat) s = "Flat";
-			else s = "Stand";
-			fprintf(stderr, "Black Cap ki coordinates are wrong!!! %d %d %s\n",g.p_black.x, g.p_black.y, s.c_str());
-		}
+void print_avg_time(){
+	FILE *debug;
+	debug = fopen("debug.txt", "a");
+	fprintf(debug, "Depth count ");
+	for(int i=3; i<max_depth; ++i){
+		fprintf(debug, "%d : %d\t", i, depth_count[i]);
 	}
-
-	if(g.p_white.x != -1 && g.p_white.y != -1){
-		if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first != Cap){
-			string s;
-			if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first == Cap) s = "Cap";
-			else if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first == Flat) s = "Flat";
-			else s = "Stand";
-			fprintf(stderr, "White Cap ki coordinates are wrong!!! %d %d %s\n",g.p_white.x, g.p_white.y, s.c_str());
-		}
+	fprintf(debug, "Avg time ");
+	for(int i=3; i<max_depth; ++i){
+		if(depth_count[i] != 0)
+			fprintf(debug, "%f\t", (1.0*total_time/depth_count[i]));
+		else 
+			fprintf(debug, "_______\t");
 	}
+	fprintf(debug, "\n");
+	fclose(debug);
 }
 
-int moves = 0;
+// void test_cap(Game &g){
+// 	if(g.p_black.x != -1 && g.p_black.y != -1){
+// 		if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first != Cap){
+// 			string s;
+// 			if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first == Cap) s = "Cap";
+// 			else if(g.GameBoard[g.p_black.x][g.p_black.y].top_piece().first == Flat) s = "Flat";
+// 			else s = "Stand";
+// 			fprintf(stderr, "Black Cap ki coordinates are wrong!!! %d %d %s\n",g.p_black.x, g.p_black.y, s.c_str());
+// 		}
+// 	}
 
-int manage_depth(){
+// 	if(g.p_white.x != -1 && g.p_white.y != -1){
+// 		if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first != Cap){
+// 			string s;
+// 			if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first == Cap) s = "Cap";
+// 			else if(g.GameBoard[g.p_white.x][g.p_white.y].top_piece().first == Flat) s = "Flat";
+// 			else s = "Stand";
+// 			fprintf(stderr, "White Cap ki coordinates are wrong!!! %d %d %s\n",g.p_white.x, g.p_white.y, s.c_str());
+// 		}
+// 	}
+// }
+
+int manage_depth(Game &g){
 	if(moves < Size/2 + 1) return 2;
-	else return 5;
+
+	int empty_squares = 0;
+	for(auto &i : g.GameBoard)
+		for(auto &j : i)
+			if(j.empty()) ++empty_squares;
+
+	float avg_time = (float)(TimeLimit - total_time)/(10+1.5*empty_squares);
+
+	if(avg_time > (float)total_time/((float)depth_count[max_depth] - 0.2)){
+		++max_depth;
+		fprintf(stderr, "Depth : %d %f %f\n", max_depth, avg_time, (float)total_time/((float)depth_count[max_depth] - 0.2));
+		return max_depth;
+	}else{
+		int temp = max_depth;
+		while(temp >= 0 &&  avg_time < (float)total_time/((float)depth_count[temp] - 0.2)) --temp;
+		fprintf(stderr, "Depth : %d %f %f\n", temp, avg_time, (float)total_time/((float)depth_count[temp] - 0.2));
+		return temp;
+	}
 	// time left/(10 + 2*empty) itni aim for a depth.
 	// stop when time since this search*abhi branch factor > 2*aim...
 }
 
-void cmd_args(int argc, char const *argv[], Game g){
-
-}
-
-
 int main(int argc, char const *argv[])
 {
-	// SET opponent_type !!!!
-	// Size = 3;
-	// getAllPerms(3);
-	// bool valid = Test::checkfavourable();
-	// if (valid) cerr << "valid moves check karo \n";
-	Start_time = time_t(0);
+	start_time = time_t(0);
 
-	int player_no = 2;
-	TimeLimit = 1000;
-	Size = 3;
-	cerr << "Enter player_no, size, TimeLimit\n";
+	int player_no;
+		cerr << "Enter player_no, size, TimeLimit\n";
 	cin >> player_no >> Size >> TimeLimit;
 
 	int pieces;
@@ -90,20 +117,23 @@ int main(int argc, char const *argv[])
 		while (true)
 		{
 			Eval_Move mymove;
-			g.decide_move(mymove, !opponent_type, 0, manage_depth(), -2*g.w[0], 2*g.w[0]);
+			time_t start_move_time = time(0);
+			g.decide_move(mymove, !opponent_type, 0, manage_depth(g), -2*g.w[0], 2*g.w[0]);
+			total_time += (time(0) - start_move_time);
+				print_avg_time();
+				cerr << "Time " << total_time << endl;
 				cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
 				fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
-				test_cap(g);
+				// test_cap(g);
 
 			cout << (mymove.m.to_string()) << endl;
 				cerr << g.to_string() << endl;
-
 			string s_opp;
 			cin >> s_opp;
 				cerr << "out received MOVE : " << s_opp << endl;
 			g.make_opponent_move(s_opp,opponent_type);
-				Test::print_index();
+				// Test::print_index();
 			++moves;
 		}
 	}
@@ -130,17 +160,21 @@ int main(int argc, char const *argv[])
 			g.make_opponent_move(s, opponent_type);
 				cerr << g.to_string() << endl;
 			Eval_Move mymove;
-			g.decide_move(mymove, !opponent_type, 0, manage_depth(), -2*g.w[0], 2*g.w[0]);
+			time_t start_move_time = time(0);
+			g.decide_move(mymove, !opponent_type, 0, manage_depth(g), -2*g.w[0], 2*g.w[0]);
+			total_time += (time(0) - start_move_time);
+				print_avg_time();
+				cerr << "Time " << total_time << endl;
 				cerr << g.to_string() << endl;
 			g.makemove(mymove.m);
 				fprintf(stderr, "%s e = %f\n",mymove.m.to_string().c_str(), mymove.e);
 				// fprintf(stderr, "White CAP %d %d\n",g.p_white.x, g.p_white.y);
 				// fprintf(stderr, "Black CAP %d %d\n",g.p_black.x, g.p_black.y);
-				test_cap(g);
+				// test_cap(g);
 
 			cout << (mymove.m.to_string()) << endl;
 				cerr << g.to_string() << endl;
-				Test::print_index();
+				// Test::print_index();
 			++moves;
 		}
 	}

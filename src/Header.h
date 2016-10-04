@@ -162,11 +162,17 @@ extern vector<vector<vector<vector<int> > > > AllPerms;
 extern int Size;
 extern bool opponent_type;
 extern int TimeLimit;
-extern time_t Start_time;
+extern time_t start_time;
 
-extern int sum_index[10];
-extern int count_index[10];
-extern int max_index[10];
+extern int prune_count[10];
+extern int prune_index[10];
+
+extern int depth_count[10];
+extern time_t total_time;
+
+// extern int sum_index[10];
+// extern int count_index[10];
+// extern int max_index[10];
 
 inline Piece piece(Stone s, bool p){
 	return make_pair(s,p);

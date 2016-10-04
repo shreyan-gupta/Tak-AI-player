@@ -59,6 +59,7 @@ eval_type Game::feature0(){
 }
 
 // closer to center
+// csiochd@123
 eval_type Game::feature1(){
 	// fprintf(stderr, "Feature 1 enter \n");
 	float half = size/2.0;

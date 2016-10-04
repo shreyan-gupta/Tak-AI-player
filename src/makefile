@@ -2,7 +2,7 @@ CFLAGS = -c -std=c++11 -O3 -march=native -g
 LFLAGS = -std=c++11 -O3 -march=native -g
 OBJ = main.o Misc.o Game.o Features.o Test.o
 
-all : out
+all : out run1 run2
 
 run1 : $(OBJ)
 	g++ $(LFLAGS) $(OBJ) -o out1

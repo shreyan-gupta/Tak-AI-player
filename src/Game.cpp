@@ -79,7 +79,7 @@ eval_type Game::eval(){
 // }
 
 void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_depth, eval_type alpha, eval_type beta){
-	time_t decide_start = time(0);
+	
 	multimap <eval_type, Move> allmoves;
 	generate_valid_moves(player, allmoves);
 
@@ -99,99 +99,92 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			best_move.m = ptr->second;
 		}
 		// n_tabs(depth); fprintf(stderr, "%s : Best move\n",best_move.m.to_string().c_str());
-		return;
-	}
-
-	Eval_Move opponent_move;
-	if(player == White) best_move.e = E_MIN;
-	else best_move.e = E_MAX;
-
-	int index = 0;
-	int best_index = 0;
-
-
-
-	if(player == White){
-		auto best_ptr = allmoves.rbegin();
-		if (best_ptr->first > w[0]/2){
-			best_move.e = best_ptr->first;
-			best_move.m = best_ptr->second;
-			if(depth < 2) fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
-			return;
-		}
-		bool x = true;
-		for(auto ptr = allmoves.rbegin(); x && ptr != allmoves.rend(); ++ptr){
-			++index;
-			makemove(ptr->second);
-			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
-			if(opponent_move.e > best_move.e){
-					if (abs(opponent_move.e + 1000000) < 10000)
-						fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
-				best_index = index;
-				best_move.e = opponent_move.e;
-				best_ptr = ptr;
-					// if(depth < 2){
-					// 	fprintf(stderr, "d %d index %d White Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
-					// }
-			}
-			antimove(ptr->second);
-			alpha = max(alpha, best_move.e);
-			if(best_move.e >= beta){
-				best_move.m = best_ptr->second;
-				// fprintf(stderr, "Prune %d depth %d\n",index,depth);
-				return;
-			}
-			x = (index < best_index + 5 || best_move.e < -w[0]/2);
-			// if(best_move.e < -w[0]/2){
-			// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
-			// }
-		}
-		best_move.m = best_ptr->second;
-
-		sum_index[depth] += best_index;
-		++count_index[depth];
-		max_index[depth] = max(best_index, max_index[depth]);
 	}
 	else{
-		auto best_ptr = allmoves.begin();
-		if (best_ptr->first < -w[0]/2){
-			best_move.e = best_ptr->first;
-			best_move.m = best_ptr->second;
-			if(depth < 2) fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
-			return;
-		}
-		bool x = true;
-		for(auto ptr = allmoves.begin(); x && ptr != allmoves.end(); ++ptr){
-			++index;
-			makemove(ptr->second);
-			decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
-			if(opponent_move.e < best_move.e){
-					if (abs(opponent_move.e - 1000000) < 10000)
-						fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
-				best_index = index;
-				best_move.e = opponent_move.e;
-				best_ptr = ptr;
-					// if(depth < 2){
-					// 	fprintf(stderr, "d %d index %d Black Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
-					// }
-			}
-			antimove(ptr->second);
-			beta = min(beta, best_move.e);
-			if(best_move.e <= alpha){
+		Eval_Move opponent_move;
+		if(player == White) best_move.e = E_MIN;
+		else best_move.e = E_MAX;
+		int index = 0;
+		int best_index = 0;
+
+		if(player == White){
+			auto best_ptr = allmoves.rbegin();
+			if (best_ptr->first > w[0]/2){
+				best_move.e = best_ptr->first;
 				best_move.m = best_ptr->second;
-				// fprintf(stderr, "Prune %d depth %d\n",index,depth);
+				if(depth < 2) fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
 				return;
 			}
-			x = (index < best_index + 5 || best_move.e > w[0]/2);
-			// if(best_move.e > w[0]/2){
-			// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
-			// }
+			bool x = true;
+			for(auto ptr = allmoves.rbegin(); x && ptr != allmoves.rend(); ++ptr){
+				++index;
+				makemove(ptr->second);
+				decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
+				if(opponent_move.e > best_move.e){
+						if (abs(opponent_move.e + 1000000) < 10000)
+							fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
+					best_index = index;
+					best_move.e = opponent_move.e;
+					best_ptr = ptr;
+						// if(depth < 2){
+						// 	fprintf(stderr, "d %d index %d White Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
+						// }
+				}
+				antimove(ptr->second);
+				alpha = max(alpha, best_move.e);
+				if(best_move.e >= beta){
+					// best_move.m = best_ptr->second;
+					// fprintf(stderr, "Prune %d depth %d\n",index,depth);
+					break;
+				}
+				x = (index < best_index + 5 || best_move.e < -w[0]/2);
+				// if(best_move.e < -w[0]/2){
+				// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
+				// }
+			}
+			best_move.m = best_ptr->second;
 		}
-		best_move.m = best_ptr->second;
-		sum_index[depth] += best_index;
-		++count_index[depth];
-		max_index[depth] = max(best_index, max_index[depth]);
+		else{
+			auto best_ptr = allmoves.begin();
+			if (best_ptr->first < -w[0]/2){
+				best_move.e = best_ptr->first;
+				best_move.m = best_ptr->second;
+				if(depth < 2) fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
+				return;
+			}
+			bool x = true;
+			for(auto ptr = allmoves.begin(); x && ptr != allmoves.end(); ++ptr){
+				++index;
+				makemove(ptr->second);
+				decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
+				if(opponent_move.e < best_move.e){
+						if (abs(opponent_move.e - 1000000) < 10000)
+							fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
+					best_index = index;
+					best_move.e = opponent_move.e;
+					best_ptr = ptr;
+						// if(depth < 2){
+						// 	fprintf(stderr, "d %d index %d Black Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
+						// }
+				}
+				antimove(ptr->second);
+				beta = min(beta, best_move.e);
+				if(best_move.e <= alpha){
+					// best_move.m = best_ptr->second;
+					// fprintf(stderr, "Prune %d depth %d\n",index,depth);
+					break;
+				}
+				x = (index < best_index + 5 || best_move.e > w[0]/2);
+				// if(best_move.e > w[0]/2){
+				// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
+				// }
+			}
+			best_move.m = best_ptr->second;
+		}
+		++prune_count[max_depth - depth];
+		prune_index[max_depth - depth] += best_index;
 	}
+	++depth_count[max_depth - depth];
 }
 
 void Game::make_opponent_move(string s, bool player)
