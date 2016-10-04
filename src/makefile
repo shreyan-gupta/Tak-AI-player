@@ -4,10 +4,10 @@ OBJ = main.o Misc.o Game.o Features.o Test.o
 
 all : out
 
-out1 : $(OBJ)
+run1 : $(OBJ)
 	g++ $(LFLAGS) $(OBJ) -o out1
 
-out2 : $(OBJ)
+run2 : $(OBJ)
 	g++ $(LFLAGS) $(OBJ) -o out2
 
 out : $(OBJ)
