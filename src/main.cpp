@@ -58,23 +58,24 @@ void print_avg_time(){
 // }
 
 int manage_depth(Game &g){
-	if(moves < Size/2 + 1) return 2;
+	if(moves < Size/2 + 1) return 4;
+	return 6;
 
 	int empty_squares = 0;
 	for(auto &i : g.GameBoard)
 		for(auto &j : i)
 			if(j.empty()) ++empty_squares;
 
-	float avg_time = (float)(TimeLimit - total_time)/(10+1.5*empty_squares);
+	float avg_time = (float)(1.2)*(TimeLimit - total_time)/(10 + empty_squares);
 
-	if(avg_time > (float)total_time/((float)depth_count[max_depth] - 0.2)){
+	if(avg_time > (float)total_time/((float)depth_count[max_depth] - 0.1)){
 		++max_depth;
-		fprintf(stderr, "Depth : %d %f %f\n", max_depth, avg_time, (float)total_time/((float)depth_count[max_depth] - 0.2));
+		fprintf(stderr, "Depth : %d %f %f\n", max_depth, avg_time, (float)total_time/((float)depth_count[max_depth] - 0.1));
 		return max_depth;
 	}else{
 		int temp = max_depth;
-		while(temp >= 0 &&  avg_time < (float)total_time/((float)depth_count[temp] - 0.2)) --temp;
-		fprintf(stderr, "Depth : %d %f %f\n", temp, avg_time, (float)total_time/((float)depth_count[temp] - 0.2));
+		while(temp >= 0 &&  avg_time < (float)total_time/((float)depth_count[temp] - 0.1)) --temp;
+		fprintf(stderr, "Depth : %d %f %f\n", temp, avg_time, (float)total_time/((float)depth_count[temp] - 0.1));
 		return temp;
 	}
 	// time left/(10 + 2*empty) itni aim for a depth.

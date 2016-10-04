@@ -31,21 +31,21 @@ Game::Game(int size, int pieces) : p_white(Player(White, pieces)), p_black(Playe
 
 	w[1] = 0.35;
 
-	w[4] = piece_factor * 4;
-	w[5] = piece_factor * 1;	// original 2
+	w[4] = piece_factor * 5;
+	w[5] = piece_factor * 1;
 
-	w[6] = top_factor * 11;
-	w[7] = top_factor * 5;
+	w[6] = top_factor * 12;
+	w[7] = top_factor * 6.5;
 	w[8] = top_factor * 11;
 
 	w[9]  = nbr_factor * 9.5;
 	w[10] = nbr_factor * 5;
 	w[11] = nbr_factor * 8.5;
 	w[12] = nbr_factor * -2;
-	w[13] = nbr_factor * 3;
-	w[14] = nbr_factor * -2;
-	w[2]  = nbr_factor * -4;
-	w[3]  = nbr_factor * -5;
+	w[13] = nbr_factor * 6;  // more?
+	w[14] = nbr_factor * -2; // less?
+	w[2]  = nbr_factor * -4; // less? 
+	w[3]  = nbr_factor * -5; // more?
 
 	w[16] = 7;
 	w[17] = 10;
