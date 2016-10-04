@@ -50,11 +50,12 @@ void cmd_args(int argc, char const *argv[], Game g){
 int main(int argc, char const *argv[])
 {
 	// SET opponent_type !!!!
-	// Size = 3;
-	// getAllPerms(3);
+		Size = 3;
+		getAllPerms(3);
 	// bool valid = Test::checkfavourable();
 	// if (valid) cerr << "valid moves check karo \n";
 	Start_time = time_t(0);
+	bool x = Test::checkMove();
 
 	int player_no = 2;
 	TimeLimit = 1000;
