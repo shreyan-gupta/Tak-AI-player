@@ -36,20 +36,20 @@ bool Test::checkPath(){
 bool Test::checkMove()
 {
 	std::cerr << "Moves -> \n";
-	Game g(3,100);
+	Game g(3,12);
 
 	// Piece p = piece(Flat,White);
 	Move m(2,1,piece(Flat,White));
 	cerr << m.to_string() << std::endl;
 	g.makemove(m);
-	std::cerr << g.to_string() << std::endl;
+	std::cerr << g.to_string() << ", EVAL =  "<< g.eval() << std::endl;
 
 	Piece pp = piece(Flat,false);
 	Move mm(1,1,pp);
 	cerr << mm.to_string() << std::endl;
 	g.makemove(mm);
-	std::cerr << g.to_string() << std::endl;
-
+	std::cerr << g.to_string() << g.eval() << std::endl;
+	
 	Move m1(2,1,'-',&AllPerms[1][1][0]);
 	cerr << m1.to_string() << std::endl;
 	g.makemove(m1);
@@ -69,12 +69,13 @@ bool Test::checkValid()
 	Move m(2,1,piece(Cap,White));
 	cerr << m.to_string() << std::endl;
 	g.makemove(m);
-	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
+	cout << g.eval() << "DEKHO ISSE \n";
 	std::cerr << g.to_string() << std::endl;
 
 	Move mm(1,1,piece(Stand,Black));
 	cerr << mm.to_string() << std::endl;
 	g.makemove(mm);
+	printf("%f eval \n", g.eval());
 	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
 	std::cerr << g.to_string() << std::endl;
 

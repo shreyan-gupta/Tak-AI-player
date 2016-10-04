@@ -58,21 +58,14 @@ eval_type Game::feature0(){
 	return 0;
 }
 
-// closer to center
 // csiochd@123
-eval_type Game::feature1(){
-	// fprintf(stderr, "Feature 1 enter \n");
+inline eval_type Game::center(int i, int j)
+{
 	float half = size/2.0;
-	eval_type count = 0;
-	for(int i=0; i<size; ++i){
-		for(int j=0; j<size; ++j){
-			if(GameBoard[i][j].empty()) continue;
-			if(GameBoard[i][j].top_piece().second == White) count += (abs(i-half) + abs(j-half));
-			else count -= (abs(i-half) + abs(j-half));
-		}
-	}
-	return w[1]*count;
+	// cout << "Center val is " << (abs(i - half) + abs(j - half))* w[1] << endl;
+	return (abs(i - half) + abs(j - half))* w[1];
 }
+
 
 inline eval_type Game::nbr(Piece p1, Piece p2){
 	Stone &s1 = p1.first;
@@ -110,24 +103,19 @@ inline eval_type Game::nbr(Piece p1, Piece p2){
 	}
 }
 
-// neighbours
-eval_type Game::feature2(){
-	// fprintf(stderr, "Feature 2 enter \n");
-	eval_type count = 0;
-	for(int x=0; x<size; ++x){
-		for(int y=0; y<size; ++y){
-			if(GameBoard[x][y].empty()) continue;
-			if(x != size-1 && !GameBoard[x+1][y].empty())
-				count += nbr(GameBoard[x][y].top_piece(), GameBoard[x+1][y].top_piece());
+inline eval_type Game::neighbor(int x, int y)
+{
+	eval_type ng = 0;
+	if(x != size-1 && !GameBoard[x+1][y].empty())
+		ng += nbr(GameBoard[x][y].top_piece(), GameBoard[x+1][y].top_piece());
 
-			if(y != size-1 && !GameBoard[x][y+1].empty())
-				count += nbr(GameBoard[x][y].top_piece(), GameBoard[x][y+1].top_piece());
-		}
-	}
-	return count;
+	if(y != size-1 && !GameBoard[x][y+1].empty())
+		ng += nbr(GameBoard[x][y].top_piece(), GameBoard[x][y+1].top_piece());
+
+	return ng;
 }
 
-eval_type Game::stone_weight(Stone s){
+inline eval_type Game::stone_weight(Stone s){
 	switch(s){
 		case Flat : return w[6];
 		case Stand : return w[7];
@@ -135,85 +123,213 @@ eval_type Game::stone_weight(Stone s){
 	}
 }
 
-// How many of the same type below the stack
-// Weight of each stack as per piece
-eval_type Game::feature3(){
-	// fprintf(stderr, "Feature 3 enter \n");
+inline eval_type Game::top_colors(int x, int y, pair<int,int> &top5)
+{
+	auto &j = GameBoard[x][y];
 	eval_type count = 0;
-	pair<int,int> top5;
-	for(auto &i : GameBoard){
-		for(auto &j : i){
-			if(j.empty()) continue;
-			j.top5(top5);
-			if(j.top_piece().second == White){
-				// count += stone_weight(j.top_piece().first);
-				if(j.top_piece().first == Cap)
-					count += ((top5.first)*w[4] + (top5.second)*w[5]*1);
-				else 
-					count += ((top5.first)*w[4] + (top5.second)*w[5]);
-			}
-			else{
-				// count -= stone_weight(j.top_piece().first);
-				if(j.top_piece().first == Cap)
-					count -= ((top5.first)*w[5] + (top5.second)*w[4]*1);
-				else 
-					count -= ((top5.first)*w[5] + (top5.second)*w[4]);
-			}
-		}
+	eval_type cap_opp = 1;
+	if(j.top_piece().second == White){
+		// count += stone_weight(j.top_piece().first);
+		if(j.top_piece().first == Cap)
+			count += ((top5.first)*w[4] + (top5.second)*w[5]*cap_opp);
+		else 
+			count += ((top5.first)*w[4] + (top5.second)*w[5]);
+	}
+	else{
+		// count -= stone_weight(j.top_piece().first);
+		if(j.top_piece().first == Cap)
+			count -= ((top5.first)*w[5] + (top5.second)*w[4]*cap_opp);
+		else 
+			count -= ((top5.first)*w[5] + (top5.second)*w[4]);
 	}
 	return count;
 }
 
-eval_type Game::feature4(){
+inline int Game::sq(int i, int j)
+{
+	bool yo = true;
+	Player_Type p = GameBoard[i][j].top_piece().second;
+	if (i + 1 >= size) yo = false;
+	else yo = yo & (!GameBoard[i+1][j].empty() && GameBoard[i+1][j].top_piece().second == p);
+
+	if (i - 1 < 0) yo = false;
+	else yo = yo & (!GameBoard[i-1][j].empty() && GameBoard[i-1][j].top_piece().second == p);
+
+	if (j + 1 >= size) yo = false;
+	else yo = yo & (!GameBoard[i][j+1].empty() && GameBoard[i][j+1].top_piece().second == p);
+
+	if (j - 1 < 0) yo = false;
+	else yo = yo & (!GameBoard[i][j-1].empty() && GameBoard[i][j-1].top_piece().second == p);
+
+	if (yo) return 1;
+	return 0;
+}
+
+
+// closer to center
+eval_type Game::feature1(){
+	// fprintf(stderr, "Feature 1 enter \n");
 	eval_type count = 0;
+	pair<int,int> top5;
+	// vector<vector<int> > influence (Size, vector<int> (Size,0));
 	bool full = true;
-	for (int i = 0 ; i < size ; ++i){
-		for (int j = 0 ; j < size ; ++j){
-			if (GameBoard[i][j].empty()){
+	int flat_count = 0;
+	int squares = 0;
+
+	for(int i=0; i<size; ++i){
+		for(int j=0; j<size; ++j){
+			if(GameBoard[i][j].empty())
+			{
 				full = false;
 				continue;
 			}
-			if (GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == White) ++count;
-			else if(GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == Black) --count;
-		}
-	}
-	if(full) return count*w[15];
-	else if((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
-		return count*w[15];
-	else return 0;
-}
+
+			eval_type mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
+			eval_type stone = stone_weight(GameBoard[i][j].top_piece().first) * w[16];
+			GameBoard[i][j].top5(top5);
+
+				// printf("i = %d, j = %d, top5 white = %d, black = %d \n", i, j , top5.first, top5.second);
+				// printf("%f Center \n", center(i,j));
+				// printf("%f Neighbor\n", neighbor(i,j));
+				// printf("%f Top colors \n", top_colors(i,j,top5));
 
 
-eval_type Game::feature5(){
-	vector<vector<int> > influence (Size, vector<int> (Size,0));
-	int mult = 0;
-	eval_type count = 0;
-	for (int i = 0 ; i < Size ; i ++)
-	{
-		for (int j = 0 ; j < Size ; j ++)
-		{
-			if (GameBoard[i][j].empty()) continue;
-			mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
-			mult *= stone_weight(GameBoard[i][j].top_piece().first);
-			influence[i][j] += mult;
+			count += center(i,j)*mult;
+			count += neighbor(i,j);
+			count += top_colors(i,j,top5);
+
+			count += mult * stone;
 			if (i > 0)
-				influence[i-1][j] += mult;
+				count += mult * stone;
 			if (i < size-1)
-				influence[i+1][j] += mult;
+				count += mult * stone;
 			if (j > 0)
-				influence[i][j-1] += mult;
+				count += mult * stone;
 			if (j < size-1)
-				influence[i][j+1] += mult;
+				count += mult * stone;
+
+				// cout << "Now, count = " << count << endl;
+
+			if (GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == White)
+				++flat_count;
+			else if(GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == Black)
+				--flat_count;
+
+			squares += mult * sq(i,j);
+
 		}
 	}
-	// counted all!!
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0 ; j < size ; j ++)
-			count += influence[i][j];
-	}
-	return count*w[16];
+
+	if (full)
+		count += flat_count*w[15];
+	else if ((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
+		count += flat_count*w[15];
+
+	count += squares*w[17];
+
+	return count;
 }
+
+
+
+
+// neighbours  DONEEEE
+// eval_type Game::feature2(){
+// 	// fprintf(stderr, "Feature 2 enter \n");
+// 	eval_type count = 0;
+// 	for(int x=0; x<size; ++x){
+// 		for(int y=0; y<size; ++y){
+// 			if(GameBoard[x][y].empty()) continue;
+// 			if(x != size-1 && !GameBoard[x+1][y].empty())
+// 				count += nbr(GameBoard[x][y].top_piece(), GameBoard[x+1][y].top_piece());
+
+// 			if(y != size-1 && !GameBoard[x][y+1].empty())
+// 				count += nbr(GameBoard[x][y].top_piece(), GameBoard[x][y+1].top_piece());
+// 		}
+// 	}
+// 	return count;
+// }
+
+
+// How many of the same type below the stack
+// Weight of each stack as per piece
+// eval_type Game::feature3(){
+// 	// fprintf(stderr, "Feature 3 enter \n");
+// 	eval_type count = 0;
+// 	pair<int,int> top5;
+// 	for(auto &i : GameBoard){
+// 		for(auto &j : i){
+// 			if(j.empty()) continue;
+// 			j.top5(top5);
+// 			if(j.top_piece().second == White){
+// 				// count += stone_weight(j.top_piece().first);
+// 				if(j.top_piece().first == Cap)
+// 					count += ((top5.first)*w[4] + (top5.second)*w[5]*1);
+// 				else 
+// 					count += ((top5.first)*w[4] + (top5.second)*w[5]);
+// 			}
+// 			else{
+// 				// count -= stone_weight(j.top_piece().first);
+// 				if(j.top_piece().first == Cap)
+// 					count -= ((top5.first)*w[4] + (top5.second)*w[5]*1);
+// 				else 
+// 					count -= ((top5.first)*w[5] + (top5.second)*w[4]);
+// 			}
+// 		}
+// 	}
+// 	return count;
+// }
+
+// eval_type Game::feature4(){
+// 	eval_type count = 0;
+// 	bool full = true;
+// 	for (int i = 0 ; i < size ; ++i){
+// 		for (int j = 0 ; j < size ; ++j){
+// 			if (GameBoard[i][j].empty()){
+// 				full = false;
+// 				continue;
+// 			}
+// 			if (GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == White) ++count;
+// 			else if(GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == Black) --count;
+// 		}
+// 	}
+// 	if(full) return count*w[15];
+// 	else if((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
+// 		return count*w[15];
+// 	else return 0;
+// }
+
+
+// eval_type Game::feature5(){
+// 	vector<vector<int> > influence (Size, vector<int> (Size,0));
+// 	int mult = 0;
+// 	eval_type count = 0;
+// 	for (int i = 0 ; i < Size ; i ++)
+// 	{
+// 		for (int j = 0 ; j < Size ; j ++)
+// 		{
+// 			if (GameBoard[i][j].empty()) continue;
+// 			mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
+// 			mult *= stone_weight(GameBoard[i][j].top_piece().first);
+// 			influence[i][j] += mult;
+// 			if (i > 0)
+// 				influence[i-1][j] += mult;
+// 			if (i < size-1)
+// 				influence[i+1][j] += mult;
+// 			if (j > 0)
+// 				influence[i][j-1] += mult;
+// 			if (j < size-1)
+// 				influence[i][j+1] += mult;
+// 		}
+// 	}
+// 	// counted all!!
+// 	for (int i = 0; i < size; i++)
+// 	{
+// 		for (int j = 0 ; j < size ; j ++)
+// 			count += influence[i][j];
+// 	}
+// 	return count*w[16];
+// }
 
 // Number of white and black on board
 // eval_type Game::feature4(){

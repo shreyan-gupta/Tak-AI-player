@@ -16,10 +16,10 @@ Game::Game(int size, int pieces) : p_white(Player(White, pieces)), p_black(Playe
 
 	f[0] = &Game::feature0;
 	f[1] = &Game::feature1;
-	f[2] = &Game::feature2;
-	f[3] = &Game::feature3;
-	f[4] = &Game::feature4;
-	f[5] = &Game::feature5;
+	// f[2] = &Game::feature2;
+	// f[3] = &Game::feature3;
+	// f[4] = &Game::feature4;
+	// f[5] = &Game::feature5;
 	
 	float piece_factor = 1;
 	float nbr_factor = 0.7;
@@ -48,6 +48,7 @@ Game::Game(int size, int pieces) : p_white(Player(White, pieces)), p_black(Playe
 	w[3]  = nbr_factor * -5;
 
 	w[16] = 7;
+	w[17] = 10;
 
 }
 
@@ -67,7 +68,7 @@ eval_type Game::eval(){
 	auto ptr = duplicates.find(s);
 	if(ptr != duplicates.end()) return ptr->second;
 	eval_type e = 0;
-	for(int i=0; i<6; ++i){
+	for(int i=0; i<2; ++i){
 		e += CALL_MEMBER_FN(this, f[i]) ();
 	}
 	duplicates[s] = e;

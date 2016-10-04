@@ -133,18 +133,22 @@ private:
 	unordered_map<string, eval_type> duplicates;
 	eval_type feature0();
 	eval_type feature1();
-	eval_type feature2();
-	eval_type feature3();
-	eval_type feature4();
-	eval_type feature5();
+	// eval_type feature2();
+	// eval_type feature3();
+	// eval_type feature4();
+	// eval_type feature5();
 	eval_type nbr(Piece, Piece);
+	eval_type center(int, int);
+	eval_type neighbor(int, int);
 	eval_type stone_weight(Stone);
+	int sq(int, int);
+	eval_type top_colors(int, int, std::pair<int,int> &);
 public:
 	string to_string();
 	int size;
 	vector< vector<Position> > GameBoard;
-	Feature f[6];
-	eval_type w[17];
+	Feature f[2];
+	eval_type w[18];
 	Player p_black, p_white;
 
 	Game(int, int);
