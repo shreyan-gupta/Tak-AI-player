@@ -145,7 +145,8 @@ void Game::decide_move(Eval_Move &best_move, bool player, int depth, int max_dep
 			}
 			best_move.m = best_ptr->second;
 		}
-		else{
+		else
+		{
 			auto best_ptr = allmoves.begin();
 			if (best_ptr->first < -w[0]/2){
 				best_move.e = best_ptr->first;
