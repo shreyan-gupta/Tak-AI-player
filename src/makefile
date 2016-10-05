@@ -33,7 +33,9 @@ client : Client.cpp
 
 clean : 
 	rm *.o
-	rm out*
+	rm out
+	rm out1
+	rm out2
 
 run : out
 	./out

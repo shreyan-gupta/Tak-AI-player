@@ -21,22 +21,22 @@ Game::Game(int size, int pieces) : p_white(Player(White, pieces)), p_black(Playe
 	// f[4] = &Game::feature4;
 	// f[5] = &Game::feature5;
 	
-	float piece_factor = 1;
+	// float piece_factor = 1;
 	float nbr_factor = 0.7;
 	float top_factor = 2;
 
 
 	w[0] = 1000000;
-	w[15] = 900000;
+	w[15] = 1000000;
 
 	w[1] = 0.35;
 
-	w[4] = piece_factor * 5;
-	w[5] = piece_factor * 1;	// original 1
+	w[4] = top_factor * 150;
+	w[5] = top_factor * 0;	// original 1
 
-	w[6] = top_factor * 20;		// orinimal 12
+	w[6] = top_factor * 200;		// orinimal 12
 	w[7] = top_factor * 8;
-	w[8] = top_factor * 11;
+	w[8] = top_factor * 180;
 
 	w[9]  = nbr_factor * 8.5;
 	w[10] = nbr_factor * 5;

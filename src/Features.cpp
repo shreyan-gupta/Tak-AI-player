@@ -127,7 +127,7 @@ inline eval_type Game::top_colors(int x, int y, pair<int,int> &top5)
 {
 	auto &j = GameBoard[x][y];
 	eval_type count = 0;
-	eval_type cap_opp = 1;
+	eval_type cap_opp = 2.7;
 	if(j.top_piece().second == White){
 		// count += stone_weight(j.top_piece().first);
 		if(j.top_piece().first == Cap)
@@ -195,7 +195,7 @@ eval_type Game::feature1(){
 
 
 			count += center(i,j)*mult;
-			count += neighbor(i,j);
+			// count += neighbor(i,j); ??
 			count += top_colors(i,j,top5);
 
 			count += mult * stone;
