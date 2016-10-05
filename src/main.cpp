@@ -73,7 +73,8 @@ int manage_depth(Game &g){
 		max_depth = min(max_depth+1, 6);
 		fprintf(stderr, "!Depth : %d t_left %d : %f %f\n", max_depth, (int)(TimeLimit - total_time), avg_time, (float)time_taken[max_depth]/((float)depth_count[max_depth] - 0.1));
 		return min(max_depth,6);
-	}else{
+	}
+	else{
 		int temp = max_depth;
 		while(temp >= 2 &&  avg_time < (float)time_taken[temp]/((float)depth_count[temp] - 0.1)) --temp;
 		fprintf(stderr, "Depth : %d t_left %d : %f %f\n", temp, (int)(TimeLimit - total_time), avg_time, (float)time_taken[temp]/((float)depth_count[temp] - 0.1));
