@@ -8,6 +8,7 @@ time_t start_time;
 int prune_count[10] = {0,0,0,0,0,0,0,0,0,0};
 int prune_index[10] = {0,0,0,0,0,0,0,0,0,0};
 int depth_count[10] = {0,0,0,0,0,0,0,0,0,0};
+time_t time_taken[10] = {0,0,0,0,0,0,0,0,0,0};
 time_t total_time = 0;
 int moves = 0;
 int max_depth = 6;
@@ -59,7 +60,7 @@ void print_avg_time(){
 
 int manage_depth(Game &g){
 	if(moves < Size/2 + 1) return 4;
-	return 6;
+	// return 6;
 
 	int empty_squares = 0;
 	for(auto &i : g.GameBoard)
@@ -68,14 +69,14 @@ int manage_depth(Game &g){
 
 	float avg_time = (float)(1.2)*(TimeLimit - total_time)/(10 + empty_squares);
 
-	if(avg_time > (float)total_time/((float)depth_count[max_depth] - 0.1)){
+	if(avg_time > (float)time_taken[max_depth]/((float)depth_count[max_depth] - 0.1)){
 		++max_depth;
-		fprintf(stderr, "Depth : %d %f %f\n", max_depth, avg_time, (float)total_time/((float)depth_count[max_depth] - 0.1));
-		return max_depth;
+		fprintf(stderr, "Depth : %d %f %f\n", max_depth, avg_time, (float)time_taken[max_depth]/((float)depth_count[max_depth] - 0.1));
+		return min(max_depth,8);
 	}else{
 		int temp = max_depth;
-		while(temp >= 0 &&  avg_time < (float)total_time/((float)depth_count[temp] - 0.1)) --temp;
-		fprintf(stderr, "Depth : %d %f %f\n", temp, avg_time, (float)total_time/((float)depth_count[temp] - 0.1));
+		while(temp >= 2 &&  avg_time < (float)time_taken[max_depth]/((float)depth_count[temp] - 0.1)) --temp;
+		fprintf(stderr, "Depth : %d %f %f\n", temp, avg_time, (float)time_taken[temp]/((float)depth_count[temp] - 0.1));
 		return temp;
 	}
 	// time left/(10 + 2*empty) itni aim for a depth.
@@ -119,8 +120,11 @@ int main(int argc, char const *argv[])
 		{
 			Eval_Move mymove;
 			time_t start_move_time = time(0);
-			g.decide_move(mymove, !opponent_type, 0, manage_depth(g), -2*g.w[0], 2*g.w[0]);
-			total_time += (time(0) - start_move_time);
+			int depth = manage_depth(g);
+			g.decide_move(mymove, !opponent_type, 0, depth, -2*g.w[0], 2*g.w[0]);
+			time_t time_move = (time(0) - start_move_time);
+			for (int i = 0; i <= depth; i++)
+				time_taken[i] += time_move;
 				print_avg_time();
 				cerr << "Time " << total_time << endl;
 				cerr << g.to_string() << endl;
@@ -162,8 +166,11 @@ int main(int argc, char const *argv[])
 				cerr << g.to_string() << endl;
 			Eval_Move mymove;
 			time_t start_move_time = time(0);
-			g.decide_move(mymove, !opponent_type, 0, manage_depth(g), -2*g.w[0], 2*g.w[0]);
-			total_time += (time(0) - start_move_time);
+			int depth = manage_depth(g);
+			g.decide_move(mymove, !opponent_type, 0, depth, -2*g.w[0], 2*g.w[0]);
+			time_t time_move = (time(0) - start_move_time);
+			for (int i = 0; i <= depth; i++)
+				time_taken[i] += time_move;
 				print_avg_time();
 				cerr << "Time " << total_time << endl;
 				cerr << g.to_string() << endl;
