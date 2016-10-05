@@ -72,7 +72,7 @@ int manage_depth(Game &g){
 	if(avg_time > (float)time_taken[max_depth]/((float)depth_count[max_depth] - 0.1)){
 		++max_depth;
 		fprintf(stderr, "Depth : %d %f %f\n", max_depth, avg_time, (float)time_taken[max_depth]/((float)depth_count[max_depth] - 0.1));
-		return min(max_depth,8);
+		return min(max_depth,7);
 	}else{
 		int temp = max_depth;
 		while(temp >= 2 &&  avg_time < (float)time_taken[max_depth]/((float)depth_count[temp] - 0.1)) --temp;

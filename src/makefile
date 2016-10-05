@@ -1,14 +1,8 @@
-CFLAGS = -c -std=c++11 -O3 -march=native -g
-LFLAGS = -std=c++11 -O3 -march=native -g
-OBJ = main.o Misc.o Game.o Features.o Test.o
+CFLAGS = -c -std=c++11 -Ofast -march=native
+LFLAGS = -std=c++11 -Ofast -march=native
+OBJ = main.o Misc.o Game.o Features.o
 
-all : out run1 run2
-
-run1 : $(OBJ)
-	g++ $(LFLAGS) $(OBJ) -o out1
-
-run2 : $(OBJ)
-	g++ $(LFLAGS) $(OBJ) -o out2
+all : out
 
 out : $(OBJ)
 	g++ $(LFLAGS) $(OBJ) -o out
@@ -34,8 +28,6 @@ client : Client.cpp
 clean : 
 	rm *.o
 	rm out
-	rm out1
-	rm out2
 
 run : out
 	./out
