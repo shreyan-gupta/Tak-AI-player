@@ -1,7 +1,7 @@
 #include "Header.h"
 using namespace Types;
 
-Player::Player(bool player_type, int pieces){
+Player::Player(bool player_type, char pieces){
 	type = player_type;
 	StonesLeft = pieces;
 	CapLeft = true;
@@ -29,7 +29,7 @@ string Move::to_string()
 	else
 	{
 		// move stack!
-		int sum = 0;
+		char sum = 0;
 		switch (Direction)
 		{
 			case '<':
@@ -55,7 +55,7 @@ string Move::to_string()
 	return s;
 }
 
-Move::Move(int x, int y, Piece p) : Drops(NULL)
+Move::Move(char x, char y, Piece p) : Drops(NULL)
 {
 	this->CapMove = false;
 	this->Place_Move = true;
@@ -64,7 +64,7 @@ Move::Move(int x, int y, Piece p) : Drops(NULL)
 	this->p = p;
 }
 
-Move::Move(int x, int y, char d, vector<int> *v){
+Move::Move(char x, char y, char d, vector<char> *v){
 	this->CapMove = false;
 	this->Place_Move = false;
 	this->x = x;
@@ -106,30 +106,30 @@ string Position::to_string(){
 }
 
 
-vector< vector< vector< vector<int> > > > AllPerms;
+vector< vector< vector< vector<char> > > > AllPerms;
 
-void getAllPerms(int dim)
+void getAllPerms(char dim)
 {
 	// fill this matrix!
 	// AllPerms[i][j] = all vectors with size = j, sum = i.
-	AllPerms = vector<vector<vector<vector<int> > > > (dim+1, std::vector<vector<vector<int> > > (dim));
-	for (int sum = 1 ; sum <= dim ; sum ++)
+	AllPerms = vector<vector<vector<vector<char> > > > (dim+1, std::vector<vector<vector<char> > > (dim));
+	for (char sum = 1 ; sum <= dim ; sum ++)
 	{
-		for (int size = 1 ; size < dim ; size ++)
+		for (char size = 1 ; size < dim ; size ++)
 		{
-			vector<vector<int> > & fillthis = AllPerms[sum][size];
+			vector<vector<char> > & fillthis = AllPerms[sum][size];
 			if (size == 1)
 			{
-				vector<int> x (1,sum);
+				vector<char> x (1,sum);
 				fillthis.push_back(x);
 			}
-			int i = sum-1;
+			char i = sum-1;
 			while (i > 0)
 			{
 				// pick all vectors at [i][size-1]
 				for (auto &j : AllPerms[i][size-1])
 				{
-					vector<int> x = j;
+					vector<char> x = j;
 					x.push_back(sum-i);
 					fillthis.push_back(x);
 				}

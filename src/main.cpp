@@ -1,6 +1,6 @@
 #include "Header.h"
 
-int Size = 3; 
+char Size = 3; 
 int TimeLimit =1;
 bool opponent_type = White;
 time_t start_time;
@@ -13,10 +13,10 @@ time_t total_time = 0;
 int moves = 0;
 int max_depth = 6;
 
-void printVec(vector<int> & v){
-	for (auto &i : v) std::cerr << i;
-	std::cerr << ",";
-}
+// void printVec(vector<int> & v){
+// 	for (auto &i : v) std::cerr << i;
+// 	std::cerr << ",";
+// }
 
 void print_avg_time(){
 	FILE *debug;
@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
 		cerr << "Enter player_no, size, TimeLimit\n";
 	cin >> player_no >> Size >> TimeLimit;
 
-	int pieces;
+	char pieces;
 	switch(Size){
 		case 5 : pieces = 21; break;
 		case 6 : pieces = 30; break;

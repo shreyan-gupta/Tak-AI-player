@@ -1,11 +1,11 @@
 #include "Header.h"
 using namespace Types;
 
-inline bool pathable(int x, int y, bool player, vector< vector<Position> > &GameBoard){
+inline bool pathable(char x, char y, bool player, vector< vector<Position> > &GameBoard){
 	return (!GameBoard[x][y].empty() && GameBoard[x][y].top_piece().first != Stand && GameBoard[x][y].top_piece().second == player);
 }
 
-void search(bool type, int x, int y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, int size){
+void search(bool type, char x, char y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, char size){
 	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
 	if(type && y == size-1){
 		found = true;
@@ -30,11 +30,11 @@ void search(bool type, int x, int y, bool player, vector< vector<Position> > &Ga
 eval_type Game::feature0(){
 	// fprintf(stderr, "Feature 0 enter \n");
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
-	for(int i=0; i<size; ++i){
+	for(char i=0; i<size; ++i){
 		if(GameBoard[i][0].empty() || explored[i][0]) continue;
 		bool found = false;
-		int x = i;
-		int y = 0;
+		char x = i;
+		char y = 0;
 		if (GameBoard[i][0].top_piece().first != Stand)
 			search(true,x,y,GameBoard[i][0].top_piece().second, GameBoard, explored, found, size);
 		if(found){
@@ -43,11 +43,11 @@ eval_type Game::feature0(){
 		}
 	}
 	explored = vector< vector<bool> >(size, vector<bool>(size, false));
-	for(int j=0; j<size; ++j){
+	for(char j=0; j<size; ++j){
 		if(GameBoard[0][j].empty() || explored[0][j]) continue;
 		bool found = false;
-		int x = 0;
-		int y = j;
+		char x = 0;
+		char y = j;
 		if (GameBoard[0][j].top_piece().first != Stand)
 			search(false,x,y,GameBoard[0][j].top_piece().second, GameBoard, explored, found, size);
 		if(found){
@@ -59,7 +59,7 @@ eval_type Game::feature0(){
 }
 
 // csiochd@123
-inline eval_type Game::center(int i, int j)
+inline eval_type Game::center(char i, char j)
 {
 	float half = size/2.0;
 	// cout << "Center val is " << (abs(i - half) + abs(j - half))* w[1] << endl;
@@ -103,7 +103,7 @@ inline eval_type Game::nbr(Piece p1, Piece p2){
 	}
 }
 
-inline eval_type Game::neighbor(int x, int y)
+inline eval_type Game::neighbor(char x, char y)
 {
 	eval_type ng = 0;
 	if(x != size-1 && !GameBoard[x+1][y].empty())
@@ -123,7 +123,7 @@ inline eval_type Game::stone_weight(Stone s){
 	}
 }
 
-inline eval_type Game::top_colors(int x, int y, pair<int,int> &top5)
+inline eval_type Game::top_colors(char x, char y, pair<char,char> &top5)
 {
 	auto &j = GameBoard[x][y];
 	eval_type count = 0;
@@ -145,7 +145,7 @@ inline eval_type Game::top_colors(int x, int y, pair<int,int> &top5)
 	return count;
 }
 
-inline int Game::sq(int i, int j)
+inline char Game::sq(char i, char j)
 {
 	bool yo = true;
 	Player_Type p = GameBoard[i][j].top_piece().second;
@@ -170,14 +170,14 @@ inline int Game::sq(int i, int j)
 eval_type Game::feature1(){
 	// fprintf(stderr, "Feature 1 enter \n");
 	eval_type count = 0;
-	pair<int,int> top5;
+	pair<char,char> top5;
 	// vector<vector<int> > influence (Size, vector<int> (Size,0));
 	bool full = true;
-	int flat_count = 0;
-	int squares = 0;
+	char flat_count = 0;
+	char squares = 0;
 
-	for(int i=0; i<size; ++i){
-		for(int j=0; j<size; ++j){
+	for(char i=0; i<size; ++i){
+		for(char j=0; j<size; ++j){
 			if(GameBoard[i][j].empty())
 			{
 				full = false;
@@ -222,7 +222,7 @@ eval_type Game::feature1(){
 
 	if (full)
 		count += flat_count*w[15];
-	else if ((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
+	else if ((p_black.StonesLeft + (char)p_black.CapLeft) == 0 || (p_white.StonesLeft + (char)p_white.CapLeft) == 0)
 		count += flat_count*w[15];
 
 	count += squares*w[17];

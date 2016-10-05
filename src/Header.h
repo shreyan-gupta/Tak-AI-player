@@ -75,28 +75,28 @@ using namespace Types;
 struct Position
 {
 	std::deque<Piece> Stack;
-	int Num_Black = 0;
-	int Num_White = 0;
+	char Num_Black = 0;
+	char Num_White = 0;
 	Piece top_piece();
 	bool empty();
 	bool stackable();
 	bool capable();
 	string to_string();
-	void top5(pair<int,int> &);
+	void top5(pair<char,char> &);
 };
 
 struct Move
 {
 	bool CapMove = false;
 	bool Place_Move; 	// true if place else false
-	int x;
-	int y;
+	char x;
+	char y;
 	Piece p; 			// rakhna hai ye/uthaana hai ye.
 	char Direction; 	// + U, - D, > R, < L
-	vector<int> *Drops;
+	vector<char> *Drops;
 	string to_string(); // print ke liye!
-	Move(int, int, Piece);
-	Move(int, int, char, vector<int> *);
+	Move(char, char, Piece);
+	Move(char, char, char, vector<char> *);
 	// Move()
 	Move();
 	// Move(string);
@@ -113,17 +113,17 @@ struct Eval_Move{
 };
 
 struct Player{
-	int StonesLeft;
+	char StonesLeft;
 	bool CapLeft;
-	int x, y;
+	char x, y;
 	Player_Type type;
-	Player(bool,int);
+	Player(bool,char);
 };
 
 
-void printVec(vector<int>&);
+// void printVec(vector<int>&);
 Piece piece(Stone, bool);
-void getAllPerms(int);
+void getAllPerms(char);
 // int favourableStack(vector< vector< Position> > &, int, int);
 
 
@@ -138,32 +138,32 @@ private:
 	// eval_type feature4();
 	// eval_type feature5();
 	eval_type nbr(Piece, Piece);
-	eval_type center(int, int);
-	eval_type neighbor(int, int);
+	eval_type center(char, char);
+	eval_type neighbor(char, char);
 	eval_type stone_weight(Stone);
-	int sq(int, int);
-	eval_type top_colors(int, int, std::pair<int,int> &);
+	char sq(char, char);
+	eval_type top_colors(char, char, std::pair<char,char> &);
 public:
 	string to_string();
-	int size;
+	char size;
 	vector< vector<Position> > GameBoard;
 	Feature f[2];
 	eval_type w[18];
 	Player p_black, p_white;
 
-	Game(int, int);
+	Game(char, char);
 	eval_type eval();
 	void makemove(Move&);		// inputs yet to define
 	void antimove(Move&);
 	void generate_valid_moves(bool,std::multimap<eval_type,Move> &);
-	void GetStackable(int, int, bool, vector<int>&);
-	void decide_move(Eval_Move&, bool, int, int, eval_type, eval_type);
+	void GetStackable(char, char, bool, vector<char>&);
+	void decide_move(Eval_Move&, bool, char, char, eval_type, eval_type);
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void make_opponent_move(string,bool);
 };
 
-extern vector<vector<vector<vector<int> > > > AllPerms;
-extern int Size;
+extern vector<vector<vector<vector<char> > > > AllPerms;
+extern char Size;
 extern bool opponent_type;
 extern int TimeLimit;
 extern time_t start_time;
@@ -207,9 +207,9 @@ inline bool Position::capable()
 	else return false;
 }
 
-inline void Position::top5(pair<int,int> &p)
+inline void Position::top5(pair<char,char> &p)
 {
-	int count = 0;
+	char count = 0;
 	p.first = 0;
 	p.second = 0;
 	for (auto it = Stack.begin() ; it != Stack.end() && count < 5 ; it ++)
