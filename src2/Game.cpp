@@ -78,11 +78,46 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 void Game::make_opponent_move(string s, bool player)
 {
 	// ADITI TODO
+	char first = s.at(0);
+	Move m;
+	m.x = size - (s.at(2) - '0');
+	m.y = s.at(1) - 'a';
+	if (first == 'F' || first == 'S' || first == 'C')
+	{
+		m.place_move = true;
+		m.piece = (player == White) ? first : tolower(first);
+		makemove(m);
+	}
+	else
+	{
+		m.place_move = false;
+		m.direction = s.at(3);
+		if (s.at(3) == '+')
+			m.direction = '-';
+		else if (s.at(3) == '-')
+			m.direction = '+';
+		vector<s_int> drops (s.length() - 4,1);
+
+		for (s_int i = 0; i < s.length() - 4; i++)
+			drops[i] = (char)(s.at(i+4) - '0');
+		
+		m.drops = &drops;
+		char x_new = m.x + m.drops->size() * ((m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0));
+		char y_new = m.y + m.drops->size() * ((m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0));
+		if (GameBoard[m.x][m.y].top_piece() == 'C')
+		{
+			Position &p = GameBoard[x_new][y_new];
+			if (!p.empty() && p.top_piece() == 'S')
+				m.cap_move = true;
+		}
+		makemove(m);
+	}
 }
 
 void Game::makemove(Move &m){
 	if(m.place_move){
 		UpdatePlayer((m.piece < 95), m, false);
+		cout << "piece is " << m.piece << endl;
 		GameBoard[m.x][m.y].stack += m.piece;
 		// increment num_black, num_white no need
 	}
