@@ -113,4 +113,4 @@ Move::Move(s_int x, s_int y, char d, vector<s_int> *v){
 	this->drops = v;
 }
 
-Move::Move() {}
+Move::Move(){}
