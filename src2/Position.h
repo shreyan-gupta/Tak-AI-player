@@ -51,7 +51,7 @@ inline char Position::top_piece(){
 	return toupper(stack.back());
 }
 
-inline char Position::player(){
+inline bool Position::player(){
 	return (stack.back() < 95);
 }
 

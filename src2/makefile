@@ -19,19 +19,19 @@ Game.o : Game.cpp Game.h
 Features.o : Features.cpp Game.h
 	g++ $(CFLAGS) Features.cpp
 
-Misc.o : Misc.cpp Header.h
+Misc.o : Misc.cpp Move.h
 	g++ $(CFLAGS) Misc.cpp
 
 Test.o : Test.cpp Game.h
 	g++ $(CFLAGS) Test.cpp
 
-Position.hpp : Header.h
+Position.h : Header.h
 
-Transposition.hpp : Move.hpp Header.h
+Transposition.h : Move.h Header.h
 
-Move.hpp : Header.h
+Move.h : Header.h
 
-Game.h : Position.hpp Transposition.hpp
+Game.h : Position.h Transposition.h
 
 clean : 
 	rm *.o

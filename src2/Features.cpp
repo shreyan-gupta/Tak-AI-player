@@ -37,7 +37,7 @@ eval_type Game::path(){
 	}
 	explored = vector< vector<bool> >(size, vector<bool>(size, false));
 	for(s_int j=0; j<size; ++j){
-		if(GameBoard[0][j].empty() || GameBoard[i][0].top_piece() == 'S' || explored[0][j]) continue;
+		if(GameBoard[0][j].empty() || GameBoard[0][j].top_piece() == 'S' || explored[0][j]) continue;
 		bool found = false;
 		s_int x = 0;
 		s_int y = j;

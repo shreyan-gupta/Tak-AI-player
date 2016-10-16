@@ -1,8 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Position.hpp"
-#include "Transposition.hpp"
+#include "Position.h"
+#include "Transposition.h"
 using namespace Types;
 
 class Game{

@@ -2,7 +2,7 @@
 #define TRANSPOSITION_H
 
 #include "Header.h"
-#include "Move.hpp"
+#include "Move.h"
 using namespace Types;
 
 // u -> upper bound
