@@ -16,6 +16,10 @@
 namespace Types
 {
 	typedef char s_int;
+	typedef float eval_type;
+	typedef bool Player_Type;
+	const bool Black = false;
+	const bool White = true;
 
 	template < typename T > std::string to_string( const T& n )
     {
@@ -24,3 +28,13 @@ namespace Types
         return stm.str();
     }	
 }
+
+void getAllPerms(char);
+
+struct Player{
+	char StonesLeft;
+	bool CapLeft;
+	char x, y;
+	Player_Type type;
+	Player(bool,char);
+};

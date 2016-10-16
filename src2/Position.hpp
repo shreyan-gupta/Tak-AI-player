@@ -5,16 +5,20 @@
 
 // F S C -> White
 // f s c -> Black
-// A < 95
+// back < 95 -> White
+
+using namespace Types;
 
 struct Position{
 	string stack;
-	s_int num_black = 0;
-	s_int num_white = 0;
+	// s_int num_black = 0;
+	// s_int num_white = 0;
 	bool empty();
 	bool stackable();
 	bool capable();
 	void top5(pair<s_int, s_int> &);
+	char top_piece();
+	bool player();
 	string to_string();
 };
 
@@ -43,7 +47,15 @@ inline void Position::top5(pair<s_int, s_int> &p){
 	}
 }
 
-inline string to_string(){
+inline char Position:top_piece(){
+	return toupper(stack.back());
+}
+
+inline char Position:player(){
+	return (stack.back() < 95);
+}
+
+inline string Position:to_string(){
 	return stack;
 }
 

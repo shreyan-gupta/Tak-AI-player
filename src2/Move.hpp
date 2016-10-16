@@ -1,26 +1,33 @@
 #include "Header.h"
+using namespace Types;
 
 struct Move
 {
 	bool cap_move = false;
 	bool place_move; 	// true if place else false
-	char x;
-	char y;
-	char piece; 			// rakhna hai ye/uthaana hai ye.
+	s_int x;
+	s_int y;
+	char piece;
 	char direction; 	// + U, - D, > R, < L
-	vector<char> *drops;
-	string to_string(); // print ke liye!
-	Move(char, char, char);
-	Move(char, char, char, vector<char> *);
+	vector<s_int> *drops;
+	
+	Move(s_int, s_int, char);
+	Move(s_int, s_int, char, vector<s_int> *);
 	Move();
+	string to_string(); // print ke liye!
+	Player_Type player();
 };
+
+inline Player_Type Move::player(){
+	return (piece < 95);
+}
 
 string Move::to_string()
 {
 	string s = "";
 	s += (char)('a' + y);
 	s += (char)('0' + Size - x);
-	if (Place_Move)
+	if (place_move)
 	{
 		// append F or S or C.
 		switch (piece)
@@ -43,7 +50,7 @@ string Move::to_string()
 	{
 		// move stack!
 		int sum = 0;
-		switch (Direction)
+		switch (direction)
 		{
 			case '<':
 				s += '<';
@@ -68,7 +75,7 @@ string Move::to_string()
 	return s;
 }
 
-Move::Move(char x, char y, char p) : drops(NULL)
+Move::Move(s_int x, s_int y, char p) : drops(NULL)
 {
 	this->cap_move = false;
 	this->place_move = true;
@@ -77,7 +84,7 @@ Move::Move(char x, char y, char p) : drops(NULL)
 	this->piece = p;
 }
 
-Move::Move(char x, char y, char d, vector<char> *v){
+Move::Move(s_int x, s_int y, char d, vector<s_int> *v){
 	this->cap_move = false;
 	this->place_move = false;
 	this->x = x;
