@@ -70,16 +70,87 @@ void check_makeOppo()
 	// printf("%s is Board after m1 \n", g.to_string().c_str());
 }
 
-void checkValid()
+void printMoveList(list<Move> &m)
 {
+	for (auto it = m.begin(); it != m.end(); it++)
+		cout << (*it).to_string() << endl;
+}
 
+void checkValid1()
+{
+	size = 3;
+	Game g(size,21);
+	cout << "All possible moves for White before m1 \n";
+	list<Move> l1;
+	g.generate_place_1(White, l1);
+	printMoveList(l1);
+
+	Move m1(2,1,'F');
+	g.makemove(m1);
+	printf("%s is Board after m1 \n", g.to_string().c_str());
+
+	cout << "All possible moves for Black before m2 \n";
+	list<Move> l2;
+	g.generate_place_1(Black, l2);
+	printMoveList(l2);
+
+	Move m2(1,1,'s');
+	g.makemove(m2);
+	printf("%s is Board after m2 \n", g.to_string().c_str());
+
+	cout << "All possible moves for White before m2 \n";
+	list<Move> l3;
+	g.generate_place_1(White, l3);
+	printMoveList(l3);
+	Move m3(0,1,'C');
+	g.makemove(m3);
+	printf("%s is Board after m3 \n", g.to_string().c_str());
+}
+
+void checkValid2()
+{
+	size = 3;
+	Game g(size,21);
+	cout << "All possible moves for White before m1 \n";
+	list<Move> l1;
+	g.generate_place_2(White, l1);
+	printMoveList(l1);
+
+	Move m1(2,1,'F');
+	g.makemove(m1);
+	printf("%s is Board after m1 \n", g.to_string().c_str());
+
+	cout << "All possible moves for Black before m2 \n";
+	list<Move> l2;
+	g.generate_place_2(Black, l2);
+	printMoveList(l2);
+
+	Move m2(1,1,'s');
+	g.makemove(m2);
+	printf("%s is Board after m2 \n", g.to_string().c_str());
+
+	cout << "All possible moves for White before m2 \n";
+	list<Move> l3;
+	g.generate_place_2(White, l3);
+	printMoveList(l3);
+	Move m3(0,1,'C');
+	g.makemove(m3);
+	printf("%s is Board after m3 \n", g.to_string().c_str());
+}
+
+void checkStackMoves()
+{
+	size = 3;
+	Game g(3,21);
 }
 
 int main(int argc, char const *argv[])
 {
 	cout << "Yo \n";
 	// checkMove();
-	check_makeOppo();
-	checkValid();
+	// check_makeOppo();
+	// checkValid1();
+	// checkValid2();
+	checkStackMoves();
 	return 0;
 }
