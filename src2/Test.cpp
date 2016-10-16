@@ -1,9 +1,12 @@
 #include "Game.h"
 #include "Move.h"
 
+s_int size;
+
 void checkMove()
 {
-	Game g(3,21);
+	size = 3;
+	Game g(size,21);
 	Move m1(2,1,'F');
 	g.makemove(m1);
 	printf("%s is Board after m1 \n", g.to_string().c_str());
@@ -34,9 +37,11 @@ void checkMove()
 
 void check_makeOppo()
 {
-	Game g(3,21);
+	size = 3;
+	Game g(size,21);
 	Move m1(2,1,'F');
 	cout << "Yo, in move \n";
+	cout << "Move is " << m1.to_string() << endl;
 	g.make_opponent_move(m1.to_string(), White);
 	printf("%s is Board after m1 \n", g.to_string().c_str());
 
@@ -73,8 +78,8 @@ void checkValid()
 int main(int argc, char const *argv[])
 {
 	cout << "Yo \n";
-	checkMove();
-	// check_makeOppo();
+	// checkMove();
+	check_makeOppo();
 	checkValid();
 	return 0;
 }

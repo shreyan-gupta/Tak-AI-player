@@ -1,11 +1,8 @@
 #include "Game.h"
 
-s_int size;
-
 Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
 	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-	size = s;
 }
 
 string Game::to_string(){
@@ -81,6 +78,7 @@ void Game::make_opponent_move(string s, bool player)
 	char first = s.at(0);
 	Move m;
 	m.x = size - (s.at(2) - '0');
+	// printf("%d = size, %c is 2nd char \n", size, s.at(2));
 	m.y = s.at(1) - 'a';
 	if (first == 'F' || first == 'S' || first == 'C')
 	{
@@ -117,7 +115,7 @@ void Game::make_opponent_move(string s, bool player)
 void Game::makemove(Move &m){
 	if(m.place_move){
 		UpdatePlayer((m.piece < 95), m, false);
-		cout << "piece is " << m.piece << endl;
+		// printf("%d %d piece %c\n", m.x, m.y, m.piece);
 		GameBoard[m.x][m.y].stack += m.piece;
 		// increment num_black, num_white no need
 	}
