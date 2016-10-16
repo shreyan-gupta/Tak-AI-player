@@ -7,8 +7,8 @@ all : out
 out : $(OBJ) main.o
 	g++ $(LFLAGS) $(OBJ) main.o -o out
 
-test : $(OBJ) test.o
-	g++ $(LFLAGS) $(OBJ) test.o -o test
+test : $(OBJ) Test.o
+	g++ $(LFLAGS) $(OBJ) Test.o -o test
 
 main.o : main.cpp Game.h
 	g++ $(CFLAGS) main.cpp

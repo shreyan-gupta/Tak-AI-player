@@ -10,7 +10,7 @@
 using namespace Types;
 
 struct Position{
-	string stack;
+	string stack = "";
 	// s_int num_black = 0;
 	// s_int num_white = 0;
 	bool empty();
