@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Header.h"
 #include "Position.hpp"
 #include "Transposition.h"
 using namespace Types;
@@ -27,6 +26,7 @@ public:
 
 	Game(s_int, s_int);
 	string to_string();
+	void make_opponent_move(string, bool);
 	void makemove(Move &);
 	void antimove(Move &);
 };

@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <ctime>
 
+
 namespace Types
 {
 	typedef char s_int;
@@ -29,9 +30,13 @@ namespace Types
     }	
 }
 
+using namespace std;
+using namespace Types;
+
 void getAllPerms(char);
 
-struct Player{
+struct Player
+{
 	char StonesLeft;
 	bool CapLeft;
 	char x, y;

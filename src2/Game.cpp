@@ -3,7 +3,6 @@
 Game::Game(s_int size, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
 	this->size = size;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-
 }
 
 string Game::to_string(){
@@ -15,6 +14,8 @@ string Game::to_string(){
 	}
 	return str;
 }
+
+// eval, decide_move pending
 
 void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 	Player &p = (p_type == White) ? p_white : p_black;
@@ -37,7 +38,7 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 				p.y = y_new;
 			}
 			if(m.cap_move){
-				if(GameBoard[x_new][y_new].player == White)
+				if(GameBoard[x_new][y_new].player() == White)
 					GameBoard[x_new][y_new].stack.back() = 'F';
 				else 
 					GameBoard[x_new][y_new].stack.back() = 'f';
@@ -62,20 +63,25 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 			if(m.cap_move){
 				auto &pos = GameBoard[x_new][y_new];
 				if(pos.stack[pos.stack.size() - 2] < 95)
-					pos.stack[pos.stack.size - 2] = 'S';
+					pos.stack[pos.stack.size() - 2] = 'S';
 				else 
-					pos.stack[pos.stack.size - 2] = 's';
+					pos.stack[pos.stack.size() - 2] = 's';
 					// GameBoard[x_new][y_new].Stack[1].first = Stand;
 			}
 		}
 	}
 }
 
+void Game::make_opponent_move(string s, bool player)
+{
+	// ADITI TODO
+}
+
 void Game::makemove(Move &m){
 	if(m.place_move){
 		UpdatePlayer((m.piece < 95), m, false);
 		GameBoard[m.x][m.y].stack += m.piece;
-		// increment num_black, num_white
+		// increment num_black, num_white no need
 	}
 	else{
 		vector<s_int> &d = *m.drops;
@@ -110,7 +116,7 @@ void Game::antimove(Move &m){
 		s_int x = m.x + x_add;
 		s_int y = m.y + y_add;
 
-		UpdatePlayer(GameBoard[m.x + m.Drops->size() * x_add][m.y + m.Drops->size() * y_add].player(), m, true);
+		UpdatePlayer(GameBoard[m.x + m.drops->size() * x_add][m.y + m.drops->size() * y_add].player(), m, true);
 		for(auto &l :*m.drops){
 			string &temp = GameBoard[x][y].stack;
 			str += temp.substr(temp.size() - l);
