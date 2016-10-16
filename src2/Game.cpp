@@ -255,7 +255,7 @@ void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
 					for(s_int r=0; r<4; ++r){
 						for (s_int m=1; m<=range[r]; ++m){
 							for (auto &d : AllPerms[i1][m]){
-								moves.emplace_back(i,j,dir[r].&d);
+								moves.emplace_back(i,j,dir[r],&d);
 							}
 						}
 					}

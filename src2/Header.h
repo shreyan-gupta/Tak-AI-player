@@ -35,6 +35,7 @@ using namespace Types;
 void getAllPerms(char);
 
 extern s_int size;
+extern vector< vector< vector< vector<s_int> > > > AllPerms;
 
 struct Player
 {

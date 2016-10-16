@@ -129,7 +129,7 @@ void checkValid2()
 	g.makemove(m2);
 	printf("%s is Board after m2 \n", g.to_string().c_str());
 
-	cout << "All possible moves for White before m2 \n";
+	cout << "All possible moves for White before m3 \n";
 	list<Move> l3;
 	g.generate_place_2(White, l3);
 	printMoveList(l3);
@@ -142,11 +142,54 @@ void checkStackMoves()
 {
 	size = 3;
 	Game g(3,21);
+	cout << "All possible moves for White before m1 \n";
+	list<Move> l1;
+	g.generate_stack_moves(White, l1);
+	printMoveList(l1);
+
+	Move m1(2,1,'F');
+	g.makemove(m1);
+	printf("%s is Board after m1 \n", g.to_string().c_str());
+
+	cout << "All possible moves for Black before m2 \n";
+	list<Move> l2;
+	g.generate_stack_moves(Black, l2);
+	printMoveList(l2);
+
+	Move m2(1,1,'s');
+	g.makemove(m2);
+	printf("%s is Board after m2 \n", g.to_string().c_str());
+
+	cout << "All possible moves for White before m3 \n";
+	list<Move> l3;
+	g.generate_stack_moves(White, l3);
+	printMoveList(l3);
+
+	Move m3(0,1,'C');
+	g.makemove(m3);
+	printf("%s is Board after m3 \n", g.to_string().c_str());
+
+	cout << "All possible moves for White before m4 \n";
+	list<Move> l4;
+	g.generate_stack_moves(White, l4);
+	printMoveList(l4);
+
+	vector<s_int> v (1,1);
+	Move m4(0,1,'+', &v);
+	m4.cap_move = true;
+	g.makemove(m4);
+	printf("%s is Board after m4 \n", g.to_string().c_str());
+
+	cout << "All possible moves for White after m4 \n";
+	list<Move> l5;
+	g.generate_stack_moves(White, l5);
+	printMoveList(l5);
 }
 
 int main(int argc, char const *argv[])
 {
 	cout << "Yo \n";
+	getAllPerms(3);
 	// checkMove();
 	// check_makeOppo();
 	// checkValid1();
