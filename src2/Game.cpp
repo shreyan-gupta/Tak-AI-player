@@ -186,6 +186,47 @@ void Game::GetStackable(s_int x, s_int y, bool cap, vector<s_int> &result){
 	// fprintf(stderr, "coord %d %d direction <%d >%d -%d +%d\n",x,y,l,r,u,d);
 }
 
+void Game::generate_place_1(Player_Type player, list<Move> &moves)
+{
+	Player &p = (player == Black) ? p_black : p_white;
+	char cap = (player == White) ? 'C' : 'c';
+	char flat = (player == White) ? 'F' : 'f';
+	for (s_int i = 0; i < size; i++)
+	{
+		for (s_int j = 0; j < size; j++)
+		{
+			if (GameBoard[i][j].empty())
+			{
+				if (p.CapLeft)
+					moves.emplace(moves.begin(),i,j,cap);
+				if (p.StonesLeft != 0)
+					moves.emplace(moves.begin(),i,j,flat);
+			}
+		}
+	}
+}
+
+void Game::generate_place_2(Player_Type player, list<Move> &moves)
+{
+	Player &p = (player == Black) ? p_black : p_white;
+	char s = (player == White) ? 'S' : 's';
+	for (s_int i = 0; i < size; i++)
+	{
+		for (s_int j = 0; j < size; j++)
+		{
+			if (GameBoard[i][j].empty())
+			{
+				if (p.StonesLeft != 0)
+					moves.emplace(moves.begin(),i,j,s);
+			}
+		}
+	}
+}
+
+void Game::generate_stack_moves(Player_Type player, list<Move> &moves)
+{
+}
+
 
 
 

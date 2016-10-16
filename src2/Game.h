@@ -19,6 +19,9 @@ private:
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void GetStackable(s_int, s_int, bool, vector<s_int> &);
 	void getTransposition(Transposition &);
+	void generate_place_1(Player_Type, list<Move>&);
+	void generate_place_2(Player_Type, list<Move>&);
+	void generate_stack_moves(Player_Type, list<Move>&);
 	eval_type eval();
 public:
 	s_int size;
