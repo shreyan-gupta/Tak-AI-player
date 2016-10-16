@@ -66,7 +66,7 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 					pos.stack[pos.stack.size() - 2] = 'S';
 				else 
 					pos.stack[pos.stack.size() - 2] = 's';
-					// GameBoard[x_new][y_new].Stack[1].first = Stand;
+					// GameBoard[x_new][y_new].stack[1].first = Stand;
 			}
 		}
 	}
@@ -198,9 +198,9 @@ void Game::generate_place_1(Player_Type player, list<Move> &moves)
 			if (GameBoard[i][j].empty())
 			{
 				if (p.CapLeft)
-					moves.emplace(moves.begin(),i,j,cap);
+					moves.emplace_back(i,j,cap);
 				if (p.StonesLeft != 0)
-					moves.emplace(moves.begin(),i,j,flat);
+					moves.emplace_back(i,j,flat);
 			}
 		}
 	}
@@ -217,14 +217,52 @@ void Game::generate_place_2(Player_Type player, list<Move> &moves)
 			if (GameBoard[i][j].empty())
 			{
 				if (p.StonesLeft != 0)
-					moves.emplace(moves.begin(),i,j,s);
+					moves.emplace_back(i,j,s);
 			}
 		}
 	}
 }
 
-void Game::generate_stack_moves(Player_Type player, list<Move> &moves)
-{
+void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
+	Player &p = (player == Black) ? p_black : p_white;
+	vector<s_int> range(4);
+	char dir[4] = {'<', '>', '+', '-'};
+	
+	if(!p.CapLeft){
+		GetStackable(p.x, p.y, true, range);
+		s_int shiftmax = min((s_int)size, (s_int)GameBoard[p.x][p.y].stack.size());
+
+		for (s_int i1 = 1; i1 <= shiftmax; ++i1){
+			for(s_int r=0; r<4; ++r){
+				if(range[r] == -1) continue;
+				for(auto &d : AllPerms[i1][range[r]]){
+					if(d.back() == 1){
+						moves.emplace_back(p.x,p.y,dir[r],&d);
+						moves.back().cap_move = true;
+					}
+				}
+			}
+		}
+	}
+
+	if(p.StonesLeft != 0)
+	for(s_int i=0; i<size; ++i){
+		for(s_int j=0; j<size; ++j){
+			if (!GameBoard[i][j].empty() && GameBoard[i][j].player() == player) {
+				s_int shiftmax = min((s_int)size, (s_int)GameBoard[i][j].stack.size()); // max pieces.
+ 				GetStackable(i,j,false,range);
+				for (s_int i1 = 1; i1 <= shiftmax; ++i1){
+					for(s_int r=0; r<4; ++r){
+						for (s_int m=1; m<=range[r]; ++m){
+							for (auto &d : AllPerms[i1][m]){
+								moves.emplace_back(i,j,dir[r].&d);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 
