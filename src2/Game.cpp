@@ -1,8 +1,11 @@
 #include "Game.h"
 
-Game::Game(s_int size, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
-	this->size = size;
+s_int size;
+
+Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
+	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
+	size = s;
 }
 
 string Game::to_string(){
@@ -87,8 +90,8 @@ void Game::makemove(Move &m){
 		vector<s_int> &d = *m.drops;
 		int x_add = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
 		int y_add = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
-		s_int drop_x = m.x + x_add*(m.Drops->size());
-		s_int drop_y = m.y + y_add*(m.Drops->size());
+		s_int drop_x = m.x + x_add*(m.drops->size());
+		s_int drop_y = m.y + y_add*(m.drops->size());
 
 		UpdatePlayer(GameBoard[m.x][m.y].player(), m, false);
 		auto &str = GameBoard[m.x][m.y].stack;

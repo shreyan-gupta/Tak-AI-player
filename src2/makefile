@@ -27,11 +27,11 @@ Test.o : Test.cpp Game.h
 
 Position.hpp : Header.h
 
-Transposition.h : Move.hpp Header.h
+Transposition.hpp : Move.hpp Header.h
 
 Move.hpp : Header.h
 
-Game.h : Position.hpp Transposition.h
+Game.h : Position.hpp Transposition.hpp
 
 clean : 
 	rm *.o

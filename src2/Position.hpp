@@ -47,15 +47,15 @@ inline void Position::top5(pair<s_int, s_int> &p){
 	}
 }
 
-inline char Position:top_piece(){
+inline char Position::top_piece(){
 	return toupper(stack.back());
 }
 
-inline char Position:player(){
+inline char Position::player(){
 	return (stack.back() < 95);
 }
 
-inline string Position:to_string(){
+inline string Position::to_string(){
 	return stack;
 }
 

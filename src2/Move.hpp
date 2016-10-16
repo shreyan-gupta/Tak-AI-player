@@ -26,7 +26,7 @@ string Move::to_string()
 {
 	string s = "";
 	s += (char)('a' + y);
-	s += (char)('0' + Size - x);
+	s += (char)('0' + size - x);
 	if (place_move)
 	{
 		// append F or S or C.
@@ -65,7 +65,7 @@ string Move::to_string()
 				s += '+';
 				break;
 		}
-		for (auto &i : *Drops)
+		for (auto &i : *drops)
 		{
 			s += Types::to_string((int)i);
 			sum += i;

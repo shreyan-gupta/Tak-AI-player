@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include "Position.hpp"
-#include "Transposition.h"
+#include "Transposition.hpp"
 using namespace Types;
 
 class Game{
@@ -11,13 +11,13 @@ private:
 	
 	// helper functions
 	bool pathable(char x, char y, bool player);
-	void search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found)
+	void search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found);
 
 	// eval functions
 	eval_type path();
 
 	void UpdatePlayer(Player_Type, Move&, bool);
-	void Game::GetStackable(s_int, s_int, bool, vector<s_int> &);
+	void GetStackable(s_int, s_int, bool, vector<s_int> &);
 public:
 	s_int size;
 	vector< vector<Position> > GameBoard;
@@ -31,7 +31,7 @@ public:
 	void antimove(Move &);
 };
 
-inline bool pathable(s_int x, s_int y, bool player){
+inline bool Game::pathable(s_int x, s_int y, bool player){
 	return (!GameBoard[x][y].empty() && GameBoard[x][y].top_piece() != 'S' && GameBoard[x][y].player() == player);
 }
 

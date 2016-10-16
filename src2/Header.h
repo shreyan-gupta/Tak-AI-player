@@ -35,6 +35,8 @@ using namespace Types;
 
 void getAllPerms(char);
 
+extern s_int size;
+
 struct Player
 {
 	char StonesLeft;
@@ -43,3 +45,5 @@ struct Player
 	Player_Type type;
 	Player(bool,char);
 };
+
+#endif
