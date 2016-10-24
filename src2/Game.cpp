@@ -18,6 +18,11 @@ string Game::to_string(){
 
 // eval, decide_move pending
 
+eval_type Game::eval()
+{
+	return 0;
+}
+
 void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 	Player &p = (p_type == White) ? p_white : p_black;
 	bool is_cap = (toupper(m.piece) == 'C');
@@ -325,7 +330,7 @@ eval_type Game::negaMax(bool player,char depth,eval_type alpha,eval_type beta)
 	else
 		tt.flag = 'e';
 	tt.depth = depth;
-	TTable[to_string()][player] = tt;
+	TTable[player][to_string()] = tt;
 	return best_val;
 }
 

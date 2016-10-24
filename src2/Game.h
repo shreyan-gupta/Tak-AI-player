@@ -18,7 +18,7 @@ private:
 
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void GetStackable(s_int, s_int, bool, vector<s_int> &);
-	void getTransposition(Transposition &);
+	void getTransposition(Transposition &,Player_Type);
 	eval_type eval();
 public:
 	s_int size;
@@ -44,8 +44,8 @@ inline bool Game::pathable(s_int x, s_int y, bool player){
 	return (!GameBoard[x][y].empty() && GameBoard[x][y].top_piece() != 'S' && GameBoard[x][y].player() == player);
 }
 
-inline void Game::getTransposition(Transposition &t){
-	t = TTable[to_string()];
+inline void Game::getTransposition(Transposition &t, Player_Type p){
+	t = TTable[p][to_string()];
 	if(t.flag == 'x'){
 		t.flag = 'e';
 		t.score = eval();
