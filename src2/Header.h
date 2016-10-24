@@ -13,6 +13,9 @@
 #include <ctime>
 #include <list>
 
+#define RDWIN 1000000
+#define FLWIN 800000
+
 namespace Types
 {
 	typedef char s_int;

@@ -7,7 +7,7 @@ using namespace Types;
 
 class Game{
 private:
-	unordered_map<string, Transposition> TTable;
+	vector<unordered_map<string, Transposition> > TTable; // length 2.
 	
 	// helper functions
 	bool pathable(char x, char y, bool player);
@@ -35,6 +35,9 @@ public:
 	void generate_place_1(Player_Type, list<Move>&);
 	void generate_place_2(Player_Type, list<Move>&);
 	void generate_stack_moves(Player_Type, list<Move>&);
+
+	eval_type negaMax(bool,char,eval_type,eval_type);
+	// CALL decide_move after negaMax?
 };
 
 inline bool Game::pathable(s_int x, s_int y, bool player){
