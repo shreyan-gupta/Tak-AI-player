@@ -36,7 +36,7 @@ void getAllPerms(s_int dim)
 					x.push_back(sum-i);
 					fillthis.push_back(x);
 				}
-				i --;
+				i--;
 			}
 		}
 	}
