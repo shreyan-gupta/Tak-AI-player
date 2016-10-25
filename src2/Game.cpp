@@ -3,6 +3,7 @@
 Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
 	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
+	TTable = vector<unordered_map<string,Transposition> > (2);
 }
 
 string Game::to_string(){
@@ -16,6 +17,11 @@ string Game::to_string(){
 }
 
 // eval, decide_move pending
+
+eval_type Game::eval()
+{
+	return 0;
+}
 
 void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 	Player &p = (p_type == White) ? p_white : p_black;
@@ -255,7 +261,7 @@ void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
 					for(s_int r=0; r<4; ++r){
 						for (s_int m=1; m<=range[r]; ++m){
 							for (auto &d : AllPerms[i1][m]){
-								moves.emplace_back(i,j,dir[r].&d);
+								moves.emplace_back(i,j,dir[r],&d);
 							}
 						}
 					}
@@ -263,6 +269,69 @@ void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
 			}
 		}
 	}
+}
+
+
+eval_type Game::negaMax(bool player,char depth,eval_type alpha,eval_type beta)
+{
+	eval_type alpha_orig = alpha;
+	if (TTable[player].find(to_string()) != TTable[player].end())
+	{
+		Transposition& t = TTable[player][to_string()];
+		if (t.depth >= depth)
+		{
+			if (t.flag == 'e')
+				return t.score;
+			else if (t.flag == 'l')
+				alpha = max(alpha, t.score);
+			else if (t.flag == 'u')
+				beta = min(beta, t.score);
+			if (alpha >= beta)
+				return t.score;
+		}
+	}
+	if (depth == 0 || abs(eval()) > FLWIN)
+		return eval();
+
+	eval_type best_val = -2*RDWIN;
+	bool done = false;
+	vector<list<Move> > opponent_moves (4);
+	for (int i = 0; i < 3 && !done; i++)
+	{
+		switch (i)
+		{
+			case 0:
+				generate_place_1(!player,opponent_moves[i]);
+				break;
+			case 1:
+				generate_place_2(!player,opponent_moves[i]);
+				break;
+			case 2:
+				generate_stack_moves(!player,opponent_moves[i]);
+				break;
+		}
+		for (auto it = opponent_moves[i].begin(); it != opponent_moves[i].end() && !done; it++)
+		{
+			makemove(*it);
+			eval_type child = negaMax(!player,depth-1,-1*beta,-1*alpha);
+			best_val = max(best_val, child);
+			alpha = max(alpha, child);
+			if (alpha >= beta)
+				done = true;
+			antimove(*it);
+		}
+	}
+	Transposition tt;
+	tt.score = best_val;
+	if (best_val <= alpha_orig)
+		tt.flag = 'u';
+	else if (best_val >= beta)
+		tt.flag = 'l';
+	else
+		tt.flag = 'e';
+	tt.depth = depth;
+	TTable[player][to_string()] = tt;
+	return best_val;
 }
 
 

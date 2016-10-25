@@ -13,6 +13,9 @@
 #include <ctime>
 #include <list>
 
+#define RDWIN 1000000
+#define FLWIN 800000
+
 namespace Types
 {
 	typedef char s_int;
@@ -35,6 +38,7 @@ using namespace Types;
 void getAllPerms(char);
 
 extern s_int size;
+extern vector< vector< vector< vector<s_int> > > > AllPerms;
 
 struct Player
 {
