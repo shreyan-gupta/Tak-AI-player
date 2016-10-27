@@ -47,6 +47,14 @@ inline void Position::top5(pair<s_int, s_int> &p){
 	}
 }
 
+inline void Position::captive(pair<s_int, s_int> &p){
+	p.first = p.second = 0;
+	for(auto it = stack.begin(); it != stack.end() - 1; ++it){
+		if(*it < 95) ++p.first;
+		else ++p.second;
+	}
+}
+
 inline char Position::top_piece(){
 	return toupper(stack.back());
 }

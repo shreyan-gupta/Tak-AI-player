@@ -16,13 +16,6 @@ string Game::to_string(){
 	return str;
 }
 
-// eval, decide_move pending
-
-eval_type Game::eval()
-{
-	return 0;
-}
-
 void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 	Player &p = (p_type == White) ? p_white : p_black;
 	bool is_cap = (toupper(m.piece) == 'C');
@@ -272,66 +265,105 @@ void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
 }
 
 
-eval_type Game::negaMax(bool player,char depth,eval_type alpha,eval_type beta)
+eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta)
 {
 	eval_type alpha_orig = alpha;
-	if (TTable[player].find(to_string()) != TTable[player].end())
+	Transposition t;
+	getTransposition(t, player);
+	if (t.depth >= depth)
 	{
-		Transposition& t = TTable[player][to_string()];
-		if (t.depth >= depth)
-		{
-			if (t.flag == 'e')
-				return t.score;
-			else if (t.flag == 'l')
-				alpha = max(alpha, t.score);
-			else if (t.flag == 'u')
-				beta = min(beta, t.score);
-			if (alpha >= beta)
-				return t.score;
-		}
+		if (t.flag == 'e')
+			return t.score;
+		else if (t.flag == 'l')
+			alpha = max(alpha, t.score);
+		else if (t.flag == 'u')
+			beta = min(beta, t.score);
+		if (alpha >= beta)
+			return t.score;
 	}
-	if (depth == 0 || abs(eval()) > FLWIN)
-		return eval();
+	if(abs(t.score) > FLWIN)
+		return t.score;
+
+	// if (TTable[player].find(to_string()) != TTable[player].end())
+	// {
+	// 	Transposition& t = TTable[player][to_string()];
+	// 	if (t.depth >= depth)
+	// 	{
+	// 		if (t.flag == 'e')
+	// 			return t.score;
+	// 		else if (t.flag == 'l')
+	// 			alpha = max(alpha, t.score);
+	// 		else if (t.flag == 'u')
+	// 			beta = min(beta, t.score);
+	// 		if (alpha >= beta)
+	// 			return t.score;
+	// 	}
+	// }
+	// if (depth == 0 || abs(eval()) > FLWIN)
+	// 	return eval();
 
 	eval_type best_val = -2*RDWIN;
 	bool done = false;
 	vector<list<Move> > opponent_moves (4);
+	Move *best_move = NULL;
 	for (int i = 0; i < 3 && !done; i++)
 	{
 		switch (i)
 		{
-			case 0:
+			case 0 : {
 				generate_place_1(!player,opponent_moves[i]);
+				if(t.depth != 0) opponent_moves[i].push_front(t.best_move);
 				break;
-			case 1:
+			}
+			case 1 : {
 				generate_place_2(!player,opponent_moves[i]);
 				break;
-			case 2:
+			}
+			case 2 : {
 				generate_stack_moves(!player,opponent_moves[i]);
 				break;
+			}
 		}
 		for (auto it = opponent_moves[i].begin(); it != opponent_moves[i].end() && !done; it++)
 		{
 			makemove(*it);
 			eval_type child = negaMax(!player,depth-1,-1*beta,-1*alpha);
-			best_val = max(best_val, child);
+			if(child > best_val){
+				best_val = child;
+				best_move = &(*it);
+			}
+			// best_val = max(best_val, child);
 			alpha = max(alpha, child);
 			if (alpha >= beta)
 				done = true;
 			antimove(*it);
 		}
 	}
-	Transposition tt;
-	tt.score = best_val;
+
+	t.score = best_val;
 	if (best_val <= alpha_orig)
-		tt.flag = 'u';
+		t.flag = 'u';
 	else if (best_val >= beta)
-		tt.flag = 'l';
+		t.flag = 'l';
 	else
-		tt.flag = 'e';
-	tt.depth = depth;
-	TTable[player][to_string()] = tt;
+		t.flag = 'e';
+	t.depth = depth;
+	t.best_move = *best_move;
 	return best_val;
+
+
+
+	// Transposition tt;
+	// tt.score = best_val;
+	// if (best_val <= alpha_orig)
+	// 	tt.flag = 'u';
+	// else if (best_val >= beta)
+	// 	tt.flag = 'l';
+	// else
+	// 	tt.flag = 'e';
+	// tt.depth = depth;
+	// TTable[player][to_string()] = tt;
+	// return best_val;
 }
 
 

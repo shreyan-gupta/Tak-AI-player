@@ -49,3 +49,55 @@ eval_type Game::path(){
 	}
 	return 0;
 }
+
+inline eval_type Game::center(int i, int j){
+	return -(abs(i - size/2.0) + abs(j - size/2.0)) / size;
+}
+
+inline eval_type Game::piece_type(char top){
+	switch(top){
+		case 'F' : return w[x]; 
+		case 'S' : return w[x];
+		default : return w[x];
+	}
+}
+
+inline eval_type Game::captive(char top, pair<s_int, s_int> &p){
+	switch(top){
+		case 'F' : return p.first * w[x] + p.second * w[x]; 
+		case 'S' : return p.first * w[x] + p.second * w[x];
+		default :  return p.first * w[x] + p.second * w[x];
+	}
+}
+
+eval_type Game::features(){
+	eval_type count = 0;
+	pair<s_int, s_int> p;
+	for(s_int i=0; i<size; ++i){
+		for(s_int j=0; j<size; ++j){
+			Position &pos = GameBoard[i][j];
+			if(pos.empty()) continue;
+			int mult = pos.player() ? 1 : -1;
+			eval_type temp_count = 0;
+			pos.captive(p);
+
+			temp_count += center(i,j) * w[x];
+			temp_count += piece_type(pos.top_piece());
+			temp_count += captive(pos.top_piece(), p);
+
+			count += mult * temp_count;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
