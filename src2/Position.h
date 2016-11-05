@@ -16,6 +16,7 @@ struct Position{
 	bool empty();
 	bool stackable();
 	bool capable();
+	void captive(pair<s_int, s_int>&);
 	void top5(pair<s_int, s_int> &);
 	char top_piece();
 	bool player();

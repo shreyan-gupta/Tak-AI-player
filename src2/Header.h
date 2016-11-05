@@ -38,6 +38,9 @@ using namespace Types;
 void getAllPerms(char);
 
 extern s_int size;
+extern int TimeLimit;
+extern bool opponent_type;
+extern time_t start_time;
 extern vector< vector< vector< vector<s_int> > > > AllPerms;
 
 struct Player

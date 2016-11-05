@@ -4,6 +4,8 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
 	TTable = vector<unordered_map<string,Transposition> > (2);
+	w[0] = 100000;
+	
 }
 
 string Game::to_string(){
@@ -15,6 +17,7 @@ string Game::to_string(){
 	}
 	return str;
 }
+
 
 void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 	Player &p = (p_type == White) ? p_white : p_black;
@@ -312,7 +315,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		{
 			case 0 : {
 				generate_place_1(!player,opponent_moves[i]);
-				if(t.depth != 0) opponent_moves[i].push_front(t.best_move);
+				if(t.depth != 0 && t.best_move.direction != 0) opponent_moves[i].push_front(t.best_move);
 				break;
 			}
 			case 1 : {

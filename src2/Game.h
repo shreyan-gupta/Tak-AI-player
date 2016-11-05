@@ -53,7 +53,7 @@ inline void Game::getTransposition(Transposition &t, Player_Type p){
 	}
 }
 
-inline eval_type eval(){
+inline eval_type Game::eval(){
 	eval_type value = 0;
 	value += path();
 	return value;
