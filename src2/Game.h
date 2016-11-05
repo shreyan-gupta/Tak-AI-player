@@ -21,13 +21,12 @@ private:
 
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void GetStackable(s_int, s_int, bool, vector<s_int> &);
-	void getTransposition(Transposition &,Player_Type);
 	eval_type eval();
 public:
 	s_int size;
 	vector< vector<Position> > GameBoard;
 	Player p_black, p_white;
-	eval_type w[18];
+	// eval_type w[18];
 
 	Game(s_int, s_int);
 	string to_string();
@@ -35,6 +34,7 @@ public:
 	void makemove(Move &);
 	void antimove(Move &);
 	eval_type features();
+	void getTransposition(Transposition &,Player_Type);
 	
 	void generate_place_1(Player_Type, list<Move>&);
 	void generate_place_2(Player_Type, list<Move>&);

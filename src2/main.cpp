@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 	cin >> player_no >> size >> TimeLimit;
 
 	char pieces;
-	switch(Size){
+	switch(size){
 		case 5 : pieces = 21; break;
 		case 6 : pieces = 30; break;
 		case 7 : pieces = 40; break;
@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
 		{
 			time_t start_move_time = time(0);
 			int depth = 7;
-			g.negaMax(!opponent_type,depth,-2*g.w[0], 2*g.w[0]);
+			g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
 			time_t move_time = time(0) - start_move_time;
 			Transposition t;
 			g.getTransposition(t,!opponent_type);
@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
 		g.make_opponent_move(s, !opponent_type);
 		string s_opp;
 		if (g.GameBoard[0][0].empty())
-			s_opp = "Fa" + to_string(Size);
+			s_opp = "Fa" + to_string(size);
 		else
 			s_opp = "Fa1";
 		// ++moves;
@@ -78,10 +78,10 @@ int main(int argc, char const *argv[])
 			g.make_opponent_move(s,opponent_type);
 			time_t start_move_time = time(0);
 			int depth = 7;
-			g.negaMax(!opponent_type,depth,-2*g.w[0], 2*g.w[0]);
+			g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
 			time_t move_time = time(0) - start_move_time;
 			Transposition t;
-			getTransposition(t,!opponent_type);
+			g.getTransposition(t,!opponent_type);
 			Move &m = t.best_move;
 			g.makemove(m);
 				fprintf(stderr, "%s\n",m.to_string().c_str());

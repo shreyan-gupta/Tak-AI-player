@@ -31,8 +31,8 @@ eval_type Game::path(){
 		s_int y = 0;
 		search(true, x, y, GameBoard[i][0].player(), explored, found);
 		if(found){
-			if(GameBoard[i][0].player() == White) return w[0];
-			else return -w[0];
+			if(GameBoard[i][0].player() == White) return RDWIN;
+			else return -RDWIN;
 		}
 	}
 	explored = vector< vector<bool> >(size, vector<bool>(size, false));
@@ -43,30 +43,30 @@ eval_type Game::path(){
 		s_int y = j;
 		search(false, x, y, GameBoard[0][j].player(), explored, found);
 		if(found){
-			if(GameBoard[0][j].player() == White) return w[0];
-			else return -w[0];
+			if(GameBoard[0][j].player() == White) return RDWIN;
+			else return -RDWIN;
 		}
 	}
 	return 0;
 }
 
 inline eval_type Game::center(int i, int j){
-	return -(abs(i - size/2.0) + abs(j - (size/2.0))) / size;
+	return -(abs(i - size/2.0) + abs(j - (size/2.0))) * CENTER / size;
 }
 
 inline eval_type Game::piece_type(char top){
 	switch(top){
-		case 'F' : return w[x]; 
-		case 'S' : return w[x];
-		default : return w[x];
+		case 'F' : return TOPFLAT; 
+		case 'S' : return STAND;
+		default : return CAP;
 	}
 }
 
 inline eval_type Game::captive(char top, pair<s_int, s_int> &p){
 	switch(top){
-		case 'F' : return p.first * w[x] + p.second * w[x]; 
-		case 'S' : return p.first * w[x] + p.second * w[x];
-		default :  return p.first * w[x] + p.second * w[x];
+		case 'F' : return p.first * HARD_FCAPTIVE + p.second * SOFT_FCAPTIVE; 
+		case 'S' : return p.first * HARD_SCAPTIVE + p.second * SOFT_SCAPTIVE;
+		default :  return p.first * HARD_CCAPTIVE + p.second * SOFT_CCAPTIVE;
 	}
 }
 
@@ -81,7 +81,7 @@ eval_type Game::features(){
 			eval_type temp_count = 0;
 			pos.captive(p);
 
-			temp_count += center(i,j) * w[x];
+			temp_count += center(i,j);
 			temp_count += piece_type(pos.top_piece());
 			temp_count += captive(pos.top_piece(), p);
 

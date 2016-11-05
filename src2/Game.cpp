@@ -4,8 +4,6 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
 	TTable = vector<unordered_map<string,Transposition> > (2);
-	w[0] = 100000;
-	
 }
 
 string Game::to_string(){

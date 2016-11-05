@@ -15,6 +15,18 @@
 
 #define RDWIN 1000000
 #define FLWIN 800000
+#define TOPFLAT			400
+#define ENDGAMEFLAT		800
+#define STAND			200
+#define CAP 			300
+#define HARD_FCAPTIVE 	200
+#define SOFT_FCAPTIVE 	-200
+#define HARD_SCAPTIVE 	300
+#define SOFT_SCAPTIVE 	-100
+#define HARD_CCAPTIVE 	250
+#define SOFT_CCAPTIVE 	-100
+#define CENTER 			40
+// #define 
 
 namespace Types
 {
