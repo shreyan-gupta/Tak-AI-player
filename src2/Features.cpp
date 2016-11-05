@@ -56,7 +56,7 @@ inline eval_type Game::center(int i, int j){
 
 inline eval_type Game::piece_type(char top){
 	switch(top){
-		case 'F' : return TOPFLAT; 
+		case 'F' : return TOPFLAT;
 		case 'S' : return STAND;
 		default : return CAP;
 	}
