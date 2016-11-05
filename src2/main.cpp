@@ -7,10 +7,12 @@ time_t start_time;
 
 int main(int argc, char const *argv[])
 {
+	int temp_size;
 	start_time = time(0);
 	int player_no;
 		cerr << "Enter player_no, size, TimeLimit\n";
-	cin >> player_no >> size >> TimeLimit;
+	cin >> player_no >> temp_size >> TimeLimit;
+	size = temp_size;
 
 	char pieces;
 	switch(size){
@@ -39,7 +41,7 @@ int main(int argc, char const *argv[])
 		while (true)
 		{
 			time_t start_move_time = time(0);
-			int depth = 7;
+			int depth = 1;
 			g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
 			time_t move_time = time(0) - start_move_time;
 			Transposition t;

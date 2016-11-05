@@ -56,7 +56,7 @@ inline eval_type Game::center(int i, int j){
 
 inline eval_type Game::piece_type(char top){
 	switch(top){
-		case 'F' : return TOPFLAT + ENDGAMEFLAT * (eval_type)(ENDGAMECUTOFF - min(min(p_black.StonesLeft, p_white.StonesLeft), ENDGAMECUTOFF)) / ENDGAMECUTOFF; 
+		case 'F' : return TOPFLAT + ENDGAMEFLAT * (eval_type)(ENDGAMECUTOFF - min((s_int)min(p_black.StonesLeft, p_white.StonesLeft), (s_int)ENDGAMECUTOFF)) / ENDGAMECUTOFF; 
 		case 'S' : return STAND;
 		default : return CAP;
 	}
@@ -82,8 +82,8 @@ eval_type Game::features(){
 				has_empty = true;
 				continue;
 			}
-			if(pos.top_piece != 'S'){
-				if(pos.player == White) ++delta_flat;
+			if(pos.top_piece() != 'S'){
+				if(pos.player() == White) ++delta_flat;
 				else --delta_flat;
 			}
 			int mult = pos.player() ? 1 : -1;

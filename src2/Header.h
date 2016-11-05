@@ -26,6 +26,7 @@
 #define HARD_CCAPTIVE 	250
 #define SOFT_CCAPTIVE 	-100
 #define CENTER 			40
+#define ENDGAMECUTOFF 	7
 // #define 
 
 namespace Types
@@ -62,6 +63,13 @@ struct Player
 	char x, y;
 	Player_Type type;
 	Player(bool,char);
+	inline bool noStone();
 };
+
+inline bool Player::noStone()
+{
+	return (StonesLeft == 0 && !CapLeft);
+}
+
 
 #endif
