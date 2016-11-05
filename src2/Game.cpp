@@ -100,6 +100,11 @@ void Game::make_opponent_move(string s, bool player)
 			drops[i] = (char)(s.at(i+4) - '0');
 		
 		m.drops = &drops;
+		{
+			for (int i = 0; i < (m.drops)->size(); i++)
+				cout << (int)((*m.drops)[i]) << " ";
+			cout << "..... This is the drops array \n";
+		}
 		char x_new = m.x + m.drops->size() * ((m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0));
 		char y_new = m.y + m.drops->size() * ((m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0));
 		if (GameBoard[m.x][m.y].top_piece() == 'C')
@@ -313,7 +318,11 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		{
 			case 0 : {
 				generate_place_1(!player,opponent_moves[i]);
-				if(t.depth != 0 && t.best_move.direction != 0) opponent_moves[i].push_front(t.best_move);
+				if(t.depth != 0 && t.best_move.direction != 0)
+				{
+					opponent_moves[i].push_front(t.best_move);
+					// cout << "Adding old best move on top \n";
+				}
 				break;
 			}
 			case 1 : {

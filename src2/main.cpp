@@ -37,6 +37,7 @@ int main(int argc, char const *argv[])
 		cin >> mypiece_opp;
 		g.make_opponent_move(mypiece_opp,!opponent_type);
 		// ++moves;
+			cout << "Oppo move done \n";
 
 		while (true)
 		{
@@ -47,8 +48,8 @@ int main(int argc, char const *argv[])
 			Transposition t;
 			g.getTransposition(t,!opponent_type);
 			Move &m = t.best_move;
+				fprintf(stderr, "Move from negaMax : %s\n",m.to_string().c_str());
 			g.makemove(m);
-				fprintf(stderr, "%s\n",m.to_string().c_str());
 			cout << m.to_string() << endl;
 			string s_opp;
 			cin >> s_opp;
