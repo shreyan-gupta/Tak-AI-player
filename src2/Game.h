@@ -36,6 +36,7 @@ public:
 	eval_type features();
 	void getTransposition(Transposition &,Player_Type);
 	
+	string ids();
 	void generate_place_1(Player_Type, list<Move>&);
 	void generate_place_2(Player_Type, list<Move>&);
 	void generate_stack_moves(Player_Type, list<Move>&);
@@ -55,11 +56,14 @@ inline void Game::getTransposition(Transposition &t, Player_Type p){
 		t.score = eval();
 		t.depth = 0;
 	}
+	cout << t.to_string();
 }
 
 inline eval_type Game::eval(){
 	eval_type value = 0;
 	value += path();
+	value += features();
+	cout << value << " is the val \n";
 	return value;
 }
 

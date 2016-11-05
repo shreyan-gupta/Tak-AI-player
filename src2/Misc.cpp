@@ -50,21 +50,7 @@ string Move::to_string()
 	if (place_move)
 	{
 		// append F or S or C.
-		switch (piece)
-		{
-			case 'f':
-				s = "F" + s;
-				break;
-			case 's':
-				s = "S" + s;
-				break;
-			case 'c':
-				s = "C" + s;
-				break;
-			default:
-				s = piece + s;
-				break;
-		}
+		s = toupper((char)piece) + s;
 	}
 	else
 	{
@@ -113,4 +99,9 @@ Move::Move(s_int x, s_int y, char d, vector<s_int> *v){
 	this->drops = v;
 }
 
-Move::Move(){}
+Move::Move(){
+	this->cap_move = false;
+	this->place_move = true;
+	this->x = -1;
+	// this->piece
+}

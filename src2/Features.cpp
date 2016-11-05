@@ -95,8 +95,10 @@ eval_type Game::features(){
 			temp_count += captive(pos.top_piece(), p);
 
 			count += mult * temp_count;
+			cout << count << " is the count, inside features \n";
 		}
 	}
+	cout << "-------------------- \n";
 	if(has_empty == false || p_black.noStone() || p_white.noStone()) 
 		return (delta_flat > 0) ? FLWIN : -FLWIN;
 	else return count;

@@ -71,5 +71,11 @@ inline bool Player::noStone()
 	return (StonesLeft == 0 && !CapLeft);
 }
 
+inline string to_Str(float a)
+{
+	stringstream ss;
+	ss << a;
+	return ss.str();
+}
 
 #endif
