@@ -13,8 +13,8 @@
 #include <ctime>
 #include <list>
 
-#define RDWIN 1000000
-#define FLWIN 800000
+#define RDWIN 			1000000
+#define FLWIN 			1000000
 #define TOPFLAT			400
 #define ENDGAMEFLAT		800
 #define STAND			200

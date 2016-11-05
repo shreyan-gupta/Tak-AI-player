@@ -56,7 +56,7 @@ inline eval_type Game::center(int i, int j){
 
 inline eval_type Game::piece_type(char top){
 	switch(top){
-		case 'F' : return TOPFLAT; 
+		case 'F' : return TOPFLAT + ENDGAMEFLAT * (eval_type)(ENDGAMECUTOFF - min(min(p_black.StonesLeft, p_white.StonesLeft), ENDGAMECUTOFF)) / ENDGAMECUTOFF; 
 		case 'S' : return STAND;
 		default : return CAP;
 	}
@@ -73,10 +73,19 @@ inline eval_type Game::captive(char top, pair<s_int, s_int> &p){
 eval_type Game::features(){
 	eval_type count = 0;
 	pair<s_int, s_int> p;
+	bool has_empty = false;
+	int delta_flat = 0;
 	for(s_int i=0; i<size; ++i){
 		for(s_int j=0; j<size; ++j){
 			Position &pos = GameBoard[i][j];
-			if(pos.empty()) continue;
+			if(pos.empty()){
+				has_empty = true;
+				continue;
+			}
+			if(pos.top_piece != 'S'){
+				if(pos.player == White) ++delta_flat;
+				else --delta_flat;
+			}
 			int mult = pos.player() ? 1 : -1;
 			eval_type temp_count = 0;
 			pos.captive(p);
@@ -88,6 +97,9 @@ eval_type Game::features(){
 			count += mult * temp_count;
 		}
 	}
+	if(has_empty == false || p_black.noStone() || p_white.noStone()) 
+		return (delta_flat > 0) ? FLWIN : -FLWIN;
+	else return count;
 }
 
 
