@@ -367,6 +367,26 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	// return best_val;
 }
 
+string Game::ids(){
+	int depth = 1;
+	// have something to manage the depth here
+	for(int d=0; d<depth; ++d){
+		negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN);
+	}
+	Transposition t;
+	getTransposition(t, !opponent_type);
+	
+	// vector<Move> move_list;
+	// for(int d=0; d<depth; ++d){
+	// 	Transposition t;
+	// 	getTransposition(t, !opponent_type);
+	// 	move_list.push_back(t.best_move);
+	// }
+	
+	makemove(t.best_move);
+	return t.best_move.to_string();
+}
+
 
 
 

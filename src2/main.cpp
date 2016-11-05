@@ -40,16 +40,22 @@ int main(int argc, char const *argv[])
 
 		while (true)
 		{
-			time_t start_move_time = time(0);
-			int depth = 1;
-			g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
-			time_t move_time = time(0) - start_move_time;
-			Transposition t;
-			g.getTransposition(t,!opponent_type);
-			Move &m = t.best_move;
-			g.makemove(m);
-				fprintf(stderr, "%s\n",m.to_string().c_str());
-			cout << m.to_string() << endl;
+			// time_t start_move_time = time(0);
+			// int depth = 1;
+			// g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
+			// time_t move_time = time(0) - start_move_time;
+			// Transposition t;
+			// g.getTransposition(t,!opponent_type);
+			// Move &m = t.best_move;
+			// g.makemove(m);
+			// 	fprintf(stderr, "%s\n",m.to_string().c_str());
+			// cout << m.to_string() << endl;
+			
+			string my_move = g.ids();
+				fprintf(stderr, "%s\n",my_move.c_str());
+			cout << my_move << endl;
+
+
 			string s_opp;
 			cin >> s_opp;
 			g.make_opponent_move(s_opp,opponent_type);
@@ -78,16 +84,21 @@ int main(int argc, char const *argv[])
 			string s;
 			cin >> s;
 			g.make_opponent_move(s,opponent_type);
-			time_t start_move_time = time(0);
-			int depth = 7;
-			g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
-			time_t move_time = time(0) - start_move_time;
-			Transposition t;
-			g.getTransposition(t,!opponent_type);
-			Move &m = t.best_move;
-			g.makemove(m);
-				fprintf(stderr, "%s\n",m.to_string().c_str());
-			cout << m.to_string() << endl;			
+			
+			string my_move = g.ids();
+				fprintf(stderr, "%s\n",my_move.c_str());
+			cout << my_move << endl;	
+
+			// time_t start_move_time = time(0);
+			// int depth = 7;
+			// g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
+			// time_t move_time = time(0) - start_move_time;
+			// Transposition t;
+			// g.getTransposition(t,!opponent_type);
+			// Move &m = t.best_move;
+			// g.makemove(m);
+			// 	fprintf(stderr, "%s\n",m.to_string().c_str());
+			// cout << m.to_string() << endl;			
 		}
 	}
 
