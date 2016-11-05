@@ -15,6 +15,9 @@ private:
 
 	// eval functions
 	eval_type path();
+	eval_type center(int,int);
+	eval_type captive(char,pair<s_int,s_int>&);
+	eval_type piece_type(char);
 
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void GetStackable(s_int, s_int, bool, vector<s_int> &);
@@ -31,6 +34,7 @@ public:
 	void make_opponent_move(string, bool);
 	void makemove(Move &);
 	void antimove(Move &);
+	eval_type features();
 	
 	void generate_place_1(Player_Type, list<Move>&);
 	void generate_place_2(Player_Type, list<Move>&);
