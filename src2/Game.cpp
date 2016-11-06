@@ -284,9 +284,24 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 			if (GameBoard[i][j].empty())
 			{
 				if (p.CapLeft)
-					moves.emplace(i,j,cap);
+				{
+					Move m (i,j,cap);
+					makemove(m);
+					Transposition &t = getTransposition(player);
+					moves.emplace(make_pair(t.depth,t.score),m);
+					// search in tt
+					antimove(m);
+				}
 				if (p.StonesLeft != 0)
-					moves.emplace(i,j,flat);
+				{
+					Move m(i,j,flat);
+					makemove(m);
+					Transposition &t = getTransposition(player);
+					moves.emplace(make_pair(t.depth,t.score),m);
+					// search in tt
+					antimove(m);
+
+				}
 			}
 		}
 	}
@@ -300,7 +315,14 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 			if (GameBoard[i][j].empty())
 			{
 				if (p.StonesLeft != 0)
-					moves.emplace(i,j,s);
+				{
+					Move m(i,j,s);
+					makemove(m);
+					Transposition &t = getTransposition(player);
+					moves.emplace(make_pair(t.depth,t.score),m);
+					// search in tt
+					antimove(m);
+				}
 			}
 		}
 	}
@@ -318,8 +340,13 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 				if(range[r] == -1) continue;
 				for(auto &d : AllPerms[i1][range[r]]){
 					if(d.back() == 1){
-						moves.emplace(p.x,p.y,dir[r],&d);
-						moves.back().cap_move = true;
+						Move m(p.x,p.y,dir[r],&d);
+						m.cap_move = true;
+						makemove(m);
+						Transposition &t = getTransposition(player);
+						moves.emplace(make_pair(t.depth,t.score),m);
+						// search in tt
+						antimove(m);
 					}
 				}
 			}
@@ -336,7 +363,12 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					for(s_int r=0; r<4; ++r){
 						for (s_int m=1; m<=range[r]; ++m){
 							for (auto &d : AllPerms[i1][m]){
-								moves.emplace(i,j,dir[r],&d);
+								Move m(i,j,dir[r],&d);
+								makemove(m);
+								Transposition &t = getTransposition(player);
+								moves.emplace(make_pair(t.depth,t.score),m);
+								// search in tt
+								antimove(m);
 							}
 						}
 					}
