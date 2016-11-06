@@ -15,7 +15,7 @@
 
 #define RDWIN 			1000000
 #define FLWIN 			1000000
-#define TOPFLAT			400
+#define TOPFLAT			10000
 #define ENDGAMEFLAT		800
 #define STAND			200
 #define CAP 			300
@@ -31,7 +31,7 @@
 
 namespace Types
 {
-	typedef char s_int;
+	typedef int s_int;
 	typedef float eval_type;
 	typedef bool Player_Type;
 	const bool Black = false;
@@ -48,7 +48,7 @@ namespace Types
 using namespace std;
 using namespace Types;
 
-void getAllPerms(char);
+void getAllPerms(s_int);
 
 extern s_int size;
 extern int TimeLimit;
@@ -62,7 +62,7 @@ struct Player
 	bool CapLeft;
 	char x, y;
 	Player_Type type;
-	Player(bool,char);
+	Player(bool,s_int);
 	inline bool noStone();
 };
 
