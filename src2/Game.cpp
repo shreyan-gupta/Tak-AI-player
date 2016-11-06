@@ -287,75 +287,74 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		if (alpha >= beta)
 			return t.score;
 	}
-	// cout << "depth more \n";
-	if(abs(t.score) > FLWIN)
+	if(depth == 0 || abs(t.score) > FLWIN)
 	{
-		// cerr << "WOAH \n";
 		return t.score;
 	}
 
-	// if (TTable[player].find(to_string()) != TTable[player].end())
-	// {
-	// 	Transposition& t = TTable[player][to_string()];
-	// 	if (t.depth >= depth)
-	// 	{
-	// 		if (t.flag == 'e')
-	// 			return t.score;
-	// 		else if (t.flag == 'l')
-	// 			alpha = max(alpha, t.score);
-	// 		else if (t.flag == 'u')
-	// 			beta = min(beta, t.score);
-	// 		if (alpha >= beta)
-	// 			return t.score;
-	// 	}
-	// }
-	// if (depth == 0 || abs(eval()) > FLWIN)
-	// 	return eval();
-
 	eval_type best_val = -2*RDWIN;
-	bool done = false;
-	vector<list<Move> > opponent_moves (4);
-	Move *best_move = NULL;
-	for (int i = 0; i < 3 && !done; i++)
-	{
-		switch (i)
-		{
-			case 0 : {
-				generate_place_1(!player,opponent_moves[i]);
-				// if(t.depth != 0 && t.best_move.direction != 0)
-				// {
-				// 	opponent_moves[i].push_front(t.best_move);
-				// 	// cout << "Adding old best move on top \n";
-				// }
-				break;
-			}
-			case 1 : {
-				generate_place_2(!player,opponent_moves[i]);
-				break;
-			}
-			case 2 : {
-				generate_stack_moves(!player,opponent_moves[i]);
-				break;
-			}
+	multimap< pair<s_int, eval_type>, Move> move_list;
+	generate_valid_moves(player, move_list);
+
+	for(auto itr = move_list.rbegin(); itr != move_list.rend(); ++itr){
+		makemove(itr->second);
+		eval_type child = -negaMax(!player,depth-1,-1*beta,-1*alpha);
+		if(child > best_val){
+			best_val = child;
+			best_move = &(it->second);
+			// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
 		}
-		for (auto it = opponent_moves[i].begin(); it != opponent_moves[i].end() && !done; it++)
-		{
-			makemove(*it);
-			eval_type child = -negaMax(!player,depth-1,-1*beta,-1*alpha);
-			if(child > best_val){
-				best_val = child;
-				best_move = &(*it);
-					// cerr << "Best move updated! \n";
-					// cerr << best_move->to_string() << endl;
-			}
-			// best_val = max(best_val, child);
-			alpha = max(alpha, child);
-			if (alpha >= beta)
-				done = true;
-			antimove(*it);
-		}
-		// cout << "Best val for i = " << i << " is " << best_val << endl;
+		alpha = max(alpha, child);
+		if (alpha >= beta)
+			done = true;
+		antimove(itr->second);
 	}
+
+
+
+	// eval_type best_val = -2*RDWIN;
+	// bool done = false;
+	// vector<list<Move> > opponent_moves (4);
+	// Move *best_move = NULL;
+	// for (int i = 0; i < 3 && !done; i++)
+	// {
+	// 	switch (i)
+	// 	{
+	// 		case 0 : {
+	// 			generate_place_1(!player,opponent_moves[i]);
+	// 			// if(t.depth != 0 && t.best_move.direction != 0)
+	// 			// {
+	// 			// 	opponent_moves[i].push_front(t.best_move);
+	// 			// 	// cout << "Adding old best move on top \n";
+	// 			// }
+	// 			break;
+	// 		}
+	// 		case 1 : {
+	// 			generate_place_2(!player,opponent_moves[i]);
+	// 			break;
+	// 		}
+	// 		case 2 : {
+	// 			generate_stack_moves(!player,opponent_moves[i]);
+	// 			break;
+	// 		}
+	// 	}
+	// 	for (auto it = opponent_moves[i].begin(); it != opponent_moves[i].end() && !done; it++)
+	// 	{
+	// 		makemove(*it);
+	// 		eval_type child = -negaMax(!player,depth-1,-1*beta,-1*alpha);
+	// 		if(child > best_val){
+	// 			best_val = child;
+	// 			best_move = &(*it);
+	// 				// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
+	// 		}
+	// 		// best_val = max(best_val, child);
+	// 		alpha = max(alpha, child);
+	// 		if (alpha >= beta)
+	// 			done = true;
+	// 		antimove(*it);
+	// 	}
+	// 	// cout << "Best val for i = " << i << " is " << best_val << endl;
+	// }
 
 	t.score = best_val;
 	if (best_val <= alpha_orig)

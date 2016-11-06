@@ -15,7 +15,8 @@ struct Transposition{
 	eval_type score;
 	char flag = 'x';
 	s_int depth;
-	inline string to_string();
+
+	string to_string();
 };
 
 inline string Transposition::to_string()
