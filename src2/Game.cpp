@@ -289,7 +289,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m (i,j,cap);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(t.depth,t.score),m);
+					moves.emplace(make_pair(0,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -298,7 +298,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m(i,j,flat);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(t.depth,t.score),m);
+					moves.emplace(make_pair(0,t.score),m);
 					// search in tt
 					antimove(m);
 
@@ -320,7 +320,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m(i,j,s);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(t.depth,t.score),m);
+					moves.emplace(make_pair(0,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -345,7 +345,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 						m.cap_move = true;
 						makemove(m);
 						Transposition &t = getTransposition(!player);
-						moves.emplace(make_pair(t.depth,t.score),m);
+						moves.emplace(make_pair(0,t.score),m);
 						// search in tt
 						antimove(m);
 					}
@@ -367,7 +367,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 								Move m(i,j,dir[r],&d);
 								makemove(m);
 								Transposition &t = getTransposition(!player);
-								moves.emplace(make_pair(t.depth,t.score),m);
+								moves.emplace(make_pair(0,t.score),m);
 								// search in tt
 								antimove(m);
 							}
@@ -432,7 +432,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			best_move = &(itr->second);
 			if(depth > 3) fprintf(stderr, "%s%d %d New Bst at %s\n", tab(depth).c_str(), depth, t.depth, best_move->to_string().c_str());
 			// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
-		}
+		// }
 		alpha = max(alpha, child);
 		if (alpha >= beta){
 			if(depth > 3) fprintf(stderr, "%s%d %d %d Pruned at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
