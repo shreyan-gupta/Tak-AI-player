@@ -433,7 +433,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			count = 0;
 			// if(depth > 3) fprintf(stderr, "%s%d %d New Bst at %s\n", tab(depth).c_str(), depth, t.depth, best_move->to_string().c_str());
 			// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
-		// }
+		}
 		alpha = max(alpha, child);
 		if (alpha >= beta || abs(child) > FLWIN / 2){
 			// if(depth > 3) fprintf(stderr, "%s%d %d %d Pruned at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
