@@ -21,7 +21,7 @@ private:
 
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void GetStackable(s_int, s_int, bool, vector<s_int> &);
-	eval_type eval();
+	eval_type eval(Player_Type);
 public:
 	s_int size;
 	vector< vector<Position> > GameBoard;
@@ -58,18 +58,20 @@ inline Transposition& Game::getTransposition(Player_Type p){
 	auto &t = TTable[p][to_string()];
 	if(t.flag == 'x'){
 		t.flag = 'e';
-		t.score = eval();
+		t.score = eval(p);
 		t.depth = 0;
 	}
 	// cout << "Depth of trans = " << t.depth << endl;
 	return t;
 }
 
-inline eval_type Game::eval(){
+inline eval_type Game::eval(Player_Type player){
 	eval_type value = 0;
 	value += path();
+	if (abs(value) > FLWIN/2)
+		return ((player == White) ? value : -value);
 	value += features();
-	return value;
+	return ((player == White) ? value : -value);
 }
 
 #endif
