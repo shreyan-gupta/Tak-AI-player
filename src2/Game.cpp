@@ -275,7 +275,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 {
 	eval_type alpha_orig = alpha;
 	Transposition &t = getTransposition(player);
-	cerr << (int)depth << (int)(t.depth) << " Depth \n";
+	// cerr << (int)depth << (int)(t.depth) << " Depth \n";
 	if ((int)(t.depth) >= (int)depth)
 	{
 		if (t.flag == 'e')
@@ -341,7 +341,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		for (auto it = opponent_moves[i].begin(); it != opponent_moves[i].end() && !done; it++)
 		{
 			makemove(*it);
-			eval_type child = negaMax(!player,depth-1,-1*beta,-1*alpha);
+			eval_type child = -negaMax(!player,depth-1,-1*beta,-1*alpha);
 			if(child > best_val){
 				best_val = child;
 				best_move = &(*it);
@@ -366,7 +366,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		t.flag = 'e';
 	t.depth = depth;
 	t.best_move = *best_move;
-	cerr << t.best_move.to_string() << " move in TTable, final ---- \n";
+	// cerr << t.best_move.to_string() << " move in TTable, final ---- \n";
 	return best_val;
 
 
