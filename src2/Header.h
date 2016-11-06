@@ -15,7 +15,7 @@
 
 #define RDWIN 			1000000
 #define FLWIN 			1000000
-#define TOPFLAT			400
+#define TOPFLAT			10000
 #define ENDGAMEFLAT		800
 #define STAND			200
 #define CAP 			300

@@ -43,6 +43,9 @@ public:
 
 	eval_type negaMax(bool,s_int,eval_type,eval_type);
 	// CALL decide_move after negaMax?
+
+	// temp
+	void print_move_seq(int depth);
 };
 
 inline bool Game::pathable(s_int x, s_int y, bool player){
@@ -56,7 +59,6 @@ inline Transposition& Game::getTransposition(Player_Type p){
 		t.score = eval();
 		t.depth = 0;
 	}
-//	cout << t.to_string();
 	return t;
 }
 
@@ -64,7 +66,6 @@ inline eval_type Game::eval(){
 	eval_type value = 0;
 	value += path();
 	value += features();
-//	cout << value << " is the val \n";
 	return value;
 }
 

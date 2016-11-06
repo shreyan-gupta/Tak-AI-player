@@ -275,7 +275,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 {
 	eval_type alpha_orig = alpha;
 	Transposition &t = getTransposition(player);
-	cout << (int)depth << (int)(t.depth) << " Depth \n";
+	// cerr << (int)depth << (int)(t.depth) << " Depth \n";
 	if ((int)(t.depth) >= (int)depth)
 	{
 		if (t.flag == 'e')
@@ -290,7 +290,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	// cout << "depth more \n";
 	if(abs(t.score) > FLWIN)
 	{
-		cout << "WOAH \n";
+		// cerr << "WOAH \n";
 		return t.score;
 	}
 
@@ -341,12 +341,12 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		for (auto it = opponent_moves[i].begin(); it != opponent_moves[i].end() && !done; it++)
 		{
 			makemove(*it);
-			eval_type child = negaMax(!player,depth-1,-1*beta,-1*alpha);
+			eval_type child = -negaMax(!player,depth-1,-1*beta,-1*alpha);
 			if(child > best_val){
 				best_val = child;
 				best_move = &(*it);
-					cerr << "Best move updated! \n";
-					cerr << best_move->to_string() << endl;
+					// cerr << "Best move updated! \n";
+					// cerr << best_move->to_string() << endl;
 			}
 			// best_val = max(best_val, child);
 			alpha = max(alpha, child);
@@ -354,7 +354,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 				done = true;
 			antimove(*it);
 		}
-		cout << "Best val for i = " << i << " is " << best_val << endl;
+		// cout << "Best val for i = " << i << " is " << best_val << endl;
 	}
 
 	t.score = best_val;
@@ -366,6 +366,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		t.flag = 'e';
 	t.depth = depth;
 	t.best_move = *best_move;
+	// cerr << t.best_move.to_string() << " move in TTable, final ---- \n";
 	return best_val;
 
 
@@ -383,22 +384,31 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	// return best_val;
 }
 
+void Game::print_move_seq(int depth){
+	vector<Move> move_list;
+	bool player = !opponent_type;
+	for(int i=0; i<depth; ++i){
+		auto t = getTransposition(player);
+		move_list.push_back(t.best_move);
+		if(i==0) cerr << t.score << "\t";
+		cerr << t.best_move.to_string() << " ";
+		player = !player;
+		makemove(t.best_move);
+	}
+	cerr << endl;
+	for(auto it = move_list.rbegin(); it != move_list.rend(); ++it){
+		antimove(*it);
+	}
+}
+
 string Game::ids(){
-	int depth = 1;
+	int depth = 6;
 	cout << to_string() << endl;
-	// have something to manage the depth here
 	for(int d=1; d<=depth; ++d){
 		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN);
-		cerr << val << " is the return val for d = " << d << endl;
+		print_move_seq(d);
 	}
 	Transposition& t = getTransposition(!opponent_type);
-	
-	// vector<Move> move_list;
-	// for(int d=0; d<depth; ++d){
-	// 	Transposition t;
-	// 	getTransposition(t, !opponent_type);
-	// 	move_list.push_back(t.best_move);
-	// }
 	
 	makemove(t.best_move);
 	return t.best_move.to_string();

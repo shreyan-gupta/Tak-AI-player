@@ -50,7 +50,7 @@ string Move::to_string()
 	if (place_move)
 	{
 		// append F or S or C.
-		cout << (char)(piece) << " is the piece in move\n";
+		// cout << (char)(piece) << " is the piece in move\n";
 		s = (char)(toupper((char)piece)) + s;
 	}
 	else
