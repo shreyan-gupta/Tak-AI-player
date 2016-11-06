@@ -274,8 +274,7 @@ void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
 eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta)
 {
 	eval_type alpha_orig = alpha;
-	Transposition t;
-	getTransposition(t, player);
+	Transposition &t = getTransposition(player);
 	cout << (int)depth << (int)(t.depth) << " Depth \n";
 	if ((int)(t.depth) >= (int)depth)
 	{
@@ -288,7 +287,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		if (alpha >= beta)
 			return t.score;
 	}
-	cout << "depth more \n";
+	// cout << "depth more \n";
 	if(abs(t.score) > FLWIN)
 	{
 		cout << "WOAH \n";
@@ -392,8 +391,7 @@ string Game::ids(){
 		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN);
 		cerr << val << " is the return val for d = " << d << endl;
 	}
-	Transposition t;
-	getTransposition(t, !opponent_type);
+	Transposition& t = getTransposition(!opponent_type);
 	
 	// vector<Move> move_list;
 	// for(int d=0; d<depth; ++d){

@@ -34,7 +34,7 @@ public:
 	void makemove(Move &);
 	void antimove(Move &);
 	eval_type features();
-	void getTransposition(Transposition &,Player_Type);
+	Transposition& getTransposition(Player_Type);
 	
 	string ids();
 	void generate_place_1(Player_Type, list<Move>&);
@@ -49,14 +49,15 @@ inline bool Game::pathable(s_int x, s_int y, bool player){
 	return (!GameBoard[x][y].empty() && GameBoard[x][y].top_piece() != 'S' && GameBoard[x][y].player() == player);
 }
 
-inline void Game::getTransposition(Transposition &t, Player_Type p){
-	t = TTable[p][to_string()];
+inline Transposition& Game::getTransposition(Player_Type p){
+	auto &t = TTable[p][to_string()];
 	if(t.flag == 'x'){
 		t.flag = 'e';
 		t.score = eval();
 		t.depth = 0;
 	}
 	cout << t.to_string();
+	return t;
 }
 
 inline eval_type Game::eval(){
