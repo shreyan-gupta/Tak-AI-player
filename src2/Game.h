@@ -10,7 +10,7 @@ private:
 	vector<unordered_map<string, Transposition> > TTable; // length 2.
 	
 	// helper functions
-	bool pathable(char x, char y, bool player);
+	bool pathable(s_int x, s_int y, bool player);
 	void search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found);
 
 	// eval functions
@@ -41,7 +41,7 @@ public:
 	void generate_place_2(Player_Type, list<Move>&);
 	void generate_stack_moves(Player_Type, list<Move>&);
 
-	eval_type negaMax(bool,char,eval_type,eval_type);
+	eval_type negaMax(bool,s_int,eval_type,eval_type);
 	// CALL decide_move after negaMax?
 };
 
@@ -56,7 +56,7 @@ inline Transposition& Game::getTransposition(Player_Type p){
 		t.score = eval();
 		t.depth = 0;
 	}
-	cout << t.to_string();
+//	cout << t.to_string();
 	return t;
 }
 
@@ -64,7 +64,7 @@ inline eval_type Game::eval(){
 	eval_type value = 0;
 	value += path();
 	value += features();
-	cout << value << " is the val \n";
+//	cout << value << " is the val \n";
 	return value;
 }
 
