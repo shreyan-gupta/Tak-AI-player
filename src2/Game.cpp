@@ -270,12 +270,93 @@ void Game::generate_stack_moves(Player_Type player, list<Move> &moves){
 	}
 }
 
+void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_type>,Move> &moves)
+{
+	Player &p = (player == Black) ? p_black : p_white;
+
+	// PLACE 1
+	char cap = (player == White) ? 'C' : 'c';
+	char flat = (player == White) ? 'F' : 'f';
+	for (s_int i = 0; i < size; i++)
+	{
+		for (s_int j = 0; j < size; j++)
+		{
+			if (GameBoard[i][j].empty())
+			{
+				if (p.CapLeft)
+					moves.emplace(i,j,cap);
+				if (p.StonesLeft != 0)
+					moves.emplace(i,j,flat);
+			}
+		}
+	}
+
+	// PLACE 2
+	char s = (player == White) ? 'S' : 's';
+	for (s_int i = 0; i < size; i++)
+	{
+		for (s_int j = 0; j < size; j++)
+		{
+			if (GameBoard[i][j].empty())
+			{
+				if (p.StonesLeft != 0)
+					moves.emplace(i,j,s);
+			}
+		}
+	}
+
+	// STACK
+	vector<s_int> range(4);
+	char dir[4] = {'<', '>', '+', '-'};
+	
+	if(!p.CapLeft){
+		GetStackable(p.x, p.y, true, range);
+		s_int shiftmax = min((s_int)size, (s_int)GameBoard[p.x][p.y].stack.size());
+
+		for (s_int i1 = 1; i1 <= shiftmax; ++i1){
+			for(s_int r=0; r<4; ++r){
+				if(range[r] == -1) continue;
+				for(auto &d : AllPerms[i1][range[r]]){
+					if(d.back() == 1){
+						moves.emplace(p.x,p.y,dir[r],&d);
+						moves.back().cap_move = true;
+					}
+				}
+			}
+		}
+	}
+
+	if(p.StonesLeft != 0)
+	for(s_int i=0; i<size; ++i){
+		for(s_int j=0; j<size; ++j){
+			if (!GameBoard[i][j].empty() && GameBoard[i][j].player() == player) {
+				s_int shiftmax = min((s_int)size, (s_int)GameBoard[i][j].stack.size()); // max pieces.
+ 				GetStackable(i,j,false,range);
+				for (s_int i1 = 1; i1 <= shiftmax; ++i1){
+					for(s_int r=0; r<4; ++r){
+						for (s_int m=1; m<=range[r]; ++m){
+							for (auto &d : AllPerms[i1][m]){
+								moves.emplace(i,j,dir[r],&d);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+};
+
+string tab(int n){
+	string s;
+	for(int i=0; i<n; ++i) s += " ";
+	return s;
+}
 
 eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta)
 {
 	eval_type alpha_orig = alpha;
 	Transposition &t = getTransposition(player);
-	// cerr << (int)depth << (int)(t.depth) << " Depth \n";
+
 	if ((int)(t.depth) >= (int)depth)
 	{
 		if (t.flag == 'e')
@@ -287,7 +368,10 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		if (alpha >= beta)
 			return t.score;
 	}
-	if(depth == 0 || abs(t.score) > FLWIN)
+
+	fprintf(stderr, "%s%d\n", tab(depth).c_str(), depth);
+
+	if(depth == 0 || abs(t.score) > FLWIN / 2)
 	{
 		return t.score;
 	}
@@ -299,18 +383,19 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	for(auto itr = move_list.rbegin(); itr != move_list.rend(); ++itr){
 		makemove(itr->second);
 		eval_type child = -negaMax(!player,depth-1,-1*beta,-1*alpha);
+		antimove(itr->second);
 		if(child > best_val){
 			best_val = child;
 			best_move = &(it->second);
+			fprintf(stderr, "%s%d %d New Bst at %s\n", tab(depth).c_str(), depth, t.depth, best_move->to_string());
 			// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
 		}
 		alpha = max(alpha, child);
-		if (alpha >= beta)
-			done = true;
-		antimove(itr->second);
+		if (alpha >= beta){
+			fprintf(stderr, "%s%d %d Prunded at %s\n", tab(depth).c_str(), depth, t.depth, best_move->to_string());
+			break;
+		}
 	}
-
-
 
 	// eval_type best_val = -2*RDWIN;
 	// bool done = false;
@@ -368,19 +453,6 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	// cerr << t.best_move.to_string() << " move in TTable, final ---- \n";
 	return best_val;
 
-
-
-	// Transposition tt;
-	// tt.score = best_val;
-	// if (best_val <= alpha_orig)
-	// 	tt.flag = 'u';
-	// else if (best_val >= beta)
-	// 	tt.flag = 'l';
-	// else
-	// 	tt.flag = 'e';
-	// tt.depth = depth;
-	// TTable[player][to_string()] = tt;
-	// return best_val;
 }
 
 void Game::print_move_seq(int depth){
@@ -401,7 +473,7 @@ void Game::print_move_seq(int depth){
 }
 
 string Game::ids(){
-	int depth = 6;
+	int depth = 4;
 	cout << to_string() << endl;
 	for(int d=1; d<=depth; ++d){
 		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN);
