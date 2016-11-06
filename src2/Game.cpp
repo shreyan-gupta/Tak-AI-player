@@ -289,7 +289,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m (i,j,cap);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(0,t.score),m);
+					moves.emplace(make_pair(t.depth,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -298,7 +298,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m(i,j,flat);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(0,t.score),m);
+					moves.emplace(make_pair(t.depth,t.score),m);
 					// search in tt
 					antimove(m);
 
@@ -320,7 +320,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m(i,j,s);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(0,t.score),m);
+					moves.emplace(make_pair(t.depth,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -345,7 +345,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 						m.cap_move = true;
 						makemove(m);
 						Transposition &t = getTransposition(!player);
-						moves.emplace(make_pair(0,t.score),m);
+						moves.emplace(make_pair(t.depth,t.score),m);
 						// search in tt
 						antimove(m);
 					}
@@ -367,7 +367,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 								Move m(i,j,dir[r],&d);
 								makemove(m);
 								Transposition &t = getTransposition(!player);
-								moves.emplace(make_pair(0,t.score),m);
+								moves.emplace(make_pair(t.depth,t.score),m);
 								// search in tt
 								antimove(m);
 							}
