@@ -82,7 +82,7 @@ eval_type Game::features(){
 				has_empty = true;
 				continue;
 			}
-			if(pos.top_piece() != 'S'){
+			if 	(pos.top_piece() != 'S'){
 				if(pos.player() == White) ++delta_flat;
 				else --delta_flat;
 			}
@@ -95,10 +95,10 @@ eval_type Game::features(){
 			temp_count += captive(pos.top_piece(), p);
 
 			count += mult * temp_count;
-			cout << count << " is the count, inside features \n";
+			// cout << count << " is the count, inside features \n";
 		}
 	}
-	cout << "-------------------- \n";
+	// cout << "-------------------- \n";
 	if(has_empty == false || p_black.noStone() || p_white.noStone()) 
 		return (delta_flat > 0) ? FLWIN : -FLWIN;
 	else return count;

@@ -56,7 +56,7 @@ inline Transposition& Game::getTransposition(Player_Type p){
 		t.score = eval();
 		t.depth = 0;
 	}
-	cout << t.to_string();
+	// cerr << t.to_string();
 	return t;
 }
 
@@ -64,7 +64,7 @@ inline eval_type Game::eval(){
 	eval_type value = 0;
 	value += path();
 	value += features();
-	cout << value << " is the val \n";
+	// cout << value << " is the val \n";
 	return value;
 }
 
