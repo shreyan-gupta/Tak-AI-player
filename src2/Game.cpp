@@ -387,12 +387,17 @@ string tab(int n){
 
 eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta)
 {
-	// cerr << (player == White) << endl;
-	assert ((int)depth >= 0);
-	eval_type alpha_orig = alpha;
+	assert (depth >= 0);
+	// cout << "depth " << depth << " " << to_string() << endl;
 	Transposition &t = getTransposition(player);
+		// if ((int)depth == 0)
+		// 	cout << "D = 0!!!!!!!!!!!!!!!!! \n";
+	if(depth == 0 || abs(t.score) > FLWIN / 2){
+		return t.score;
+	}
+	eval_type alpha_orig = alpha;
 
-	if ((int)(t.depth) >= (int)depth)
+	if (t.depth >= depth)
 	{
 		if (t.flag == 'e')
 			return t.score;
@@ -403,56 +408,65 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		if (alpha >= beta)
 			return t.score;
 	}
-	else if(depth == 0 || abs(t.score) > FLWIN / 2)
-	{
-		return t.score;
-	}
-	else if (depth > 0)
-	{
+	else{
 		// cout << "Calling for depth " << (depth - 1) << endl;
-		// negaMax(player, depth-1, alpha, beta);
+		negaMax(player, depth-1, alpha, beta);
 	}
 
 	// fprintf(stderr, "%s%d\n", tab(depth).c_str(), depth);
 
+	assert(t.best_move.x != -1);
 
+	makemove(t.best_move);
+	eval_type best_val = -negaMax(!player,depth-1,-beta,-alpha);
+	antimove(t.best_move);
+	Move *best_move = &t.best_move;
 
-
-	eval_type best_val = -2*RDWIN;
-	Move *best_move = NULL;
 	multimap< pair<s_int, eval_type>, Move> move_list;
 	generate_valid_moves(player, move_list);
 
-	// for(auto itr = move_list.begin(); itr != move_list.end(); ++itr){
-	// 	fprintf(stderr, "%d %f : %s\n", itr->first.first, itr->first.second, itr->second.to_string().c_str());
-	// }
+			// if(depth == 2)
+			// for(auto itr = move_list.begin(); itr != move_list.end(); ++itr){
+			// 	fprintf(stderr, "%d %f : %s\n", itr->first.first, itr->first.second, itr->second.to_string().c_str());
+			// }
 	// fprintf(stderr, "%f %f\n*********\n", alpha, beta);
 
 	// if(move_list.begin()->second.to_string().compare(t.best_move.to_string()) != 0 && t.depth != 0){
 		// fprintf(stderr, "Error! %d %d %d %f %s %f %s\n", depth, move_list.begin()->first.first, t.depth, move_list.begin()->first.second, move_list.begin()->second.to_string().c_str(), t.score, t.best_move.to_string().c_str());
 	// }
 
+	vector<eval_type> ch;
+
 	int count = 0;
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr){
 		++count;
 		// fprintf(stderr, "%s %s\n", tab(depth).c_str(), itr->second.to_string().c_str());
 		makemove(itr->second);
-		if (depth < 1)
-			cout << "Calling with depth < 0 " << (int)depth << "\n";
 		eval_type child = -negaMax(!player,depth-1,-beta,-alpha);
 		// fprintf(stderr, "Child %f %s\n", child, itr->second.to_string().c_str());
+		ch.push_back(child);
+
 		antimove(itr->second);
 		if(child > best_val){
 			best_val = child;
 			best_move = &(itr->second);
 			// count = 0;
-			if(depth > 2) fprintf(stderr, "%s%d %d Count = %d, New Bst at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
+			// if(depth > 2) fprintf(stderr, "%s%d %d Count = %d, New Bst at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
 			// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
 		}
 		alpha = max(alpha, child);
 		if (alpha >= beta || abs(child) > FLWIN / 2){
 			if(depth > 3) fprintf(stderr, "%s%d %d %d Pruned at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
 			break;
+		}
+	}
+
+
+	if(count >= 25 && depth > 3){
+		cerr << "pruned at " << count << endl;
+		auto itr = move_list.begin();
+		for(int i=0; i<count; ++i, ++itr){
+			fprintf(stderr, "%d %f : %s child %f\n", itr->first.first, itr->first.second, itr->second.to_string().c_str(), -ch[i]);
 		}
 	}
 
@@ -509,6 +523,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		t.flag = 'e';
 	t.depth = depth;
 	t.best_move = *best_move;
+
 	if (t.best_move.x == -1 || t.depth <= 0)
 	{
 		cerr << "ERRORRRRRRR INVALID MOVE! \n";
@@ -516,8 +531,8 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		cin >> c;
 	}
 	// cerr << t.best_move.to_string() << " move in TTable, final ---- \n";
-	return best_val;
 
+	return best_val;
 }
 
 void Game::print_move_seq(int depth){
@@ -544,7 +559,7 @@ void Game::print_move_seq(int depth){
 }
 
 string Game::ids(){
-	int depth = 4;
+	int depth = 5;
 	cout << to_string() << endl;
 	for(int d=depth; d<=depth; ++d){
 		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN);
