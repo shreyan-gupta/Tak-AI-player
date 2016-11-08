@@ -5,6 +5,11 @@ int TimeLimit;
 bool opponent_type;
 time_t start_time;
 
+int decide_Depth()
+{
+	return 4;
+}
+
 int main(int argc, char const *argv[])
 {
 	int temp_size;

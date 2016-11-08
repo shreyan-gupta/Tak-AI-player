@@ -104,5 +104,6 @@ Move::Move(){
 	this->cap_move = false;
 	this->place_move = true;
 	this->x = -1;
+	this->piece = '/';
 	// this->piece
 }

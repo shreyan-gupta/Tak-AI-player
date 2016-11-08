@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <ctime>
 #include <list>
+#include <assert.h>
 
 #define RDWIN 			1000000
 #define FLWIN 			1000000
