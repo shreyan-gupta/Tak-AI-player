@@ -8,6 +8,10 @@ time_t start_time;
 int decide_Depth()
 {
 	return 4;
+	// initial 4
+	// middle 5
+	// before end tk 5
+	// ekdum end 4
 }
 
 int main(int argc, char const *argv[])

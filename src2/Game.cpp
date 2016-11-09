@@ -275,6 +275,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 {
 	Player &p = (player == Black) ? p_black : p_white;
 
+
 	// PLACE 1
 	char cap = (player == White) ? 'C' : 'c';
 	char flat = (player == White) ? 'F' : 'f';
@@ -289,7 +290,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m (i,j,cap);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth,t.score),m);
+					moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -298,7 +299,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m(i,j,flat);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth,t.score),m);
+					moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
 
@@ -320,7 +321,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 					Move m(i,j,s);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth,t.score),m);
+					moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -345,7 +346,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 						m.cap_move = true;
 						makemove(m);
 						Transposition &t = getTransposition(!player);
-						moves.emplace(make_pair(-t.depth,t.score),m);
+						moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
 						// search in tt
 						antimove(m);
 					}
@@ -367,7 +368,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_typ
 								Move m(i,j,dir[r],&d);
 								makemove(m);
 								Transposition &t = getTransposition(!player);
-								moves.emplace(make_pair(-t.depth,t.score),m);
+								moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
 								// search in tt
 								antimove(m);
 							}
@@ -388,6 +389,7 @@ string tab(int n){
 eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta)
 {
 	// cerr << (player == White) << endl;
+	// cout << depth << endl;
 	assert ((int)depth >= 0);
 	eval_type alpha_orig = alpha;
 	Transposition &t = getTransposition(player);
@@ -398,19 +400,20 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			return t.score;
 		else if (t.flag == 'l')
 			alpha = max(alpha, t.score);
+
 		else if (t.flag == 'u')
 			beta = min(beta, t.score);
 		if (alpha >= beta)
 			return t.score;
 	}
-	else if(depth == 0 || abs(t.score) > FLWIN / 2)
+	if(depth == 0 || abs(t.score) > FLWIN / 2)
 	{
 		return t.score;
 	}
 	else if (depth > 0)
 	{
 		// cout << "Calling for depth " << (depth - 1) << endl;
-		// negaMax(player, depth-1, alpha, beta);
+		negaMax(player, depth-1, alpha, beta);
 	}
 
 	// fprintf(stderr, "%s%d\n", tab(depth).c_str(), depth);
@@ -433,12 +436,13 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	// }
 
 	int count = 0;
-	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr){
+	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
+	{
 		++count;
 		// fprintf(stderr, "%s %s\n", tab(depth).c_str(), itr->second.to_string().c_str());
 		makemove(itr->second);
-		if (depth < 1)
-			cout << "Calling with depth < 0 " << (int)depth << "\n";
+			// if (depth < 1)
+			// 	cout << "Calling with depth < 0 " << (int)depth << "\n";
 		eval_type child = -negaMax(!player,depth-1,-beta,-alpha);
 		// fprintf(stderr, "Child %f %s\n", child, itr->second.to_string().c_str());
 		antimove(itr->second);
@@ -446,12 +450,12 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			best_val = child;
 			best_move = &(itr->second);
 			// count = 0;
-			if(depth > 2) fprintf(stderr, "%s%d %d Count = %d, New Bst at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
+			// if(depth > 2) fprintf(stderr, "%s%d %d Count = %d, New Bst at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
 			// cerr << "New Best " << t.depth << " " << depth << " " << best_move->to_string() << endl;
 		}
 		alpha = max(alpha, child);
-		if (alpha >= beta || abs(child) > FLWIN / 2){
-			if(depth > 3) fprintf(stderr, "%s%d %d %d Pruned at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
+		if (alpha >= beta || (child) > FLWIN / 2){
+			if(depth > 2) fprintf(stderr, "%s%d %d %d Pruned at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
 			break;
 		}
 	}
@@ -511,6 +515,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	t.best_move = *best_move;
 	if (t.best_move.x == -1 || t.depth <= 0)
 	{
+		cerr << t.best_move.x << ", depth = " << t.depth << endl;
 		cerr << "ERRORRRRRRR INVALID MOVE! \n";
 		int c;
 		cin >> c;
@@ -531,8 +536,8 @@ void Game::print_move_seq(int depth){
 			if (t.best_move.x == -1 )
 			{
 				cerr << "ERRORRRRRRR INVALID MOVE! \n";
-				int c;
-				cin >> c;
+				// int c;
+				// cin >> c;
 			}
 		player = !player;
 		makemove(t.best_move);
