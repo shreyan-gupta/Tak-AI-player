@@ -443,7 +443,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
 			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
-			cerr << "pruned at PV!! depth = " << depth << endl;
+			// cerr << "pruned at PV!! depth = " << depth << endl;
 			return best_val;
 		}
 	}
@@ -611,8 +611,8 @@ bool Game::isMoveValid(Move &m, bool x)
 			total += d[i];	
 		}
 		total += d[i];
-		bool last_cap = (tolower(GameBoard[dropx-1][dropy-1].stack.back()) == 's');
-		valid = valid && ((m.cap_move) ? last_cap : !last_cap);
+		bool last_cap = (!GameBoard[dropx-x][dropy-y].empty()) && (tolower(GameBoard[dropx-x][dropy-y].stack.back()) == 's');
+		// valid = valid && ((m.cap_move) ? last_cap : !last_cap);
 		valid = valid && (p.stack.length() >= total);
 
 		return valid;
