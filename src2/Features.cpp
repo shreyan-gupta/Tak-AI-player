@@ -94,6 +94,14 @@ eval_type Game::features(){
 			temp_count += piece_type(pos.top_piece());
 			temp_count += captive(pos.top_piece(), p);
 
+			// Groups : **************************
+			vector<s_int> stack_xy (4,0);
+			GetStackable(x,y,White,stack_xy);
+			temp_count += GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];
+
+			GetStackable(x,y,Black,stack_xy);
+			temp_count -= GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];
+
 			count += mult * temp_count;
 			// cout << count << " is the count, inside features \n";
 		}
