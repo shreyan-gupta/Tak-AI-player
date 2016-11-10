@@ -443,12 +443,13 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
 			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
+			cerr << "pruned at PV!! depth = " << depth << endl;
 			return best_val;
 		}
 	}
 
 	// Killer move
-	if(isMoveValid(killer.first)){
+	if(isMoveValid(killer.first, player)){
 		makemove(killer.first);
 		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(killer.first);
@@ -457,10 +458,11 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
 			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
+			cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
 			return best_val;
 		}
 	}
-	if(isMoveValid(killer.second)){
+	if(isMoveValid(killer.second, player)){
 		makemove(killer.second);
 		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(killer.second);
@@ -469,6 +471,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
 			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
+			cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
 			Move temp = killer.first;
 			killer.first = killer.second;
 			killer.second = temp;
@@ -590,8 +593,8 @@ bool Game::isMoveValid(Move &m, bool x)
 	else
 	{
 		auto &p = GameBoard[m.x][m.y];
-		bool valid = (!p.empty()) && ((x == White) ? ((p.top_piece) < 97) : (p.top_piece > 97));
-		valid &&= ( (m.cap_move) ? (tolower(p.stack.back()) == 'c') : true );
+		bool valid = (!p.empty()) && ((x == White) ? ((p.top_piece()) < 97) : (p.top_piece() > 97));
+		valid = valid && ( (m.cap_move) ? (tolower(p.stack.back()) == 'c') : true );
 		s_int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
 		s_int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
 
@@ -602,15 +605,15 @@ bool Game::isMoveValid(Move &m, bool x)
 		s_int i = 0;
 		for (i; i < d.size()-1; i++)
 		{
-			valid &&= tolower(GameBoard[dropx][dropy].stack.back()) != 's';
+			valid = valid && (tolower(GameBoard[dropx][dropy].stack.back()) != 's');
 			dropx -= x;
 			dropy -= y;
 			total += d[i];	
 		}
 		total += d[i];
 		bool last_cap = (tolower(GameBoard[dropx-1][dropy-1].stack.back()) == 's');
-		valid &&= ((m.cap_move) ? last_cap : !last_cap);
-		valid &&= (p.stack.length() >= total);
+		valid = valid && ((m.cap_move) ? last_cap : !last_cap);
+		valid = valid && (p.stack.length() >= total);
 
 		return valid;
 	}
