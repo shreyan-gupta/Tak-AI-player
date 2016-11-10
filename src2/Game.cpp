@@ -399,7 +399,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	if(depth == 0 || abs(t.score) > FLWIN / 2){
 		return t.score;
 	}
-	eval_type alpha_orig = alpha;
+	// eval_type alpha_orig = alpha;
 
 	if (t.depth >= depth)
 	{
@@ -420,12 +420,16 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 
 	// fprintf(stderr, "%s%d\n", tab(depth).c_str(), depth);
 
-	assert(t.best_move.x != -1);
-
-	makemove(t.best_move);
-	eval_type best_val = -negaMax(!player,depth-1,-beta,-alpha);
-	antimove(t.best_move);
-	Move *best_move = &t.best_move;
+	// assert(t.best_move.x != -1);
+	eval_type best_val = -2*FLWIN;
+	Move *best_move = NULL;
+	if (t.depth > 0)
+	{
+		makemove(t.best_move);
+		best_val = -negaMax(!player,depth-1,-beta,-alpha);
+		antimove(t.best_move);
+		best_move = &t.best_move;		
+	}
 
 	multimap< pair<s_int, eval_type>, Move> move_list;
 	generate_valid_moves(player, move_list);
@@ -553,13 +557,14 @@ void Game::print_move_seq(int depth){
 		auto &t = getTransposition(player);
 		move_list.push_back(t.best_move);
 		if(i==0) cerr << t.score << "\t" << depth << " ";
-		cerr << t.best_move.to_string() << " ";
 			if (t.best_move.x == -1 )
 			{
 				cerr << "ERRORRRRRRR INVALID MOVE! \n";
+				break;
 				// int c;
 				// cin >> c;
 			}
+		cerr << t.best_move.to_string() << " ";
 		player = !player;
 		makemove(t.best_move);
 	}
@@ -569,10 +574,11 @@ void Game::print_move_seq(int depth){
 	}
 }
 
-string Game::ids(){
-	int depth = 5;
+string Game::ids(int depth){
+	// int depth = 4;
 	cout << to_string() << endl;
-	for(int d=depth; d<=depth; ++d){
+	cout << depth << " is the depth \n";
+	for(int d=1; d<=depth; ++d){
 		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN);
 		print_move_seq(d);
 	}
@@ -582,6 +588,30 @@ string Game::ids(){
 	return t.best_move.to_string();
 }
 
+int Game::decide_Depth()
+{
+	s_int used_black = pieces - p_black.StonesLeft;
+	s_int used_white  = pieces - p_white.StonesLeft;
+	if (used_black < 5 || used_white < 5)
+		return 4;
+	else if (used_white > pieces - 6 || used_black > pieces - 6)
+		return 4;
+	else return 5;
+	// initial 4
+	// middle 5
+	// before end tk 5
+	// ekdum end 4
+}
 
-
-
+bool Game::isMoveValid(Move &m)
+{
+	if (m.place_move)
+	{
+		// x,y should be empty!!
+		return true;
+	}
+	else
+	{
+		return true;
+	}
+}

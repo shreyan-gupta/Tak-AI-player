@@ -36,7 +36,9 @@ public:
 	eval_type features();
 	Transposition& getTransposition(Player_Type);
 	
-	string ids();
+	string ids(int);
+	int decide_Depth();
+	bool isMoveValid(Move&);
 	void generate_place_1(Player_Type, list<Move>&);
 	void generate_place_2(Player_Type, list<Move>&);
 	void generate_stack_moves(Player_Type, list<Move>&);

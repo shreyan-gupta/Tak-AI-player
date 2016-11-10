@@ -1,18 +1,10 @@
 #include "Game.h"
 
-s_int size;
+s_int size, pieces;
 int TimeLimit;
 bool opponent_type;
 time_t start_time;
 
-int decide_Depth()
-{
-	return 4;
-	// initial 4
-	// middle 5
-	// before end tk 5
-	// ekdum end 4
-}
 
 int main(int argc, char const *argv[])
 {
@@ -23,7 +15,7 @@ int main(int argc, char const *argv[])
 	cin >> player_no >> temp_size >> TimeLimit;
 	size = temp_size;
 
-	char pieces;
+	// char pieces;
 	switch(size){
 		case 5 : pieces = 21; break;
 		case 6 : pieces = 30; break;
@@ -61,7 +53,7 @@ int main(int argc, char const *argv[])
 			// 	fprintf(stderr, "%s\n",m.to_string().c_str());
 			// cout << m.to_string() << endl;
 			
-			string my_move = g.ids();
+			string my_move = g.ids(g.decide_Depth());
 				fprintf(stderr, "%s\n",my_move.c_str());
 			cout << my_move << endl;
 
@@ -95,7 +87,7 @@ int main(int argc, char const *argv[])
 			cin >> s;
 			g.make_opponent_move(s,opponent_type);
 			
-			string my_move = g.ids();
+			string my_move = g.ids(g.decide_Depth());
 				fprintf(stderr, "%s\n",my_move.c_str());
 			cout << my_move << endl;	
 
