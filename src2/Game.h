@@ -45,7 +45,7 @@ public:
 
 	void generate_valid_moves(Player_Type, multimap<pair<s_int,eval_type>,Move>&);
 
-	eval_type negaMax(bool,s_int,eval_type,eval_type);
+	eval_type negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &);
 	// CALL decide_move after negaMax?
 
 	// temp
