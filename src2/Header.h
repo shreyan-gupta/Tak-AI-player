@@ -12,14 +12,15 @@
 #include <unordered_map>
 #include <ctime>
 #include <list>
+#include <limits.h>
 #include <assert.h>
 
 #define RDWIN 			1000000
 #define FLWIN 			1000000
-#define TOPFLAT			400
-#define ENDGAMEFLAT		800
-#define STAND			200
-#define CAP 			300
+#define TOPFLAT			750 // 550
+#define ENDGAMEFLAT		1200 // 800
+#define STAND			370 // 200
+#define CAP 			500 // 300
 #define HARD_FCAPTIVE 	200
 #define SOFT_FCAPTIVE 	-200
 #define HARD_SCAPTIVE 	300
@@ -51,7 +52,7 @@ using namespace Types;
 
 void getAllPerms(s_int);
 
-extern s_int size;
+extern s_int size,pieces;
 extern int TimeLimit;
 extern bool opponent_type;
 extern time_t start_time;
