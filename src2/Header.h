@@ -57,6 +57,7 @@ extern int TimeLimit;
 extern bool opponent_type;
 extern time_t start_time;
 extern vector< vector< vector< vector<s_int> > > > AllPerms;
+extern vector<int> GroupWt;
 
 struct Player
 {

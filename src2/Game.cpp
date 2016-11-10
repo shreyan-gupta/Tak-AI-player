@@ -271,7 +271,7 @@ void Game::GetStackable(s_int x, s_int y, bool cap, vector<s_int> &result){
 // }
 
 
-void Game::generate_valid_moves(Player_Type player, multimap<pair<s_int,eval_type>,Move> &moves)
+void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval_type>,Move> &moves)
 {
 	Player &p = (player == Black) ? p_black : p_white;
 
@@ -476,7 +476,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		}
 	}
 
-	multimap< pair<s_int, eval_type>, Move> move_list;
+	multimap< pair<eval_type, eval_type>, Move> move_list;
 	generate_valid_moves(player, move_list);
 
 	if(depth == 1){
@@ -579,15 +579,39 @@ int Game::decide_Depth()
 	// ekdum end 4
 }
 
-bool Game::isMoveValid(Move &m)
+bool Game::isMoveValid(Move &m, bool x)
 {
+	if (m.x == -1) return false;
 	if (m.place_move)
 	{
 		// x,y should be empty!!
-		return true;
+		return GameBoard[m.x][m.y].empty();
 	}
 	else
 	{
-		return true;
+		auto &p = GameBoard[m.x][m.y];
+		bool valid = (!p.empty()) && ((x == White) ? ((p.top_piece) < 97) : (p.top_piece > 97));
+		valid &&= ( (m.cap_move) ? (tolower(p.stack.back()) == 'c') : true );
+		s_int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
+		s_int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
+
+		s_int dropx = m.x + x*(m.drops->size());
+		s_int dropy = m.y + y*(m.drops->size());
+		vector<s_int> &d = *m.drops;
+		s_int total = 0;
+		s_int i = 0;
+		for (i; i < d.size()-1; i++)
+		{
+			valid &&= tolower(GameBoard[dropx][dropy].stack.back()) != 's';
+			dropx -= x;
+			dropy -= y;
+			total += d[i];	
+		}
+		total += d[i];
+		bool last_cap = (tolower(GameBoard[dropx-1][dropy-1].stack.back()) == 's');
+		valid &&= ((m.cap_move) ? last_cap : !last_cap);
+		valid &&= (p.stack.length() >= total);
+
+		return valid;
 	}
 }
