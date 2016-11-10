@@ -443,6 +443,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	vector<eval_type> ch;
 
 	int count = 0;
+	bool cutoff = false;
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
 	{
 		++count;
@@ -464,19 +465,20 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		}
 		alpha = max(alpha, child);
 		if (alpha >= beta || (child) > FLWIN / 2){
-			if(depth > 2) fprintf(stderr, "%s%d %d %d Pruned at %s\n", tab(depth).c_str(), depth, t.depth, count, best_move->to_string().c_str());
+			cutoff = true;
 			break;
 		}
 	}
+	if(depth >= 2) fprintf(stderr, "%s%d %d prune %d Ended at %s\n", tab(depth).c_str(), depth, count, cutoff ? 1 : 0, best_move->to_string().c_str());
 
 
-	if(count >= 25 && depth > 3){
-		cerr << "pruned at " << count << endl;
-		auto itr = move_list.begin();
-		for(int i=0; i<count; ++i, ++itr){
-			fprintf(stderr, "%d %f : %s child %f\n", itr->first.first, itr->first.second, itr->second.to_string().c_str(), -ch[i]);
-		}
-	}
+	// if(count >= 25 && depth > 3){
+	// 	cerr << "pruned at " << count << endl;
+	// 	auto itr = move_list.begin();
+	// 	for(int i=0; i<count; ++i, ++itr){
+	// 		fprintf(stderr, "%d %f : %s child %f\n", itr->first.first, itr->first.second, itr->second.to_string().c_str(), -ch[i]);
+	// 	}
+	// }
 
 	// eval_type best_val = -2*RDWIN;
 	// bool done = false;
