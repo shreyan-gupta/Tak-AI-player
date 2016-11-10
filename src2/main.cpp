@@ -42,10 +42,8 @@ int main(int argc, char const *argv[])
 
 		while (true)
 		{
-			// time_t start_move_time = time(0);
 			// int depth = 1;
 			// g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
-			// time_t move_time = time(0) - start_move_time;
 			// Transposition t;
 			// g.getTransposition(t,!opponent_type);
 			// Move &m = t.best_move;
@@ -53,8 +51,10 @@ int main(int argc, char const *argv[])
 			// 	fprintf(stderr, "%s\n",m.to_string().c_str());
 			// cout << m.to_string() << endl;
 			
+			auto start_move_time = clock();
 			string my_move = g.ids(g.decide_Depth());
-				fprintf(stderr, "%s\n",my_move.c_str());
+			auto move_time = clock() - start_move_time;
+				fprintf(stderr, "%s time %d\n",my_move.c_str(), (int)1000 * move_time / CLOCKS_PER_SEC);
 			cout << my_move << endl;
 
 
@@ -87,14 +87,14 @@ int main(int argc, char const *argv[])
 			cin >> s;
 			g.make_opponent_move(s,opponent_type);
 			
+			time_t start_move_time = time(0);
 			string my_move = g.ids(g.decide_Depth());
-				fprintf(stderr, "%s\n",my_move.c_str());
-			cout << my_move << endl;	
+			time_t move_time = time(0) - start_move_time;
+				fprintf(stderr, "%s time %d\n",my_move.c_str(), (int)move_time);
+			cout << my_move << endl;
 
-			// time_t start_move_time = time(0);
 			// int depth = 7;
 			// g.negaMax(!opponent_type,depth,-2*RDWIN, 2*RDWIN);
-			// time_t move_time = time(0) - start_move_time;
 			// Transposition t;
 			// g.getTransposition(t,!opponent_type);
 			// Move &m = t.best_move;
