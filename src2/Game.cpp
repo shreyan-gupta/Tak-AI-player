@@ -616,21 +616,21 @@ bool Game::isMoveValid(Move &m, bool x)
 		s_int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
 		s_int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
 
-		s_int dropx = m.x + x*(m.drops->size());
-		s_int dropy = m.y + y*(m.drops->size());
+		s_int dropx = m.x;
+		s_int dropy = m.y;
 		vector<s_int> &d = *m.drops;
 		s_int total = 0;
 		s_int i = 0;
 		for (i; i < d.size()-1; i++)
 		{
-			valid = valid && (GameBoard[dropx][dropy].empty() || (GameBoard[dropx][dropy].top_piece()) == 'F');
-			dropx -= x;
-			dropy -= y;
+			dropx += x;
+			dropy += y;
+			valid = valid && (GameBoard[dropx][dropy].empty() || ((GameBoard[dropx][dropy].top_piece()) == 'F'));
 			total += d[i];
 		}
 		total += d[i];
-		bool last_stand = (!GameBoard[dropx-x][dropy-y].empty()) && (GameBoard[dropx-x][dropy-y].top_piece() == 'S');
-		bool last_flat = GameBoard[dropx-x][dropy-y].empty() || ((GameBoard[dropx-x][dropy-y].top_piece() == 'F'));
+		bool last_stand = (!GameBoard[dropx+x][dropy+y].empty()) && (GameBoard[dropx+x][dropy+y].top_piece() == 'S');
+		bool last_flat = GameBoard[dropx+x][dropy+y].empty() || ((GameBoard[dropx+x][dropy+y].top_piece() == 'F'));
 		valid = valid && ((m.cap_move) ? last_stand : last_flat);
 		valid = valid && (p.stack.length() >= total);
 
