@@ -611,8 +611,8 @@ bool Game::isMoveValid(Move &m, bool x)
 		auto &p = GameBoard[m.x][m.y];
 		bool valid = (!p.empty()) && ((x == White) ? ((p.top_piece()) < 97) : (p.top_piece() > 97));
 		valid = valid && ( (m.cap_move) ? (tolower(p.stack.back()) == 'c') : true );
-		s_int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
-		s_int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
+		int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
+		int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
 
 		s_int dropx = m.x + x*(m.drops->size());
 		s_int dropy = m.y + y*(m.drops->size());
@@ -628,7 +628,7 @@ bool Game::isMoveValid(Move &m, bool x)
 		}
 		total += d[i];
 		bool last_cap = (!GameBoard[dropx-x][dropy-y].empty()) && (tolower(GameBoard[dropx-x][dropy-y].stack.back()) == 's');
-		// valid = valid && ((m.cap_move) ? last_cap : !last_cap);
+        valid = valid && ((m.cap_move) ? last_cap : !last_cap);
 		valid = valid && (p.stack.length() >= total);
 
 		return valid;

@@ -10,19 +10,19 @@ out : $(OBJ) main.o
 test : $(OBJ) Test.o
 	g++ $(LFLAGS) $(OBJ) Test.o -o test
 
-main.o : main.cpp Game.h
+main.o : main.cpp Game.h Header.h
 	g++ $(CFLAGS) main.cpp
 
-Game.o : Game.cpp Game.h 
+Game.o : Game.cpp Game.h Header.h
 	g++ $(CFLAGS) Game.cpp
 
-Features.o : Features.cpp Game.h
+Features.o : Features.cpp Game.h Header.h
 	g++ $(CFLAGS) Features.cpp
 
-Misc.o : Misc.cpp Move.h
+Misc.o : Misc.cpp Move.h Header.h
 	g++ $(CFLAGS) Misc.cpp
 
-Test.o : Test.cpp Game.h
+Test.o : Test.cpp Game.h Header.h
 	g++ $(CFLAGS) Test.cpp
 
 Position.h : Header.h

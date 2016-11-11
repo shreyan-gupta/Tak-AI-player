@@ -28,7 +28,7 @@
 #define HARD_CCAPTIVE 	250		//250
 #define SOFT_CCAPTIVE 	-150	//-150
 #define CENTER 			40
-#define ENDGAMECUTOFF 	7
+#define ENDGAMECUTOFF 	7 
 // #define 
 
 namespace Types
