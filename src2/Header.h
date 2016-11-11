@@ -15,20 +15,6 @@
 #include <limits.h>
 #include <assert.h>
 
-#define RDWIN 			1000000
-#define FLWIN 			1000000
-#define TOPFLAT			450 	// 400
-#define ENDGAMEFLAT		900 	// 800
-#define STAND			170 	// 200
-#define CAP 			300 	// 300
-#define HARD_FCAPTIVE 	200		//200
-#define SOFT_FCAPTIVE 	-250	//-200
-#define HARD_SCAPTIVE 	300		//300
-#define SOFT_SCAPTIVE 	-150	//-150
-#define HARD_CCAPTIVE 	250		//250
-#define SOFT_CCAPTIVE 	-150	//-150
-#define CENTER 			40
-#define ENDGAMECUTOFF 	7 
 // #define 
 
 namespace Types
@@ -49,6 +35,22 @@ namespace Types
 
 using namespace std;
 using namespace Types;
+
+extern const eval_type FLAT_MUL		 ;
+extern const eval_type RDWIN 		 ;
+extern const eval_type FLWIN 		 ;
+extern const eval_type ENDGAMEFLAT	 ;
+extern const eval_type TOPFLAT		 ;
+extern const eval_type STAND		 ;
+extern const eval_type CAP 			 ;
+extern const eval_type HARD_FCAPTIVE ;
+extern const eval_type SOFT_FCAPTIVE ;
+extern const eval_type HARD_SCAPTIVE ;
+extern const eval_type SOFT_SCAPTIVE ;
+extern const eval_type HARD_CCAPTIVE ;
+extern const eval_type SOFT_CCAPTIVE ;
+extern const eval_type CENTER 		 ;
+extern const eval_type ENDGAMECUTOFF ; 
 
 void getAllPerms(s_int);
 
