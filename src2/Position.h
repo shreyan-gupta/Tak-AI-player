@@ -54,6 +54,11 @@ inline void Position::captive(pair<s_int, s_int> &p){
 		if(*it < 95) ++p.first;
 		else ++p.second;
 	}
+	if(player() == Black){
+		p.first = p.first ^ p.second;
+		p.second = p.first ^ p.second;
+		p.first = p.first ^ p.second;
+	}
 }
 
 inline char Position::top_piece(){

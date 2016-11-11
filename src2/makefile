@@ -4,6 +4,12 @@ OBJ = Misc.o Game.o Features.o
 
 all : out
 
+run1 : $(OBJ) main.o
+	g++ $(LFLAGS) $(OBJ) main.o -o run1
+
+run2 : $(OBJ) main.o
+	g++ $(LFLAGS) $(OBJ) main.o -o run2
+
 out : $(OBJ) main.o
 	g++ $(LFLAGS) $(OBJ) main.o -o out
 

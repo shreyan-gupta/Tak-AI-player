@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
 		cin >> mypiece_opp;
 		g.make_opponent_move(mypiece_opp,!opponent_type);
 		// ++moves;
-			cout << "Oppo move done \n";
+			cerr << "Oppo move done \n";
 
 		while (true)
 		{
