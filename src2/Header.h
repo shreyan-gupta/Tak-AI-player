@@ -17,16 +17,16 @@
 
 #define RDWIN 			1000000
 #define FLWIN 			1000000
-#define TOPFLAT			750 // 550
-#define ENDGAMEFLAT		1200 // 800
-#define STAND			370 // 200
-#define CAP 			500 // 300
-#define HARD_FCAPTIVE 	200
-#define SOFT_FCAPTIVE 	-200
-#define HARD_SCAPTIVE 	300
-#define SOFT_SCAPTIVE 	-100
-#define HARD_CCAPTIVE 	250
-#define SOFT_CCAPTIVE 	-100
+#define TOPFLAT			450 	// 400
+#define ENDGAMEFLAT		900 	// 800
+#define STAND			170 	// 200
+#define CAP 			300 	// 300
+#define HARD_FCAPTIVE 	200		//200
+#define SOFT_FCAPTIVE 	-250	//-200
+#define HARD_SCAPTIVE 	300		//300
+#define SOFT_SCAPTIVE 	-150	//-150
+#define HARD_CCAPTIVE 	250		//250
+#define SOFT_CCAPTIVE 	-150	//-150
 #define CENTER 			40
 #define ENDGAMECUTOFF 	7
 // #define 

@@ -428,7 +428,6 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	eval_type best_val = -2*FLWIN;
 	Move *best_move = NULL;
 	int count = 0;
-	int best_move_index = 0;
 	pair<Move, Move> next_killer;
 
 	// PV move
@@ -458,7 +457,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
 			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
-			cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
+			// cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
 			return best_val;
 		}
 	}
@@ -471,7 +470,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
 			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
-			cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
+			// cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
 			Move temp = killer.first;
 			killer.first = killer.second;
 			killer.second = temp;
@@ -499,32 +498,47 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		// fprintf(stderr, "Error! %d %d %d %f %s %f %s\n", depth, move_list.begin()->first.first, t.depth, move_list.begin()->first.second, move_list.begin()->second.to_string().c_str(), t.score, t.best_move.to_string().c_str());
 	// }
 
-	bool cutoff = false;
-
+	// int best_move_index = 0;
+	bool window_solution_found = false;
+	eval_type window_val = -2*FLWIN;
+	Move *window_move = best_move;
+	bool prune = false;
+	int total_count = 0;
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
 	{
 		makemove(itr->second);
 		eval_type child = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
-		++count;
-		if(-FLWIN / 2 < child) count = 0;
-
 		antimove(itr->second);
+			if(!window_solution_found) ++count;
+			if(child < -FLWIN / 2 && !window_solution_found) count = 0;
+			if(count > 10) window_solution_found = true;
+		++total_count;
+
 		if(child > best_val){
 			best_val = child;
 			best_move = &(itr->second);
-			best_move_index = max(best_move_index, count);
-			count = 0;
+			// best_move_index = max(best_move_index, total_count);
+
+			if(!window_solution_found){
+				count = 0;
+				window_val = child;
+				window_move = &(itr->second);
+			}
 		}
 		alpha = max(alpha, child);
 		if (alpha >= beta || (child) > FLWIN / 2){
-			cutoff = true;
+			prune = true;
 			break;
 		}
 	}
 	killer.second = killer.first;
 	killer.first = *best_move;
-	// if(depth >= 2) fprintf(stderr, "%s%d %d %d done %d cutoff %d Ended at %s\n", tab(depth).c_str(), depth, count, best_move_index, done, cutoff || done, best_move->to_string().c_str());
-
+	
+	assert(window_move != NULL);
+	if(depth >= 2 && window_val != -2*FLWIN && window_val!=best_val){
+		fprintf(stderr, "%sD %d TC %d Better %d WE %f AE %f Diff %f prune %d WM %s AM %s\n", tab(depth).c_str(), depth, total_count, (window_val!=best_val), window_val, best_val, (best_val - window_val), prune, window_move->to_string().c_str(), best_move->to_string().c_str());
+	}
+	update_trans(t, depth, best_val, best_move, alpha_orig, beta);
 	return best_val;
 }
 
@@ -571,9 +585,11 @@ int Game::decide_Depth()
 {
 	s_int used_black = pieces - p_black.StonesLeft;
 	s_int used_white  = pieces - p_white.StonesLeft;
+	if (used_black < 3 || used_white < 3)
+		return 4;
 	if (used_black < 4 || used_white < 4)
-		return 5;
-	else if (used_white > pieces - 6 || used_black > pieces - 6)
+		return 4;
+	else if (used_white > pieces - 7 || used_black > pieces - 7)
 		return 4;
 	else return 5;
 	// initial 4

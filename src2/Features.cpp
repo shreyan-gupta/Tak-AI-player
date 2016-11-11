@@ -99,12 +99,12 @@ eval_type Game::features(){
 			if (pos.player() == White)
 			{
 				GetStackable(i,j,White,stack_xy);
-				temp_count += GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
+				// temp_count += GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
 			}
 			else
 			{
 				GetStackable(i,j,Black,stack_xy);
-				temp_count -= GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
+				// temp_count -= GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
 			}
 
 
