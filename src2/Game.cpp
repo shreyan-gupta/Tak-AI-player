@@ -530,6 +530,8 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			prune = true;
 			break;
 		}
+		if (depth == 2 && window_solution_found)
+			break;
 	}
 	killer.second = killer.first;
 	killer.first = *best_move;
@@ -628,7 +630,7 @@ bool Game::isMoveValid(Move &m, bool x)
 		}
 		total += d[i];
 		bool last_stand = (!GameBoard[dropx-x][dropy-y].empty()) && (GameBoard[dropx-x][dropy-y].top_piece() == 'S');
-		bool last_flat = GameBoard[dropx-x][dropy-y].empty() || ((GameBoard[dropx-x][dropy-y].top_piece() == 'F'))
+		bool last_flat = GameBoard[dropx-x][dropy-y].empty() || ((GameBoard[dropx-x][dropy-y].top_piece() == 'F'));
 		valid = valid && ((m.cap_move) ? last_stand : last_flat);
 		valid = valid && (p.stack.length() >= total);
 
