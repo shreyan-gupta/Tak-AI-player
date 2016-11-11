@@ -92,10 +92,10 @@ int main(int argc, char const *argv[])
 			cin >> s;
 			g.make_opponent_move(s,opponent_type);
 			
-			time_t start_move_time = time(0);
+			auto start_move_time = clock();
 			string my_move = g.ids(g.decide_Depth());
-			time_t move_time = time(0) - start_move_time;
-				fprintf(stderr, "%s time %d\n",my_move.c_str(), (int)move_time);
+			auto move_time = clock() - start_move_time;
+				fprintf(stderr, "%s time %d\n",my_move.c_str(), (int)1000 * move_time / CLOCKS_PER_SEC);
 			cout << my_move << endl;
 
 			// int depth = 7;

@@ -448,35 +448,35 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	}
 
 	// Killer move
-	if(isMoveValid(killer.first, player)){
-		makemove(killer.first);
-		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
-		antimove(killer.first);
-		best_move = &killer.first;
+	// if(isMoveValid(killer.first, player)){
+	// 	makemove(killer.first);
+	// 	best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
+	// 	antimove(killer.first);
+	// 	best_move = &killer.first;
 		
-		alpha = max(alpha, best_val);
-		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
-			// cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
-			return best_val;
-		}
-	}
-	if(isMoveValid(killer.second, player)){
-		makemove(killer.second);
-		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
-		antimove(killer.second);
-		best_move = &killer.second;
+	// 	alpha = max(alpha, best_val);
+	// 	if (alpha >= beta || best_val > FLWIN / 2){
+	// 		update_trans(t, depth, best_val, best_move, alpha_orig, beta);
+	// 		// cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
+	// 		return best_val;
+	// 	}
+	// }
+	// if(isMoveValid(killer.second, player)){
+	// 	makemove(killer.second);
+	// 	best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
+	// 	antimove(killer.second);
+	// 	best_move = &killer.second;
 		
-		alpha = max(alpha, best_val);
-		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(t, depth, best_val, best_move, alpha_orig, beta);
-			// cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
-			Move temp = killer.first;
-			killer.first = killer.second;
-			killer.second = temp;
-			return best_val;
-		}
-	}
+	// 	alpha = max(alpha, best_val);
+	// 	if (alpha >= beta || best_val > FLWIN / 2){
+	// 		update_trans(t, depth, best_val, best_move, alpha_orig, beta);
+	// 		// cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
+	// 		Move temp = killer.first;
+	// 		killer.first = killer.second;
+	// 		killer.second = temp;
+	// 		return best_val;
+	// 	}
+	// }
 
 	multimap< pair<eval_type, eval_type>, Move> move_list;
 	generate_valid_moves(player, move_list);
@@ -511,7 +511,8 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		antimove(itr->second);
 			if(!window_solution_found) ++count;
 			if(child < -FLWIN / 2 && !window_solution_found) count = 0;
-			if(count > 10) window_solution_found = true;
+			if(count > 5) window_solution_found = true;
+			if(/*depth == 2 &&*/ window_solution_found) break;
 		++total_count;
 
 		if(child > best_val){
@@ -530,8 +531,6 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			prune = true;
 			break;
 		}
-		if (depth == 2 && window_solution_found)
-			break;
 	}
 	killer.second = killer.first;
 	killer.first = *best_move;
@@ -588,7 +587,7 @@ int Game::decide_Depth()
 	s_int used_black = pieces - p_black.StonesLeft;
 	s_int used_white  = pieces - p_white.StonesLeft;
 	if (used_black < 3 || used_white < 3)
-		return 4;
+		return 8;
 	if (used_black < 4 || used_white < 4)
 		return 4;
 	else if (used_white > pieces - 7 || used_black > pieces - 7)
@@ -617,22 +616,23 @@ bool Game::isMoveValid(Move &m, bool x)
 		int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
 		int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
 
-		s_int dropx = m.x + x*(m.drops->size());
-		s_int dropy = m.y + y*(m.drops->size());
+		s_int dropx = m.x;
+		s_int dropy = m.y;
 		vector<s_int> &d = *m.drops;
 		s_int total = 0;
 		s_int i = 0;
-		for (i; i < d.size()-1; i++)
+		for (; i < d.size()-1; i++)
 		{
-			valid = valid && (GameBoard[dropx][dropy].empty() || (GameBoard[dropx][dropy].top_piece()) == 'F');
-			dropx -= x;
-			dropy -= y;
+			dropx += x;
+			dropy += y;
+			valid = valid && (GameBoard[dropx][dropy].empty() || ((GameBoard[dropx][dropy].top_piece()) == 'F'));
 			total += d[i];
 		}
 		total += d[i];
 
-		bool last_stand = (!GameBoard[dropx-x][dropy-y].empty()) && (GameBoard[dropx-x][dropy-y].top_piece() == 'S');
-		bool last_flat = GameBoard[dropx-x][dropy-y].empty() || ((GameBoard[dropx-x][dropy-y].top_piece() == 'F'));
+		bool last_stand = (!GameBoard[dropx+x][dropy+y].empty()) && (GameBoard[dropx+x][dropy+y].top_piece() == 'S');
+		bool last_flat = GameBoard[dropx+x][dropy+y].empty() || ((GameBoard[dropx+x][dropy+y].top_piece() == 'F'));
+
 		valid = valid && ((m.cap_move) ? last_stand : last_flat);
 		valid = valid && (p.stack.length() >= total);
 
