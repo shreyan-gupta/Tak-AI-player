@@ -47,11 +47,12 @@ public:
 
 	void generate_valid_moves(Player_Type, multimap<pair<eval_type,eval_type>,Move>&);
 
-	eval_type negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &);
+	eval_type negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &, bool);
 	// CALL decide_move after negaMax?
 
 	// temp
 	void print_move_seq(int depth);
+	void update_trans(Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window);
 };
 
 inline bool Game::pathable(s_int x, s_int y, bool player){
@@ -78,6 +79,29 @@ inline eval_type Game::eval(Player_Type player){
 		return ((player == White) ? value : -value);
 	value += features();
 	return ((player == White) ? value : -value);
+}
+
+inline void Game::update_trans(Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window){
+	if(is_null_window) return;
+	// if(to_string().compare("F_F_f__F___f_____f___F_F_c___f_____") == 0){
+	// 	fprintf(stderr, "UPDATING TRANS\n");
+	// 	fprintf(stderr, "%s\n", t.to_string().c_str());
+	// }
+	t.score = best_val;
+	if (best_val <= alpha_orig)	t.flag = 'u';
+	else if (best_val >= beta) t.flag = 'l';
+	else t.flag = 'e';
+	t.depth = depth;
+	t.best_move = *best_move;
+
+	assert(!(t.best_move.x == -1 || t.depth <= 0));
+	// if (t.best_move.x == -1 || t.depth <= 0)
+	// {
+	// 	cerr << t.best_move.x << ", depth = " << t.depth << endl;
+	// 	cerr << "ERRORRRRRRR INVALID MOVE! \n";
+	// 	int c;
+	// 	cin >> c;
+	// }
 }
 
 #endif
