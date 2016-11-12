@@ -22,8 +22,46 @@ void Game::search(bool type, s_int x, s_int y, bool player, vector< vector<bool>
 		search(type, x, y-1, player, explored, found);
 }
 
+void Game::newsearch(s_int x, s_int y, bool player, vector< vector<bool> > &explored, vector<int> &lrud){
+	if(explored[x][y] || x<0 || x==size || y<0 || y==size) return;
+	lrud[0] = min(lrud[0], x);
+	lrud[1] = max(lrud[1], x);
+	lrud[2] = min(lrud[2], y);
+	lrud[3] = max(lrud[3], y);
+	explored[x][y] = true;
+
+	if(y!=size-1 && pathable(x,y+1,player))
+		newsearch(x, y+1, player, explored, lrud);
+	if(x!=size-1 && pathable(x+1,y,player)) 
+		newsearch(x+1, y, player, explored, lrud);
+	if(x!=0 && pathable(x-1,y,player)) 
+		newsearch(x-1, y, player, explored, lrud);
+	if(y!=0 && pathable(x,y-1,player)) 
+		newsearch(x, y-1, player, explored, lrud);
+}
+
+eval_type Game::newpath()
+{
+	vector< vector<bool> > explored(size, vector<bool>(size, false));
+	eval_type GroupVal = 0;
+	for (s_int i = 0; i < size; i++)
+		for (s_int j = 0; j < size; j++)
+		{
+			if (GameBoard[i][j].empty() || GameBoard[i][j].top_piece() == 'S' || explored[i][j])
+				continue;
+			vector<int> LRUD (4,0);
+			LRUD[0] = LRUD[1] = i;
+			LRUD[2] = LRUD[3] = j;
+			newsearch(i, j, GameBoard[i][j].player(), explored, LRUD);
+			GroupVal += (GROUP[LRUD[1] - LRUD[0]] + GROUP[LRUD[3] - LRUD[2]])*(GameBoard[i][j].player() == White ? 1 : -1);
+			fprintf(stderr, "%d = i,%d = j, %d %d %d %d is LRUD. \n", i, j, LRUD[0], LRUD[1], LRUD[2], LRUD[3]);
+		}
+	return GroupVal;
+}
+
 eval_type Game::path(){
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
+	// vector<int> LRUD (4,0);
 	for(s_int i=0; i<size; ++i){
 		if(GameBoard[i][0].empty() || GameBoard[i][0].top_piece() == 'S' || explored[i][0]) continue;
 		bool found = false;

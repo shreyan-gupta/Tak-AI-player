@@ -12,16 +12,17 @@ private:
 	// helper functions
 	bool pathable(s_int x, s_int y, bool player);
 	void search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found);
+	void newsearch(s_int x, s_int y, bool player, vector< vector<bool> > &explored, vector<int> &lrud);
 
 	// eval functions
 	eval_type path();
+	eval_type newpath();
 	eval_type center(int,int);
 	eval_type captive(char,pair<s_int,s_int>&);
 	eval_type piece_type(char);
 
 	void UpdatePlayer(Player_Type, Move&, bool);
 	void GetStackable(s_int, s_int, bool, vector<s_int> &);
-	eval_type eval(Player_Type);
 public:
 	s_int size;
 	vector< vector<Position> > GameBoard;
@@ -29,6 +30,7 @@ public:
 	// eval_type w[18];
 
 	Game(s_int, s_int);
+	eval_type eval(Player_Type);
 	string to_string();
 	void make_opponent_move(string, bool);
 	void makemove(Move &);
@@ -69,7 +71,9 @@ inline Transposition& Game::getTransposition(Player_Type p){
 
 inline eval_type Game::eval(Player_Type player){
 	eval_type value = 0;
-	value += path();
+	value += newpath();
+	string s = (player == White) ? "White" : "Black";
+	cerr << "Val of newpath is " << value << ", with player = " << s << endl;
 	if (abs(value) > FLWIN/2)
 		return ((player == White) ? value : -value);
 	value += features();

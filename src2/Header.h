@@ -51,6 +51,7 @@ extern const eval_type HARD_CCAPTIVE ;
 extern const eval_type SOFT_CCAPTIVE ;
 extern const eval_type CENTER 		 ;
 extern const eval_type ENDGAMECUTOFF ; 
+extern vector<eval_type> GROUP;
 
 void getAllPerms(s_int);
 

@@ -3,7 +3,7 @@
 const eval_type FLAT_MUL	  = 1.3;
 const eval_type RDWIN 		  = 1000000;
 const eval_type FLWIN 		  = 1000000;
-const eval_type ENDGAMEFLAT	  = 1200; 			// Last best working 1000   Originals : 800 
+const eval_type ENDGAMEFLAT	  = 1400; 			// Last best working 1000   Originals : 800 
 const eval_type TOPFLAT		  = 400;			// Last best working 450   Originals : 400 
 const eval_type STAND		  = 200; 			// Last best working 200   Originals : 200 
 const eval_type CAP 		  = 300; 			// Last best working 300   Originals : 300 
@@ -17,10 +17,17 @@ const eval_type SOFT_CCAPTIVE = -TOPFLAT - 50;	// Last best working -150  Origin
 const eval_type CENTER 		  = 40;
 const eval_type ENDGAMECUTOFF = 7; 
 
+vector<eval_type> GROUP;
+
 Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
 	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
 	TTable = vector<unordered_map<string,Transposition> > (2);
+	GROUP = vector<eval_type> (7,0);
+	GROUP[3] = 100;
+	GROUP[4] = 300;
+	GROUP[5] = 500;
+	GROUP[size-1] = RDWIN;
 }
 
 string Game::to_string(){
@@ -533,6 +540,14 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	Move *window_move = best_move;
 	bool prune = false;
 	int total_count = 0;
+
+	for (auto it = move_list.begin(); it != move_list.end(); it++)
+	{
+		// NULL WINDOW ----->
+		eval_type null_alpha = beta - 1;
+	}
+
+
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
 	{
 		makemove(itr->second);
