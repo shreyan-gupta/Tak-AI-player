@@ -54,7 +54,7 @@ eval_type Game::newpath()
 			LRUD[2] = LRUD[3] = j;
 			newsearch(i, j, GameBoard[i][j].player(), explored, LRUD);
 			GroupVal += (GROUP[LRUD[1] - LRUD[0]] + GROUP[LRUD[3] - LRUD[2]])*(GameBoard[i][j].player() == White ? 1 : -1);
-			fprintf(stderr, "%d = i,%d = j, %d %d %d %d is LRUD. \n", i, j, LRUD[0], LRUD[1], LRUD[2], LRUD[3]);
+			// fprintf(stderr, "%d = i,%d = j, %d %d %d %d is LRUD. \n", i, j, LRUD[0], LRUD[1], LRUD[2], LRUD[3]);
 		}
 	return GroupVal;
 }
@@ -151,8 +151,12 @@ eval_type Game::features(){
 		}
 	}
 	// cout << "-------------------- \n";
-	if(has_empty == false || p_black.noStone() || p_white.noStone()) 
-		return (delta_flat > 0) ? FLWIN : -FLWIN;
+	if(has_empty == false || p_black.noStone() || p_white.noStone()){
+		if(delta_flat > 0) return FLWIN;
+		else if(delta_flat == 0) return count;
+		else return -FLWIN;
+		// return (delta_flat > 0) ? FLWIN : -FLWIN;
+	}
 	else return count;
 }
 

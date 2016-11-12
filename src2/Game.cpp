@@ -24,6 +24,7 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
 	TTable = vector<unordered_map<string,Transposition> > (2);
 	GROUP = vector<eval_type> (7,0);
+	GROUP[2] = 30;
 	GROUP[3] = 100;
 	GROUP[4] = 300;
 	GROUP[5] = 500;

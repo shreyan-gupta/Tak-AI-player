@@ -73,8 +73,8 @@ inline Transposition& Game::getTransposition(Player_Type p){
 inline eval_type Game::eval(Player_Type player){
 	eval_type value = 0;
 	value += newpath();
-	string s = (player == White) ? "White" : "Black";
-	cerr << "Val of newpath is " << value << ", with player = " << s << endl;
+	// string s = (player == White) ? "White" : "Black";
+	// cerr << "Val of newpath is " << value << ", with player = " << s << endl;
 	if (abs(value) > FLWIN/2)
 		return ((player == White) ? value : -value);
 	value += features();
