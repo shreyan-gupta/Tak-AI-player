@@ -315,7 +315,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					Move m (i,j,cap);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
+					moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -324,7 +324,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					Move m(i,j,flat);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
+					moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
 
@@ -346,7 +346,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					Move m(i,j,s);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
+					moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
 				}
@@ -371,7 +371,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 						m.cap_move = true;
 						makemove(m);
 						Transposition &t = getTransposition(!player);
-						moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
+						moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 						// search in tt
 						antimove(m);
 					}
@@ -393,7 +393,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 								Move m(i,j,dir[r],&d);
 								makemove(m);
 								Transposition &t = getTransposition(!player);
-								moves.emplace(make_pair(-t.depth + t.score/500,t.score),m);
+								moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 								// search in tt
 								antimove(m);
 							}
@@ -517,11 +517,11 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	bool prune = false;
 	int total_count = 0;
 
-	for (auto it = move_list.begin(); it != move_list.end(); it++)
-	{
-		// NULL WINDOW ----->
-		eval_type null_alpha = beta - 1;
-	}
+	// for (auto it = move_list.begin(); it != move_list.end(); it++)
+	// {
+	// 	// NULL WINDOW ----->
+	// 	eval_type null_alpha = beta - 1;
+	// }
 
 
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
@@ -576,9 +576,9 @@ void Game::print_move_seq(int depth){
 	bool player = !opponent_type;
 	for(int i=0; i<depth; ++i){
 		auto &t = getTransposition(player);
+		if (t.best_move.x == -1) break;
 		move_list.push_back(t.best_move);
 		if(i==0) cerr << t.score << "\t" << depth << " ";
-		if (t.best_move.x == -1) break;
 		cerr << t.best_move.to_string() << " ";
 		player = !player;
 		makemove(t.best_move);
@@ -608,7 +608,7 @@ int Game::decide_Depth()
 {
 	s_int used_black = pieces - p_black.StonesLeft;
 	s_int used_white  = pieces - p_white.StonesLeft;
-	if (used_black < 3 || used_white < 3)
+	if (used_black < 3 || used_white < 3 || size == 6)
 		return 4;
 	if (used_black < 4 || used_white < 4)
 		return 4;

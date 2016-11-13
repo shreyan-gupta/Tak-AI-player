@@ -47,9 +47,8 @@ eval_type Game::newpath()
 	for (s_int i = 0; i < size; i++)
 		for (s_int j = 0; j < size; j++)
 		{
-			if (GameBoard[i][j].empty() || GameBoard[i][j].top_piece() == 'S' || explored[i][j])
-				continue;
-			vector<int> LRUD (4,0);
+			if (GameBoard[i][j].empty() || GameBoard[i][j].top_piece() == 'S' || explored[i][j]) continue;
+			vector<int> LRUD (4);
 			LRUD[0] = LRUD[1] = i;
 			LRUD[2] = LRUD[3] = j;
 			newsearch(i, j, GameBoard[i][j].player(), explored, LRUD);
