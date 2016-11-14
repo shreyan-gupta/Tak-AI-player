@@ -426,7 +426,7 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 	Transposition &t = getTransposition(player);
 
 	if(depth == 0 || abs(t.score) > FLWIN / 2){
-		return t.score;
+		return make_pair(t.score,true);
 	}
 
 	if (t.depth >= depth)
@@ -434,7 +434,7 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 		if (t.flag == 'e') return t.score;
 		else if (t.flag == 'l')	alpha = max(alpha, t.score);
 		else if (t.flag == 'u') beta = min(beta, t.score);
-		if (alpha >= beta) return t.score;
+		if (alpha >= beta) return make_pair(t.score,true);
 	}
 	else{
 		pair<Move, Move> useless_stuff;
@@ -446,6 +446,7 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 	int count = 0;
 	pair<Move, Move> next_killer;
 	bool done = false;
+	bool broken = false;
 
 	// assert(to_string().compare(b) == 0);
 
@@ -454,15 +455,15 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 	{
 		// assert(t.best_move.x != -1);
 		makemove(t.best_move);
-		auto child = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
+		auto child = negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(t.best_move);
 		if(!child.second) return child;
-		else best_val = child.first;
+		else best_val = -child.first;
 		best_move = &t.best_move;
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(player,t, depth, best_val, best_move, alpha_orig, beta);
+			update_trans(player,t, depth, best_val, best_move, alpha_orig, beta, false);
 			// cerr << "pruned at PV!! depth = " << depth << endl;
 			return make_pair(best_val,true);
 		}
@@ -473,30 +474,30 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 	// Killer move
 	if(isMoveValid(killer.first, player)){	
 		makemove(killer.first);
-		auto child = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
+		auto child = negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(killer.first);
 		if(!child.second) return child;
-		else best_val = child.first;
+		else best_val = -child.first;
 		best_move = &killer.first;
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
+			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, false);
 			// cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
 			return make_pair(best_val,true);
 		}
 	}
 	if(isMoveValid(killer.second, player)){
 		makemove(killer.second);
-		auto child = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
+		auto child = negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(killer.second);
 		if(!child.second) return child;
-		else best_val = child.first;
+		else best_val = -child.first;
 		best_move = &killer.second;
 
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
+			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, false);
 			// cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
 			Move temp = killer.first;
 			killer.first = killer.second;
@@ -511,7 +512,7 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 	if(depth == 1){
 		best_val = -move_list.begin()->first;
 		best_move = &(move_list.begin()->second);
-		update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
+		update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, false);
 		return make_pair(best_val,true);
 	}
 
@@ -529,21 +530,24 @@ pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, e
 	{
 		++count;
 		makemove(itr->second);
-		auto child = -negaMax(!player,depth-1,-beta,-child,next_killer);
+		auto child = negaMax(!player,depth-1,-beta,-alpha,next_killer);
 		antimove(itr->second);
-		if(!child.second) return child;
-		if(child.first < -FLWIN/2) count = 0;
-		if(child.first > best_val){
+		if(!child.second){
+			broken = true;
+			break;
+		}
+		if(-child.first < -FLWIN/2) count = 0;
+		if(-child.first > best_val){
 			count = 0;
-			best_val = child.first;
+			best_val = -child.first;
 			best_move = &(itr->second);
 		}
-		alpha = max(alpha, child);
-		if (alpha >= beta || child > FLWIN/2) break;
+		alpha = max(alpha, -child.first);
+		if (alpha >= beta || -child.first > FLWIN/2) break;
 		if (depth == 2 && count > WINDOW) break;
 	}
 
-	update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
+	update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, broken);
 	killer.second = killer.first;
 	killer.first = *best_move;
 	return make_pair(best_val,true);

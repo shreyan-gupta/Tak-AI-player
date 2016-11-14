@@ -47,11 +47,11 @@ public:
 
 	void generate_valid_moves(Player_Type, multimap<eval_type,Move>&);
 
-	eval_type negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &);
+	pair<eval_type, bool> negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &);
 
 	// temp
 	void print_move_seq(int depth);
-	void update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta);
+	void update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool broken);
 };
 
 inline bool Game::pathable(s_int x, s_int y, bool player){
@@ -75,12 +75,12 @@ inline eval_type Game::eval(Player_Type player){
 	return ((player == White) ? value : -value);
 }
 
-inline void Game::update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta){
+inline void Game::update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool broken){
 	t.score = best_val;
 	if (best_val <= alpha_orig)	t.flag = 'u';
 	else if (best_val >= beta) t.flag = 'l';
 	else t.flag = 'e';
-	t.depth = depth;
+	t.depth = broken? depth-1 : depth;
 	t.best_move = *best_move;
 }
 
