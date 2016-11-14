@@ -73,12 +73,6 @@ inline eval_type Game::eval(Player_Type player){
 	eval_type value = 0;
 	value += newpath();
 	value += features();
-	// if(to_string().compare("F_f_____f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-	// 	cerr << "-------------------- EVAL VALUE!!!! BLACK " << ((player == White) ? value : -value) << endl;
-	// }
-	// if(to_string().compare("F_F_____f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-	// 	cerr << "-------------------- EVAL VALUE!!!! WHITE " << ((player == White) ? value : -value) << endl;
-	// }
 	return ((player == White) ? value : -value);
 }
 
@@ -91,10 +85,6 @@ inline void Game::update_trans(Transposition &t, int depth, eval_type best_val, 
 	t.best_move = *best_move;
 
 	assert(!(t.best_move.x == -1 || t.depth <= 0));
-	if(to_string().compare("F______f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-		// string s = player==White? "White" : "Black";
-		fprintf(stderr, ".....Updating TTable\n%s", t.to_string().c_str());
-	}
 }
 
 #endif
