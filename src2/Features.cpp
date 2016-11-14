@@ -88,7 +88,7 @@ eval_type Game::path(){
 }
 
 inline eval_type Game::center(int i, int j){
-	return -(abs(i - size/2.0) + abs(j - (size/2.0))) * CENTER / size;
+	return -(abs(2*i - size) + abs(2*j - (size))) * CENTER;
 }
 
 inline eval_type Game::piece_type(char top){

@@ -66,7 +66,6 @@ inline Transposition& Game::getTransposition(Player_Type p){
 		t.score = eval(p);
 		t.depth = 0;
 	}
-	// cout << "Depth of trans = " << t.depth << endl;
 	return t;
 }
 
@@ -74,21 +73,10 @@ inline eval_type Game::eval(Player_Type player){
 	eval_type value = 0;
 	value += newpath();
 	value += features();
-	if(to_string().compare("F_f_____f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-		cerr << "-------------------- EVAL VALUE!!!! BLACK " << ((player == White) ? value : -value) << endl;
-	}
-	if(to_string().compare("F_F_____f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-		cerr << "-------------------- EVAL VALUE!!!! WHITE " << ((player == White) ? value : -value) << endl;
-	}
 	return ((player == White) ? value : -value);
 }
 
 inline void Game::update_trans(Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window){
-	if(is_null_window) return;
-	// if(to_string().compare("F_F_f__F___f_____f___F_F_c___f_____") == 0){
-	// 	fprintf(stderr, "UPDATING TRANS\n");
-	// 	fprintf(stderr, "%s\n", t.to_string().c_str());
-	// }
 	t.score = best_val;
 	if (best_val <= alpha_orig)	t.flag = 'u';
 	else if (best_val >= beta) t.flag = 'l';
@@ -97,13 +85,6 @@ inline void Game::update_trans(Transposition &t, int depth, eval_type best_val, 
 	t.best_move = *best_move;
 
 	assert(!(t.best_move.x == -1 || t.depth <= 0));
-	// if (t.best_move.x == -1 || t.depth <= 0)
-	// {
-	// 	cerr << t.best_move.x << ", depth = " << t.depth << endl;
-	// 	cerr << "ERRORRRRRRR INVALID MOVE! \n";
-	// 	int c;
-	// 	cin >> c;
-	// }
 }
 
 #endif

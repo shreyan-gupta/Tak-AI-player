@@ -20,7 +20,7 @@
 namespace Types
 {
 	typedef int s_int;
-	typedef float eval_type;
+	typedef int eval_type;
 	typedef bool Player_Type;
 	const bool Black = false;
 	const bool White = true;
