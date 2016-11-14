@@ -11,12 +11,12 @@ private:
 	
 	// helper functions
 	bool pathable(s_int x, s_int y, bool player);
-	void search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found);
+	// void search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found);
 	void newsearch(s_int x, s_int y, bool player, vector< vector<bool> > &explored, vector<int> &lrud);
 
 	// eval functions
-	eval_type path();
-	eval_type newpath();
+	// eval_type path();
+	eval_type newpath(bool);
 	eval_type center(int,int);
 	eval_type captive(char,pair<s_int,s_int>&);
 	eval_type piece_type(char);
@@ -45,14 +45,13 @@ public:
 	void generate_place_2(Player_Type, list<Move>&);
 	void generate_stack_moves(Player_Type, list<Move>&);
 
-	void generate_valid_moves(Player_Type, multimap<pair<eval_type,eval_type>,Move>&);
+	void generate_valid_moves(Player_Type, multimap<eval_type,Move>&);
 
-	eval_type negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &, bool);
-	// CALL decide_move after negaMax?
+	eval_type negaMax(bool,s_int,eval_type,eval_type, pair<Move, Move> &);
 
 	// temp
 	void print_move_seq(int depth);
-	void update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window);
+	void update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta);
 };
 
 inline bool Game::pathable(s_int x, s_int y, bool player){
@@ -71,21 +70,18 @@ inline Transposition& Game::getTransposition(Player_Type p){
 
 inline eval_type Game::eval(Player_Type player){
 	eval_type value = 0;
-	value += newpath();
+	value += newpath(player);
 	value += features();
 	return ((player == White) ? value : -value);
 }
 
-inline void Game::update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window){
+inline void Game::update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta){
 	t.score = best_val;
 	if (best_val <= alpha_orig)	t.flag = 'u';
 	else if (best_val >= beta) t.flag = 'l';
 	else t.flag = 'e';
 	t.depth = depth;
 	t.best_move = *best_move;
-
-	// HistoryTable[player][best_move->to_string()] += pow(2,depth);
-	// assert(!(t.best_move.x == -1 || t.depth <= 0));
 }
 
 #endif

@@ -1,26 +1,26 @@
 #include "Game.h"
 using namespace Types;
 
-void Game::search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found){
-	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
-	if(type && y == size-1){
-		found = true;
-		return;
-	}
-	if(!type && x == size-1){
-		found = true;
-		return;
-	}
-	explored[x][y] = true;
-	if(y!=size-1 && pathable(x,y+1,player))
-		search(type, x, y+1, player, explored, found);
-	if(x!=size-1 && pathable(x+1,y,player)) 
-		search(type, x+1, y, player, explored, found);
-	if(x!=0 && pathable(x-1,y,player)) 
-		search(type, x-1, y, player, explored, found);
-	if(y!=0 && pathable(x,y-1,player)) 
-		search(type, x, y-1, player, explored, found);
-}
+// void Game::search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found){
+// 	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
+// 	if(type && y == size-1){
+// 		found = true;
+// 		return;
+// 	}
+// 	if(!type && x == size-1){
+// 		found = true;
+// 		return;
+// 	}
+// 	explored[x][y] = true;
+// 	if(y!=size-1 && pathable(x,y+1,player))
+// 		search(type, x, y+1, player, explored, found);
+// 	if(x!=size-1 && pathable(x+1,y,player)) 
+// 		search(type, x+1, y, player, explored, found);
+// 	if(x!=0 && pathable(x-1,y,player)) 
+// 		search(type, x-1, y, player, explored, found);
+// 	if(y!=0 && pathable(x,y-1,player)) 
+// 		search(type, x, y-1, player, explored, found);
+// }
 
 void Game::newsearch(s_int x, s_int y, bool player, vector< vector<bool> > &explored, vector<int> &lrud){
 	if(explored[x][y] || x<0 || x==size || y<0 || y==size) return;
@@ -40,10 +40,12 @@ void Game::newsearch(s_int x, s_int y, bool player, vector< vector<bool> > &expl
 		newsearch(x, y-1, player, explored, lrud);
 }
 
-eval_type Game::newpath()
+eval_type Game::newpath(bool player)
 {
 	vector< vector<bool> > explored(size, vector<bool>(size, false));
 	eval_type GroupVal = 0;
+	bool white_win = false;
+	bool black_win = false;
 	for (s_int i = 0; i < size; i++)
 		for (s_int j = 0; j < size; j++)
 		{
@@ -53,39 +55,45 @@ eval_type Game::newpath()
 			LRUD[2] = LRUD[3] = j;
 			newsearch(i, j, GameBoard[i][j].player(), explored, LRUD);
 			GroupVal += (GROUP[LRUD[1] - LRUD[0]] + GROUP[LRUD[3] - LRUD[2]])*(GameBoard[i][j].player() == White ? 1 : -1);
+			if(GameBoard[i][j].player() == White && max(LRUD[1] - LRUD[0], LRUD[3] - LRUD[2]) == size - 1) white_win = true;
+			if(GameBoard[i][j].player() == Black && max(LRUD[1] - LRUD[0], LRUD[3] - LRUD[2]) == size - 1) black_win = true;
 			// fprintf(stderr, "%d = i,%d = j, %d %d %d %d is LRUD. \n", i, j, LRUD[0], LRUD[1], LRUD[2], LRUD[3]);
 		}
+	// if(white_win && black_win){
+	// 	cerr << "--------WHITE BLACK BOTH WITH " << player << endl;
+	// 	return (player ? -FLWIN : FLWIN);
+	// }
 	return GroupVal;
 }
 
-eval_type Game::path(){
-	vector< vector<bool> > explored(size, vector<bool>(size, false));
-	// vector<int> LRUD (4,0);
-	for(s_int i=0; i<size; ++i){
-		if(GameBoard[i][0].empty() || GameBoard[i][0].top_piece() == 'S' || explored[i][0]) continue;
-		bool found = false;
-		s_int x = i;
-		s_int y = 0;
-		search(true, x, y, GameBoard[i][0].player(), explored, found);
-		if(found){
-			if(GameBoard[i][0].player() == White) return RDWIN;
-			else return -RDWIN;
-		}
-	}
-	explored = vector< vector<bool> >(size, vector<bool>(size, false));
-	for(s_int j=0; j<size; ++j){
-		if(GameBoard[0][j].empty() || GameBoard[0][j].top_piece() == 'S' || explored[0][j]) continue;
-		bool found = false;
-		s_int x = 0;
-		s_int y = j;
-		search(false, x, y, GameBoard[0][j].player(), explored, found);
-		if(found){
-			if(GameBoard[0][j].player() == White) return RDWIN;
-			else return -RDWIN;
-		}
-	}
-	return 0;
-}
+// eval_type Game::path(){
+// 	vector< vector<bool> > explored(size, vector<bool>(size, false));
+// 	// vector<int> LRUD (4,0);
+// 	for(s_int i=0; i<size; ++i){
+// 		if(GameBoard[i][0].empty() || GameBoard[i][0].top_piece() == 'S' || explored[i][0]) continue;
+// 		bool found = false;
+// 		s_int x = i;
+// 		s_int y = 0;
+// 		search(true, x, y, GameBoard[i][0].player(), explored, found);
+// 		if(found){
+// 			if(GameBoard[i][0].player() == White) return RDWIN;
+// 			else return -RDWIN;
+// 		}
+// 	}
+// 	explored = vector< vector<bool> >(size, vector<bool>(size, false));
+// 	for(s_int j=0; j<size; ++j){
+// 		if(GameBoard[0][j].empty() || GameBoard[0][j].top_piece() == 'S' || explored[0][j]) continue;
+// 		bool found = false;
+// 		s_int x = 0;
+// 		s_int y = j;
+// 		search(false, x, y, GameBoard[0][j].player(), explored, found);
+// 		if(found){
+// 			if(GameBoard[0][j].player() == White) return RDWIN;
+// 			else return -RDWIN;
+// 		}
+// 	}
+// 	return 0;
+// }
 
 inline eval_type Game::center(int i, int j){
 	return -(abs(2*i - size) + abs(2*j - (size))) * CENTER;

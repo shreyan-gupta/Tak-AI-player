@@ -1,6 +1,8 @@
 #include "Game.h"
 
 // const eval_type FLAT_MUL	  = 1.3;
+s_int WINDOW;
+vector<eval_type> GROUP;
 const eval_type RDWIN 		  = 1000000;
 const eval_type FLWIN 		  = 1000000;
 const eval_type ENDGAMEFLAT	  = 1400; 			// Last best working 1000   Originals : 800 
@@ -16,21 +18,22 @@ const eval_type SOFT_CCAPTIVE = -150; /*-TOPFLAT - 50;*/	// Last best working -1
 
 const eval_type CENTER 		  = 7;
 const eval_type ENDGAMECUTOFF = 7; 
-vector<unordered_map<string,int> > HistoryTable;
-
-vector<eval_type> GROUP;
 
 Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
 	this->size = s;
 	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-	TTable = vector<unordered_map<string,Transposition> > (2);
-	GROUP = vector<eval_type> (7,0);
+	TTable = vector<unordered_map<string,Transposition> >(2);
+	GROUP = vector<eval_type>(7,0);
 	GROUP[2] = 30;
 	GROUP[3] = 100;
 	GROUP[4] = 300;
 	GROUP[5] = 500;
 	GROUP[size-1] = RDWIN;
-	HistoryTable = vector<unordered_map<string,int> > (2);
+	switch(size){
+		case 5 : WINDOW = 127; break;
+		case 6 : WINDOW = 20; break;
+		case 7 : WINDOW = 20; break;
+	}
 }
 
 string Game::to_string(){
@@ -101,11 +104,9 @@ void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
 
 void Game::make_opponent_move(string s, bool player)
 {
-	// ADITI TODO
 	char first = s.at(0);
 	Move m;
 	m.x = size - (s.at(2) - '0');
-	// printf("%d = size, %c is 2nd char \n", size, s.at(2));
 	m.y = s.at(1) - 'a';
 	if (first == 'F' || first == 'S' || first == 'C')
 	{
@@ -127,11 +128,11 @@ void Game::make_opponent_move(string s, bool player)
 			drops[i] = (char)(s.at(i+4) - '0');
 		
 		m.drops = &drops;
-		{
-			for (int i = 0; i < (m.drops)->size(); i++)
-				cerr << (int)((*m.drops)[i]) << " ";
-			cerr << "..... This is the drops array \n";
-		}
+		// {
+		// 	for (int i = 0; i < (m.drops)->size(); i++)
+		// 		cerr << (int)((*m.drops)[i]) << " ";
+		// 	cerr << "..... This is the drops array \n";
+		// }
 		char x_new = m.x + m.drops->size() * ((m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0));
 		char y_new = m.y + m.drops->size() * ((m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0));
 		if (GameBoard[m.x][m.y].top_piece() == 'C')
@@ -147,7 +148,6 @@ void Game::make_opponent_move(string s, bool player)
 void Game::makemove(Move &m){
 	if(m.place_move){
 		UpdatePlayer((m.piece < 95), m, false);
-		// printf("%d %d piece %c\n", m.x, m.y, m.piece);
 		GameBoard[m.x][m.y].stack += m.piece;
 		// increment num_black, num_white no need
 	}
@@ -215,7 +215,6 @@ void Game::GetStackable(s_int x, s_int y, bool cap, vector<s_int> &result){
 	result[1] = r;
 	result[2] = u;
 	result[3] = d;
-	// fprintf(stderr, "coord %d %d direction <%d >%d -%d +%d\n",x,y,l,r,u,d);
 }
 
 // void Game::generate_place_1(Player_Type player, list<Move> &moves)
@@ -298,7 +297,7 @@ void Game::GetStackable(s_int x, s_int y, bool cap, vector<s_int> &result){
 // }
 
 
-void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval_type>,Move> &moves)
+void Game::generate_valid_moves(Player_Type player, multimap<eval_type, Move> &moves)
 {
 	Player &p = (player == Black) ? p_black : p_white;
 	string b = to_string();
@@ -317,22 +316,21 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					Move m (i,j,cap);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					moves.emplace(t.score, m);
+					// moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
 					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 					// search in tt
 					antimove(m);
-					// assert(to_string().compare(b) == 0);
 				}
 				if (p.StonesLeft != 0)
 				{
 					Move m(i,j,flat);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					moves.emplace(t.score, m);
+					// moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
 					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 					antimove(m);
-					// assert(to_string().compare(b) == 0);
-
 				}
 			}
 		}
@@ -351,7 +349,8 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					Move m(i,j,s);
 					makemove(m);
 					Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					moves.emplace(t.score, m);
+					// moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
 					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 					// search in tt
 					antimove(m);
@@ -378,8 +377,9 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 						m.cap_move = true;
 						makemove(m);
 						Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
-					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+						moves.emplace(t.score, m);
+						// moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+						// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 						// search in tt
 						antimove(m);
 						// assert(to_string().compare(b) == 0);
@@ -402,8 +402,9 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 								Move m(i,j,dir[r],&d);
 								makemove(m);
 								Transposition &t = getTransposition(!player);
-					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
-					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+								moves.emplace(t.score, m);
+								// moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+								// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 								// search in tt
 								antimove(m);
 								// assert(to_string().compare(b) == 0);
@@ -422,20 +423,15 @@ string tab(int n){
 	return s;
 }
 
-eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta, pair<Move, Move> &killer, bool is_null_window)
+eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta, pair<Move, Move> &killer)
 {
-	string b = to_string();
-	assert (depth >= 0);
+	// assert (depth >= 0);
 	eval_type alpha_orig = alpha;
 	Transposition &t = getTransposition(player);
 
 	if(depth == 0 || abs(t.score) > FLWIN / 2){
 		return t.score;
 	}
-
-	// if(depth == 0 || (t.score > FLWIN/2 && t.flag != 'u') || (t.score < -FLWIN/2 && t.flag != 'l')){
-	// 	return t.score;
-	// }
 
 	if (t.depth >= depth)
 	{
@@ -446,7 +442,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	}
 	else{
 		pair<Move, Move> useless_stuff;
-		negaMax(player, depth-1, alpha, beta, useless_stuff, is_null_window);
+		negaMax(player, depth-1, alpha, beta, useless_stuff);
 	}
 
 	eval_type best_val = -2*FLWIN;
@@ -454,20 +450,20 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	int count = 0;
 	pair<Move, Move> next_killer;
 
-	assert(to_string().compare(b) == 0);
+	// assert(to_string().compare(b) == 0);
 
 	// PV move
 	if (t.depth > 0)
 	{
-		assert(t.best_move.x != -1);
+		// assert(t.best_move.x != -1);
 		makemove(t.best_move);
-		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
+		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(t.best_move);
 		best_move = &t.best_move;
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(player,t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+			update_trans(player,t, depth, best_val, best_move, alpha_orig, beta);
 			// cerr << "pruned at PV!! depth = " << depth << endl;
 			return best_val;
 		}
@@ -478,34 +474,26 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	// Killer move
 	if(isMoveValid(killer.first, player)){	
 		makemove(killer.first);
-		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
+		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(killer.first);
 		best_move = &killer.first;
-
-			// if(to_string().compare(b) != 0){
-			// 	fprintf(stderr, "!!!!!!!!!!!!!!!! WRONG BOARD k1 move %s\n\t%s\n\t%s\n", killer.first.to_string().c_str(), b.c_str(), to_string().c_str());
-			// }
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
 			// cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
 			return best_val;
 		}
 	}
 	if(isMoveValid(killer.second, player)){
 		makemove(killer.second);
-		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
+		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer);
 		antimove(killer.second);
 		best_move = &killer.second;
 
-			// if(to_string().compare(b) != 0){
-			// 	fprintf(stderr, "!!!!!!!!!!!!!!!! WRONG BOARD k2 move %s\n\t%s\n\t%s\n", killer.second.to_string().c_str(), b.c_str(), to_string().c_str());
-			// }
-		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
 			// cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
 			Move temp = killer.first;
 			killer.first = killer.second;
@@ -514,23 +502,13 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		}
 	}
 
-	// assert(to_string().compare(b) == 0);
-
-	multimap< pair<eval_type, eval_type>, Move> move_list;
+	multimap<eval_type, Move> move_list;
 	generate_valid_moves(player, move_list);
 
-	// if(b.compare("F______f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-	// 	string s = player==White? "White" : "Black";
-	// 	fprintf(stderr, "Player %s d=%d\n%s", s.c_str(), depth, t.to_string().c_str());
-	// 	for (auto it = move_list.begin(); it != move_list.end(); it++){
-	// 		cerr << it->first.first << " " << it->first.second << " mv " << it->second.to_string() << endl;
-	// 	}
-	// }
-
 	if(depth == 1){
-		best_val = -move_list.begin()->first.second;
+		best_val = -move_list.begin()->first;
 		best_move = &(move_list.begin()->second);
-		update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+		update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
 		return best_val;
 	}
 
@@ -547,20 +525,8 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
 	{
 		makemove(itr->second);
-		eval_type child = alpha;
-		// if (itr != move_list.begin())
-		{
-			// child = -negaMax(!player,depth-1,-alpha-1,-alpha,next_killer,true);
-			// if (child > alpha && child < beta)
-				child = -negaMax(!player,depth-1,-beta,-child,next_killer,is_null_window);
-		}
-		// else child = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
-		// Transposition &tt = getTransposition(!player);
+		eval_type child = -negaMax(!player,depth-1,-beta,-child,next_killer);
 		antimove(itr->second);
-
-		// if(null_child <= alpha-1){	// don't search
-		// 	fprintf(stderr, "Null window : %d d %d alpha %f nc %f c %f\n", (child < alpha), depth, alpha, null_child, child);
-		// }
 
 			if(!window_solution_found) ++count;
 			if(child < -FLWIN / 2 && !window_solution_found) count = 0;
@@ -587,15 +553,8 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			break;
 		}
 	}
-	fprintf(stderr, "D %d %d\tNormal i=%d\ts=%d\tm=%s\tWindow i=%d\ts=%d\tm=%s\n", depth, total_count, best_index, best_val, best_move->to_string().c_str(), window_index, window_val, window_move->to_string().c_str());
-	// cerr << "Pruned at index = " << total_count << ", at depth = " << depth << endl;
-	
-	// assert(window_move != NULL);
-	if(depth >= 2 && window_val != -2*FLWIN && window_val != best_val){
-		// fprintf(stderr, "%sD %d TC %d Better %d WE %f AE %f Diff %f prune %d WM %s AM %s\n", tab(depth).c_str(), depth, total_count, (window_val!=best_val), window_val, best_val, (best_val - window_val), prune, window_move->to_string().c_str(), best_move->to_string().c_str());
-	}
 
-	update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+	update_trans(player, t, depth, best_val, best_move, alpha_orig, beta);
 	killer.second = killer.first;
 	killer.first = *best_move;
 	return best_val;
@@ -622,18 +581,13 @@ void Game::print_move_seq(int depth){
 string Game::ids(int depth){
 	// int depth = 4;
 	cerr << to_string() << endl;
-	// 
 	cerr << depth << " is the depth \n";
 	for(int d=1; d<=depth; ++d){
 		pair<Move, Move> useless_stuff;
-		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff, false);
+		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff);
 		print_move_seq(d);
-		// Transposition &r = TTable[1]["F______f___F__f_F____f_F_fF__f_c_f_C__"];
-		// Transposition &s = TTable[0]["F______f___F__f_F____f_F_fF__f_c_f_C__"];
-		// fprintf(stderr, "White ki %sBlack ki %s",r.to_string().c_str(), s.to_string().c_str());
 	}
 	Transposition& t = getTransposition(!opponent_type);
-	
 	makemove(t.best_move);
 	return t.best_move.to_string();
 }
@@ -642,7 +596,7 @@ int Game::decide_Depth()
 {
 	s_int used_black = pieces - p_black.StonesLeft;
 	s_int used_white  = pieces - p_white.StonesLeft;
-	if (used_black < 3 || used_white < 3 || size == 6)
+	if (used_black < 3 || used_white < 3 || size >= 6)
 		return 4;
 	if (used_black < 4 || used_white < 4)
 		return 4;
