@@ -17,7 +17,12 @@ const eval_type HARD_CCAPTIVE = 250; /*TOPFLAT  - 25;*/	// Last best working 250
 const eval_type SOFT_CCAPTIVE = -150; /*-TOPFLAT - 50;*/	// Last best working -150  Originals : -150
 
 const eval_type CENTER 		  = 7;
-const eval_type ENDGAMECUTOFF = 7; 
+const eval_type ENDGAMECUTOFF = 7;
+
+
+vector<int> depth_moves, avg_time;
+int moves
+time_t cutoff_time;
 
 Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
 	this->size = s;
@@ -34,6 +39,10 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 		case 6 : WINDOW = 20; break;
 		case 7 : WINDOW = 20; break;
 	}
+	time_moves = vector< vector<time_t> > (6,vector<time_t> (5,0));
+	depth_moves = vector<int> (6,0);
+	avg_time = vector<time_t> (6,0);
+	moves = 0;
 }
 
 string Game::to_string(){
@@ -578,36 +587,62 @@ void Game::print_move_seq(int depth){
 	}
 }
 
-string Game::ids(int depth){
+string Game::ids(){
 	// int depth = 4;
 	cerr << to_string() << endl;
-	cerr << depth << " is the depth \n";
+	// find cut off time -> 
+	s_int used_black = pieces - p_black.StonesLeft;
+	s_int used_white = pieces - p_white.StonesLeft;
+	int depth = 4;
+	cutoff_time = time(0) + (time_t)TimeLimit*1000;
+	if (!(used_black < 3 || used_white < 3))
+	{
+		s_int depth = ((size > 5) ? 4 : 5);
+		s_int empty_squares = 0;
+		time_t time_rem = start_time + (time_t)TimeLimit*1000 - time(0);
+		for(auto &i : GameBoard)
+			for(auto &j : i)
+				if(j.empty()) ++empty_squares;
+		while (depth > 1 && avg_time[depth] > time_rem/(10 + empty_squares))
+			depth--;
+		cutoff_time = time(0); // TODO
+	}
+	auto start_time = time(0);
 	for(int d=1; d<=depth; ++d){
 		pair<Move, Move> useless_stuff;
-		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff);
+		auto val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff);
 		print_move_seq(d);
+		if (!val.second)
+		{
+			d = d-1;
+			auto time_taken = time(0) - start_time;
+			avg_time[d] = (avg_time[d]*5 - times_moves[d][depth_moves[d]] + time_taken)/5;
+			times_moves[d][depth_moves[d]] = time_taken;
+			depth_moves[d] += 1;
+		}
 	}
 	Transposition& t = getTransposition(!opponent_type);
 	makemove(t.best_move);
+	moves += 1;
 	return t.best_move.to_string();
 }
 
-int Game::decide_Depth()
-{
-	s_int used_black = pieces - p_black.StonesLeft;
-	s_int used_white  = pieces - p_white.StonesLeft;
-	if (used_black < 3 || used_white < 3 || size >= 6)
-		return 4;
-	if (used_black < 4 || used_white < 4)
-		return 4;
-	else if (used_white > pieces - 7 || used_black > pieces - 7)
-		return 4;
-	else return 5;
-	// initial 4
-	// middle 5
-	// before end tk 5
-	// ekdum end 4
-}
+// int Game::decide_Depth()
+// {
+// 	s_int used_black = pieces - p_black.StonesLeft;
+// 	s_int used_white  = pieces - p_white.StonesLeft;
+// 	if (used_black < 3 || used_white < 3 || size >= 6)
+// 		return 4;
+// 	if (used_black < 4 || used_white < 4)
+// 		return 4;
+// 	else if (used_white > pieces - 7 || used_black > pieces - 7)
+// 		return 4;
+// 	else return 5;
+// 	// initial 4
+// 	// middle 5
+// 	// before end tk 5
+// 	// ekdum end 4
+// }
 
 bool Game::isMoveValid(Move &m, bool x)
 {
