@@ -52,7 +52,7 @@ public:
 
 	// temp
 	void print_move_seq(int depth);
-	void update_trans(Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window);
+	void update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window);
 };
 
 inline bool Game::pathable(s_int x, s_int y, bool player){
@@ -76,7 +76,7 @@ inline eval_type Game::eval(Player_Type player){
 	return ((player == White) ? value : -value);
 }
 
-inline void Game::update_trans(Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window){
+inline void Game::update_trans(Player_Type player, Transposition &t, int depth, eval_type best_val, Move *best_move, eval_type alpha_orig, eval_type beta, bool is_null_window){
 	t.score = best_val;
 	if (best_val <= alpha_orig)	t.flag = 'u';
 	else if (best_val >= beta) t.flag = 'l';
@@ -84,7 +84,8 @@ inline void Game::update_trans(Transposition &t, int depth, eval_type best_val, 
 	t.depth = depth;
 	t.best_move = *best_move;
 
-	assert(!(t.best_move.x == -1 || t.depth <= 0));
+	// HistoryTable[player][best_move->to_string()] += pow(2,depth);
+	// assert(!(t.best_move.x == -1 || t.depth <= 0));
 }
 
 #endif

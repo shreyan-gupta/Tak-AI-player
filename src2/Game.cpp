@@ -16,6 +16,7 @@ const eval_type SOFT_CCAPTIVE = -150; /*-TOPFLAT - 50;*/	// Last best working -1
 
 const eval_type CENTER 		  = 7;
 const eval_type ENDGAMECUTOFF = 7; 
+vector<unordered_map<string,int> > HistoryTable;
 
 vector<eval_type> GROUP;
 
@@ -29,6 +30,7 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	GROUP[4] = 300;
 	GROUP[5] = 500;
 	GROUP[size-1] = RDWIN;
+	HistoryTable = vector<unordered_map<string,int> > (2);
 }
 
 string Game::to_string(){
@@ -316,6 +318,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					makemove(m);
 					Transposition &t = getTransposition(!player);
 					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 					// search in tt
 					antimove(m);
 					// assert(to_string().compare(b) == 0);
@@ -326,6 +329,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					makemove(m);
 					Transposition &t = getTransposition(!player);
 					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 					antimove(m);
 					// assert(to_string().compare(b) == 0);
 
@@ -348,6 +352,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					makemove(m);
 					Transposition &t = getTransposition(!player);
 					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 					// search in tt
 					antimove(m);
 					// assert(to_string().compare(b) == 0);
@@ -373,7 +378,8 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 						m.cap_move = true;
 						makemove(m);
 						Transposition &t = getTransposition(!player);
-						moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 						// search in tt
 						antimove(m);
 						// assert(to_string().compare(b) == 0);
@@ -396,7 +402,8 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 								Move m(i,j,dir[r],&d);
 								makemove(m);
 								Transposition &t = getTransposition(!player);
-								moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+					// moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
 								// search in tt
 								antimove(m);
 								// assert(to_string().compare(b) == 0);
@@ -460,7 +467,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+			update_trans(player,t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
 			// cerr << "pruned at PV!! depth = " << depth << endl;
 			return best_val;
 		}
@@ -481,7 +488,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
 			// cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
 			return best_val;
 		}
@@ -498,7 +505,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		
 		alpha = max(alpha, best_val);
 		if (alpha >= beta || best_val > FLWIN / 2){
-			update_trans(t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+			update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
 			// cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
 			Move temp = killer.first;
 			killer.first = killer.second;
@@ -523,7 +530,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	if(depth == 1){
 		best_val = -move_list.begin()->first.second;
 		best_move = &(move_list.begin()->second);
-		update_trans(t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+		update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
 		return best_val;
 	}
 
@@ -576,13 +583,14 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			break;
 		}
 	}
+	cerr << "Pruned at index = " << total_count << ", at depth = " << depth << endl;
 	
-	assert(window_move != NULL);
+	// assert(window_move != NULL);
 	if(depth >= 2 && window_val != -2*FLWIN && window_val != best_val){
 		// fprintf(stderr, "%sD %d TC %d Better %d WE %f AE %f Diff %f prune %d WM %s AM %s\n", tab(depth).c_str(), depth, total_count, (window_val!=best_val), window_val, best_val, (best_val - window_val), prune, window_move->to_string().c_str(), best_move->to_string().c_str());
 	}
 
-	update_trans(t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
+	update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, is_null_window);
 	killer.second = killer.first;
 	killer.first = *best_move;
 	return best_val;

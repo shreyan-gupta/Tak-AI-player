@@ -72,6 +72,8 @@ struct Player
 	inline bool noStone();
 };
 
+extern vector<unordered_map<string,int> > HistoryTable;
+
 inline bool Player::noStone()
 {
 	return (StonesLeft == 0 && !CapLeft);
