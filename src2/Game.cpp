@@ -535,11 +535,13 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	}
 
 	bool window_solution_found = false;
-	eval_type window_val = -2*FLWIN;
+	eval_type window_val = best_val;
 	Move *window_move = best_move;
 
 	bool prune = false;
 	int total_count = 0;
+	int window_index;
+	int best_index;
 
 
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
@@ -562,18 +564,20 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 
 			if(!window_solution_found) ++count;
 			if(child < -FLWIN / 2 && !window_solution_found) count = 0;
-			if(count > 5) window_solution_found = true;
-			// if(depth == 2 && window_solution_found) break;
+			if(count > 20) window_solution_found = true;
+			if(depth == 2 && window_solution_found) break;
 		++total_count;
 
 		if(child > best_val){
 			best_val = child;
 			best_move = &(itr->second);
+			best_index = total_count;
 
 			if(!window_solution_found){
 				count = 0;
 				window_val = child;
 				window_move = &(itr->second);
+				window_index = total_count;
 			}
 		}
 		alpha = max(alpha, child);
@@ -583,7 +587,8 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			break;
 		}
 	}
-	cerr << "Pruned at index = " << total_count << ", at depth = " << depth << endl;
+	fprintf(stderr, "D %d %d\tNormal i=%d\ts=%d\tm=%s\tWindow i=%d\ts=%d\tm=%s\n", depth, total_count, best_index, best_val, best_move->to_string().c_str(), window_index, window_val, window_move->to_string().c_str());
+	// cerr << "Pruned at index = " << total_count << ", at depth = " << depth << endl;
 	
 	// assert(window_move != NULL);
 	if(depth >= 2 && window_val != -2*FLWIN && window_val != best_val){
