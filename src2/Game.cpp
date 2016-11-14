@@ -323,18 +323,18 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 				if (p.StonesLeft != 0)
 				{
 					Move m(i,j,flat);
-					bool r = (to_string().compare("F______f___F__f_F____f_F_fF__f_c_f_C__") == 0 && m.to_string().compare("Fb5") == 0);
+					// bool r = (to_string().compare("F______f___F__f_F____f_F_fF__f_c_f_C__") == 0 && m.to_string().compare("Fb5") == 0);
 					makemove(m);
-					if(r){
-						string baari = (player == White) ? "White" : "Black";
-						fprintf(stderr, "Checking whether correct move has been made: Kiski baari? %s\n%s\n%s",baari.c_str(), b.c_str(),to_string().c_str());
-					}
+					// if(r){
+					// 	string baari = (player == White) ? "White" : "Black";
+					// 	fprintf(stderr, "Checking whether correct move has been made: Kiski baari? %s\n%s\n%s",baari.c_str(), b.c_str(),to_string().c_str());
+					// }
 					Transposition &t = getTransposition(!player);
 					moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
-					if(r){
-						cerr << "Kiski baari? " << ((player == White) ? "White" : "Black") << endl;
-						fprintf(stderr, "BOARD AFTER Fb5 %s\n%s\n", to_string().c_str(), t.to_string().c_str());
-					}
+					// if(r){
+					// 	cerr << "Kiski baari? " << ((player == White) ? "White" : "Black") << endl;
+					// 	fprintf(stderr, "BOARD AFTER Fb5 %s\n%s\n", to_string().c_str(), t.to_string().c_str());
+					// }
 					// search in tt
 					antimove(m);
 					assert(to_string().compare(b) == 0);
@@ -432,7 +432,7 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	eval_type alpha_orig = alpha;
 	Transposition &t = getTransposition(player);
 
-	if(depth == 0 || abs(t.score) > FLWIN / 2){
+	if(depth == 0 || ((t.score) > FLWIN / 2 && t.flag != 'u') || (t.score < -FLWIN/2 && t.flag != 'l')){
 		return t.score;
 	}
 
@@ -472,10 +472,10 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		}
 	}
 
-	assert(to_string().compare(b) == 0);
+	// assert(to_string().compare(b) == 0);
 
 	// Killer move
-	if(isMoveValid(killer.first, player)){		
+	if(isMoveValid(killer.first, player)){	
 		makemove(killer.first);
 		best_val = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
 		antimove(killer.first);
@@ -513,17 +513,22 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 		}
 	}
 
-	assert(to_string().compare(b) == 0);
+	// assert(to_string().compare(b) == 0);
 
 	multimap< pair<eval_type, eval_type>, Move> move_list;
 	generate_valid_moves(player, move_list);
 
-	if(b.compare("F______f___F__f_F____f_F_fF__f_c_f_C__") == 0){
-		fprintf(stderr, "!!!%d %s\n", depth, t.to_string().c_str());
-		for (auto it = move_list.begin(); it != move_list.end(); it++){
-			cerr << it->first.first << " " << it->first.second << " mv " << it->second.to_string() << endl;
-		}
-	}
+	int Mcount = 0;
+	int move_index = 0;
+	// if(b.compare("F______f___F__f_F_F___f_F_f__f_c_f_C__") == 0 && (player == White)){
+	// 	fprintf(stderr, "!!!!!!%d %s\n", depth, t.to_string().c_str());
+	// 	for (auto it = move_list.begin(); it != move_list.end(); it++){
+	// 		cerr << it->first.first << " " << it->first.second << " mv " << it->second.to_string() << endl;
+	// 		if ((it->second.to_string()).compare("Fb5") == 0)
+	// 			move_index = Mcount;
+	// 		Mcount += 1;
+	// 	}
+	// }
 
 	if(depth == 1){
 		best_val = -move_list.begin()->first.second;
@@ -535,23 +540,26 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 	bool window_solution_found = false;
 	eval_type window_val = -2*FLWIN;
 	Move *window_move = best_move;
+
 	bool prune = false;
 	int total_count = 0;
-
-	// for (auto it = move_list.begin(); it != move_list.end(); it++)
-	// {
-	// 	// NULL WINDOW ----->
-	// 	eval_type null_alpha = beta - 1;
-	// }
 
 
 	for(auto itr = move_list.begin(); itr != move_list.end() /*&& count <= 5*/; ++itr)
 	{
 		makemove(itr->second);
 		eval_type child;
+		if (itr != move_list.begin())
+		{
+			child = -negaMax(!player,depth-1,-alpha-1,-alpha,next_killer,true);
+			if (child > alpha && child < beta)
+				child = -negaMax(!player,depth-1,-beta,-child,next_killer,is_null_window);
+		}
 		// child = -negaMax(!player,depth-1,-alpha,-alpha+1, next_killer, true);
-		// if(!(child <= alpha-1)) 
-		child = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
+		// if(!(child <= alpha-1))
+		else
+			child = -negaMax(!player,depth-1,-beta,-alpha, next_killer, is_null_window);
+		Transposition &tt = getTransposition(!player);
 		antimove(itr->second);
 
 		// if(null_child <= alpha-1){	// don't search
@@ -575,11 +583,14 @@ eval_type Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type bet
 			}
 		}
 		alpha = max(alpha, child);
-		if (alpha >= beta || (child) > FLWIN / 2){
+		if (alpha >= beta || ((child) > FLWIN / 2 && tt.flag != 'l')){
 			prune = true;
 			break;
 		}
 	}
+	// if (b.compare("F______f___F__f_F_F___f_F_f__f_c_f_C__") == 0 && (player == White)){
+	// 	cerr << "Pruned at index = " << total_count << ", move Fb5 was at index " << move_index << endl;
+	// }
 	
 	assert(window_move != NULL);
 	if(depth >= 2 && window_val != -2*FLWIN && window_val != best_val){
@@ -618,9 +629,9 @@ string Game::ids(int depth){
 		pair<Move, Move> useless_stuff;
 		eval_type val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff, false);
 		print_move_seq(d);
-		Transposition &r = TTable[1]["F______f___F__f_F____f_F_fF__f_c_f_C__"];
-		Transposition &s = TTable[0]["F______f___F__f_F____f_F_fF__f_c_f_C__"];
-		fprintf(stderr, "White ki %sBlack ki %s",r.to_string().c_str(), s.to_string().c_str());
+		// Transposition &r = TTable[1]["F______f___F__f_F____f_F_fF__f_c_f_C__"];
+		// Transposition &s = TTable[0]["F______f___F__f_F____f_F_fF__f_c_f_C__"];
+		// fprintf(stderr, "White ki %sBlack ki %s",r.to_string().c_str(), s.to_string().c_str());
 	}
 	Transposition& t = getTransposition(!opponent_type);
 	

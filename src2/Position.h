@@ -66,7 +66,7 @@ inline char Position::top_piece(){
 }
 
 inline bool Position::player(){
-	return (stack.back() < 95);
+	return (stack.back() < 95); // White == Capital == (< 95)
 }
 
 inline string Position::to_string(){
