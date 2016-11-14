@@ -318,7 +318,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
-					assert(to_string().compare(b) == 0);
+					// assert(to_string().compare(b) == 0);
 				}
 				if (p.StonesLeft != 0)
 				{
@@ -337,7 +337,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					// }
 					// search in tt
 					antimove(m);
-					assert(to_string().compare(b) == 0);
+					// assert(to_string().compare(b) == 0);
 
 				}
 			}
@@ -360,7 +360,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 					moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 					// search in tt
 					antimove(m);
-					assert(to_string().compare(b) == 0);
+					// assert(to_string().compare(b) == 0);
 				}
 			}
 		}
@@ -386,7 +386,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 						moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 						// search in tt
 						antimove(m);
-						assert(to_string().compare(b) == 0);
+						// assert(to_string().compare(b) == 0);
 					}
 				}
 			}
@@ -409,7 +409,7 @@ void Game::generate_valid_moves(Player_Type player, multimap<pair<eval_type,eval
 								moves.emplace(make_pair(-t.depth + 0*t.score/500,t.score),m);
 								// search in tt
 								antimove(m);
-								assert(to_string().compare(b) == 0);
+								// assert(to_string().compare(b) == 0);
 							}
 						}
 					}
@@ -624,6 +624,7 @@ void Game::print_move_seq(int depth){
 string Game::ids(int depth){
 	// int depth = 4;
 	cerr << to_string() << endl;
+	// 
 	cerr << depth << " is the depth \n";
 	for(int d=1; d<=depth; ++d){
 		pair<Move, Move> useless_stuff;
