@@ -64,6 +64,7 @@ extern vector< vector< vector< vector<s_int> > > > AllPerms;
 extern vector<vector<time_t> > times_moves;
 extern vector<int> depth_moves;
 extern vector<time_t> avg_time;
+extern vector<time_t> max_time_depth;
 extern int moves;
 extern time_t cutoff_time;
 

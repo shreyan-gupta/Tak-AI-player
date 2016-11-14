@@ -19,9 +19,10 @@ const eval_type SOFT_CCAPTIVE = -150; /*-TOPFLAT - 50;*/	// Last best working -1
 const eval_type CENTER 		  = 7;
 const eval_type ENDGAMECUTOFF = 7;
 
-
-vector<int> depth_moves, avg_time;
-int moves
+vector<vector<time_t> > time_moves;
+vector<int> depth_moves;
+vector<time_t> avg_time;
+int moves;
 time_t cutoff_time;
 
 Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
@@ -42,6 +43,11 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	time_moves = vector< vector<time_t> > (6,vector<time_t> (5,0));
 	depth_moves = vector<int> (6,0);
 	avg_time = vector<time_t> (6,0);
+	max_time_depth = vector<time_t> (6,0);
+	max_time_depth[2] = 2;
+	max_time_depth[3] = 5;
+	max_time_depth[4] = (size == 7) ? 13 : 9;
+	max_time_depth[5] = 14; 
 	moves = 0;
 }
 
@@ -594,7 +600,7 @@ string Game::ids(){
 				if(j.empty()) ++empty_squares;
 		while (depth > 1 && avg_time[depth] > time_rem/(10 + empty_squares))
 			depth--;
-		cutoff_time = time(0); // TODO
+		cutoff_time = time(0) + min(max_time_depth[depth], time_rem/2); // TODO
 	}
 	auto start_time = time(0);
 	for(int d=1; d<=depth; ++d){
@@ -604,6 +610,7 @@ string Game::ids(){
 		if (!val.second)
 		{
 			d = d-1;
+			cerr << "Actual depth = " << d << endl;
 			auto time_taken = time(0) - start_time;
 			avg_time[d] = (avg_time[d]*5 - times_moves[d][depth_moves[d]] + time_taken)/5;
 			times_moves[d][depth_moves[d]] = time_taken;
