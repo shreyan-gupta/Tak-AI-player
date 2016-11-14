@@ -4,7 +4,7 @@ s_int size, pieces;
 int TimeLimit;
 bool opponent_type;
 time_t start_time;
-vector<int> GroupWt;
+// vector<int> GroupWt;
 
 
 int main(int argc, char const *argv[])
@@ -15,11 +15,6 @@ int main(int argc, char const *argv[])
 		cerr << "Enter player_no, size, TimeLimit\n";
 	cin >> player_no >> temp_size >> TimeLimit;
 	size = temp_size;
-	GroupWt = vector<int> (7,0);
-	GroupWt[3] = 100;
-	GroupWt[4] = 300;
-	GroupWt[5] = (size != 7) ? 500 : 0;
-
 	// char pieces;
 	switch(size){
 		case 5 : pieces = 21; break;

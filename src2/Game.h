@@ -38,8 +38,8 @@ public:
 	eval_type features();
 	Transposition& getTransposition(Player_Type);
 	
-	string ids(int);
-	int decide_Depth();
+	string ids();
+	// int decide_Depth();
 	bool isMoveValid(Move&,bool);
 	void generate_place_1(Player_Type, list<Move>&);
 	void generate_place_2(Player_Type, list<Move>&);
