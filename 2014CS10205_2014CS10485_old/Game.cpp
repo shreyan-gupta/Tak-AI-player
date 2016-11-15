@@ -6,11 +6,11 @@ vector<eval_type> GROUP;
 const eval_type RDWIN 		  = 1000000;
 const eval_type FLWIN 		  = 1000000;
 const eval_type ENDGAMEFLAT	  = 1400; 			// Last best working 1000   Originals : 800 
-const eval_type TOPFLAT		  = 400;			// Last best working 450   Originals : 400 				// 500
+const eval_type TOPFLAT		  = 500;			// Last best working 450   Originals : 400 
 const eval_type STAND		  = 200; 			// Last best working 200   Originals : 200 
 const eval_type CAP 		  = 300; 			// Last best working 300   Originals : 300 
 const eval_type HARD_FCAPTIVE = 200;			// Last best working 200   Originals : 200 
-const eval_type SOFT_FCAPTIVE = -200;			// Last best working -250  Originals : -200				//-250
+const eval_type SOFT_FCAPTIVE = -250;			// Last best working -250  Originals : -200
 const eval_type HARD_SCAPTIVE = 300; /*TOPFLAT  - 25;*/	// Last best working 300   Originals : 300 
 const eval_type SOFT_SCAPTIVE = -150; /*-TOPFLAT - 50;*/	// Last best working -150  Originals : -150
 const eval_type HARD_CCAPTIVE = 250; /*TOPFLAT  - 25;*/	// Last best working 250   Originals : 250 
@@ -37,19 +37,18 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	GROUP[5] = 500;
 	GROUP[size-1] = RDWIN;
 	switch(size){
-		case 5 : WINDOW = 200; break;
+		case 5 : WINDOW = 127; break;
 		case 6 : WINDOW = 20; break;
 		case 7 : WINDOW = 20; break;
 	}
-	times_moves = vector< vector<ms> > (7,vector<ms> (5));
-	depth_moves = vector<int> (7);
-	avg_time = vector<ms> (7);
-	max_time_depth = vector<ms> (7);
+	times_moves = vector< vector<ms> > (6,vector<ms> (5));
+	depth_moves = vector<int> (6);
+	avg_time = vector<ms> (6);
+	max_time_depth = vector<ms> (6);
 	max_time_depth[2] = std::chrono::milliseconds(2000);
 	max_time_depth[3] = std::chrono::milliseconds(5000);
-	max_time_depth[4] = (size == 7) ? ms(9000) : ms(8000);
-	max_time_depth[5] = ms(9000);
-	max_time_depth[6] = ms(11200);
+	max_time_depth[4] = (size == 7) ? ms(13000) : ms(9000);
+	max_time_depth[5] = ms(14000); 
 	moves = 0;
 	total_time_elapsed = ms(0);
 }
@@ -508,18 +507,7 @@ string Game::ids(){
 	cutoff_time = ms(1000000);
 	if (!(used_black < 3 || used_white < 3))
 	{
-		switch (size)
-		{
-			case 5:
-				depth = 5;
-				break;
-			case 6:
-				depth = 5;
-				break;
-			case 7:
-				depth = 4;
-				break;
-		}
+		depth = ((size > 5) ? 4 : 5);
 		s_int empty_squares = 0;
 		ms time_rem = ms(TimeLimit*1000) - total_time_elapsed;
 		for(auto &i : GameBoard)
@@ -527,7 +515,7 @@ string Game::ids(){
 				if(j.empty()) ++empty_squares;
 		while (depth > 1 && avg_time[depth].count() > 3*time_rem.count()/(7 + empty_squares))
 			depth--;
-		cutoff_time = ms(min(max_time_depth[depth].count(), time_rem.count()*2/5)); // TODO;
+		cutoff_time = ms(min(max_time_depth[depth].count(), time_rem.count()/2)); // TODO;
 		cerr << "Time remaining = " << time_rem.count() << ", avg time = " << avg_time[depth].count();
 	}
 	cerr << " Cutoff time = " << (cutoff_time).count() << ", Decided depth = " << depth << endl;
@@ -536,50 +524,27 @@ string Game::ids(){
 		move_start_time = Time::now();
 		auto val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff);
 		print_move_seq(d);
-		if(depth == d && !val.second){
-			for (s_int i = d+1; i <= 5; i++){
-				avg_time[i] = ms(avg_time[i].count()*9/10);
-				for(auto &x : times_moves[d]) x = ms(x.count()*9/10);
-			}
-		}
-		if(!val.second || d == depth){
+		if (!val.second || d == depth)
+		{
+			if (!val.second) d--;
+			cerr << "Actual depth = " << d << ", Expected Depth = " << depth << endl;
 			ms time_taken = std::chrono::duration_cast<ms>(Time::now() - move_time);
-			avg_time[d] = ms( (avg_time[d].count()*7 - times_moves[d][depth_moves[d]%7].count() + time_taken.count())/7);
-			times_moves[d][depth_moves[d]%7] = ms(time_taken);
+			avg_time[d] = ms( (avg_time[d].count()*5 - times_moves[d][depth_moves[d]%5].count() + time_taken.count())/5 );
+			times_moves[d][depth_moves[d]%5] = ms(time_taken);
 			depth_moves[d] += 1;
-			break;
+			for (s_int i = d+1; i <= 5; i++)
+				avg_time[i] = ms(avg_time[i].count()*9/10);
 		}
-
-
-		// if (!val.second || d == depth)
-		// {
-		// 	// if (!val.second) d--;
-		// 	cerr << "Actual depth = " <<  (!val.second ? (d-1) : d) << ", Expected Depth = " << depth << endl;
-		// 	ms time_taken = std::chrono::duration_cast<ms>(Time::now() - move_time);
-		// 	avg_time[d] = ms( (avg_time[d].count()*7 - times_moves[d][depth_moves[d]%7].count() + time_taken.count())/7 );
-		// 	times_moves[d][depth_moves[d]%7] = ms(time_taken);
-		// 	depth_moves[d] += 1;
-		// 	for (s_int i = d+1; i <= 5; i++)
-		// 		avg_time[i] = ms(avg_time[i].count()*9/10);
-		// }
-		// if (!val.second) 
-		// 	break;
+		if (!val.second) 
+			break;
 	}
-
 	Transposition& t = getTransposition(!opponent_type);
 	makemove(t.best_move);
-	Move m = t.best_move;
 	moves += 1;
-	fprintf(stderr, "Size of transposition table = %lld\n", (sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024));
-	if((sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024) > 290){
-		TTable[0].clear();
-		TTable[1].clear();
-		cerr << "Transposition cleared!! on move " <<moves<< "\n";
-	}
 	ms this_move_time = std::chrono::duration_cast<ms>(Time::now() - move_time);
 	total_time_elapsed += this_move_time;
-	fprintf(stderr, "%s time %d\n",m.to_string().c_str(), this_move_time.count());
-	return m.to_string();
+	fprintf(stderr, "%s time %d\n",t.best_move.to_string().c_str(), this_move_time.count());
+	return t.best_move.to_string();
 }
 
 bool Game::isMoveValid(Move &m, bool x)

@@ -59,10 +59,10 @@ eval_type Game::newpath(bool player)
 			if(GameBoard[i][j].player() == Black && max(LRUD[1] - LRUD[0], LRUD[3] - LRUD[2]) == size - 1) black_win = true;
 			// fprintf(stderr, "%d = i,%d = j, %d %d %d %d is LRUD. \n", i, j, LRUD[0], LRUD[1], LRUD[2], LRUD[3]);
 		}
-	if(white_win && black_win){
-		// cerr << "--------WHITE BLACK BOTH WITH " << player << endl;
-		return (player ? -FLWIN : FLWIN);
-	}
+	// if(white_win && black_win){
+	// 	cerr << "--------WHITE BLACK BOTH WITH " << player << endl;
+	// 	return (player ? -FLWIN : FLWIN);
+	// }
 	return GroupVal;
 }
 
@@ -140,17 +140,17 @@ eval_type Game::features(){
 			temp_count += captive(pos.top_piece(), p);
 
 			// Groups : **************************
-			// vector<s_int> stack_xy (4,0);
-			// if (pos.player() == White)
-			// {
-			// 	GetStackable(i,j,White,stack_xy);
-			// 	// temp_count += GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
-			// }
-			// else
-			// {
-			// 	GetStackable(i,j,Black,stack_xy);
-			// 	// temp_count -= GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
-			// }
+			vector<s_int> stack_xy (4,0);
+			if (pos.player() == White)
+			{
+				GetStackable(i,j,White,stack_xy);
+				// temp_count += GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
+			}
+			else
+			{
+				GetStackable(i,j,Black,stack_xy);
+				// temp_count -= GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];				
+			}
 
 
 			count += mult * temp_count;

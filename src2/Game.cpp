@@ -46,7 +46,7 @@ Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Play
 	avg_time = vector<ms> (7);
 	max_time_depth = vector<ms> (7);
 	max_time_depth[2] = std::chrono::milliseconds(2000);
-	max_time_depth[3] = std::chrono::milliseconds(5000);
+	max_time_depth[3] = std::chrono::milliseconds(4000);
 	max_time_depth[4] = (size == 7) ? ms(9000) : ms(8000);
 	max_time_depth[5] = ms(9000);
 	max_time_depth[6] = ms(11200);
@@ -571,7 +571,7 @@ string Game::ids(){
 	Move m = t.best_move;
 	moves += 1;
 	fprintf(stderr, "Size of transposition table = %lld\n", (sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024));
-	if((sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024) > 290){
+	if((sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024) > 290 && TimeLimit*1000 - total_time_elapsed.count() > 10000){
 		TTable[0].clear();
 		TTable[1].clear();
 		cerr << "Transposition cleared!! on move " <<moves<< "\n";
