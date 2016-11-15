@@ -507,7 +507,7 @@ string Game::ids(){
 	cutoff_time = ms(1000000);
 	if (!(used_black < 3 || used_white < 3))
 	{
-		depth = ((size > 5) ? 4 : 5);
+		depth = ((size > 6) ? 4 : 5);
 		s_int empty_squares = 0;
 		ms time_rem = ms(TimeLimit*1000) - total_time_elapsed;
 		for(auto &i : GameBoard)
@@ -544,6 +544,7 @@ string Game::ids(){
 	ms this_move_time = std::chrono::duration_cast<ms>(Time::now() - move_time);
 	total_time_elapsed += this_move_time;
 	fprintf(stderr, "%s time %d\n",t.best_move.to_string().c_str(), this_move_time.count());
+	fprintf(stderr, "Size of transposition table = %lld\n", (TTable[0].size() + TTable[1].size()));
 	return t.best_move.to_string();
 }
 
