@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
 		cerr << "Enter player_no, size, TimeLimit\n";
 	cin >> player_no >> temp_size >> TimeLimit;
 	size = temp_size;
-	--TimeLimit;
+	TimeLimit -= 2;
 	// char pieces;
 	switch(size){
 		case 5 : pieces = 21; break;
