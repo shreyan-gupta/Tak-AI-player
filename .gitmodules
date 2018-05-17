@@ -1,0 +1,3 @@
+[submodule "Tak-sim"]
+	path = Tak-sim
+	url = https://github.com/akshaykgupta/Tak-sim
