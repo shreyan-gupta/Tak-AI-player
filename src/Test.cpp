@@ -1,135 +1,214 @@
-#include "Header.h"
+#include "Game.h"
+#include "Move.h"
 
-// int sum_index[10];
-// int count_index[10];
-// int max_index[10];
+s_int size, pieces;
+int TimeLimit;
+bool opponent_type;
+time_t start_time;
+vector<int> GroupWt;
 
-// void Test::print_index(){
-// 	FILE *debug;
-// 	debug = fopen("debug.txt", "a");
-// 	for(int i=0; i<4; ++i){
-// 		fprintf(debug, "Depth %d avg %f max %d\n", i, (1.0*sum_index[i]/count_index[i]), max_index[i]);
-// 		sum_index[i] = 0;
-// 		count_index[i] = 0;
-// 		max_index[i] = 0;
-// 	}
-// 	fclose(debug);
+void checkMove()
+{
+  size = 3;
+  Game g(size,21);
+  eval_type boardeval;
+  Move m1(1,1,'F');
+  g.makemove(m1);
+  boardeval = g.eval(White);
+  printf("%s is Board after m1 \n", g.to_string().c_str());
+
+  Move m2(0,2,'F');
+  g.makemove(m2);
+  boardeval = g.eval(White);
+  printf("%s is Board after m2 \n", g.to_string().c_str());
+
+  Move m3(0,1,'C');
+  g.makemove(m3);
+  boardeval = g.eval(White);
+  printf("%s is Board after m3 \n", g.to_string().c_str());
+
+  Move m5(0,0,'F');
+  g.makemove(m5);
+  boardeval = g.eval(White);
+  printf("%s is Board after m5 \n", g.to_string().c_str());
+
+
+  vector<s_int> v (1,1);
+  Move m4(0,1,'+', &v);
+  m4.cap_move = true;
+  g.makemove(m4);
+  boardeval = g.eval(White);
+  printf("%s is Board after m4 \n", g.to_string().c_str());
+
+  g.antimove(m4);
+  printf("%s is Board after m3 \n", g.to_string().c_str());
+
+  g.antimove(m3);
+  printf("%s is Board after m2 \n", g.to_string().c_str());
+
+  g.antimove(m2);
+  printf("%s is Board after m1 \n", g.to_string().c_str());
+}
+
+void check_makeOppo()
+{
+  size = 3;
+  Game g(size,21);
+  Move m1(2,1,'F');
+  cout << "Yo, in move \n";
+  cout << "Move is " << m1.to_string() << endl;
+  g.make_opponent_move(m1.to_string(), White);
+  printf("%s is Board after m1 \n", g.to_string().c_str());
+
+  Move m2(1,1,'f');
+  cout << "m2 is " << m2.to_string() << endl;
+  g.make_opponent_move(m2.to_string(), Black);
+  printf("%s is Board after m2 \n", g.to_string().c_str());
+
+  Move m3(0,1,'C');
+  g.make_opponent_move(m3.to_string(), White);
+  printf("%s is Board after m3 \n", g.to_string().c_str());
+
+  vector<s_int> v (1,1);
+  Move m4(0,1,'+', &v);
+  // m4.cap_move = true;
+  g.make_opponent_move(m4.to_string(), White);
+  printf("%s is Board after m4 \n", g.to_string().c_str());
+
+  // g.antimove(m4);
+  // printf("%s is Board after m3 \n", g.to_string().c_str());
+
+  // g.antimove(m3);
+  // printf("%s is Board after m2 \n", g.to_string().c_str());
+
+  // g.antimove(m2);
+  // printf("%s is Board after m1 \n", g.to_string().c_str());
+}
+
+void printMoveList(list<Move> &m)
+{
+  for (auto it = m.begin(); it != m.end(); it++)
+    cout << (*it).to_string() << endl;
+}
+
+// void checkValid1()
+// {
+//  size = 3;
+//  Game g(size,21);
+//  cout << "All possible moves for White before m1 \n";
+//  list<Move> l1;
+//  g.generate_place_1(White, l1);
+//  printMoveList(l1);
+
+//  Move m1(2,1,'F');
+//  g.makemove(m1);
+//  printf("%s is Board after m1 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for Black before m2 \n";
+//  list<Move> l2;
+//  g.generate_place_1(Black, l2);
+//  printMoveList(l2);
+
+//  Move m2(1,1,'s');
+//  g.makemove(m2);
+//  printf("%s is Board after m2 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for White before m2 \n";
+//  list<Move> l3;
+//  g.generate_place_1(White, l3);
+//  printMoveList(l3);
+//  Move m3(0,1,'C');
+//  g.makemove(m3);
+//  printf("%s is Board after m3 \n", g.to_string().c_str());
 // }
 
-bool Test::checkPath(){
-	Game g(3,100);
-	multimap<eval_type,Move> moves;
-	Move m1(2,0,piece(Flat,White));
-	Move m2(2,1,piece(Flat,White));
-	// Move m3(2,2,piece(Flat,White));
+// void checkValid2()
+// {
+//  size = 3;
+//  Game g(size,21);
+//  cout << "All possible moves for White before m1 \n";
+//  list<Move> l1;
+//  g.generate_place_2(White, l1);
+//  printMoveList(l1);
 
-	g.makemove(m1);
-	g.makemove(m2);
-	// g.makemove(m3);
-	cerr << g.to_string();
-	g.generate_valid_moves(White,moves);
-	for(auto &i : moves)
-		cerr << i.first << " " << i.second.to_string() << "\n";
-	return true;
-}
+//  Move m1(2,1,'F');
+//  g.makemove(m1);
+//  printf("%s is Board after m1 \n", g.to_string().c_str());
 
-bool Test::checkMove()
+//  cout << "All possible moves for Black before m2 \n";
+//  list<Move> l2;
+//  g.generate_place_2(Black, l2);
+//  printMoveList(l2);
+
+//  Move m2(1,1,'s');
+//  g.makemove(m2);
+//  printf("%s is Board after m2 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for White before m3 \n";
+//  list<Move> l3;
+//  g.generate_place_2(White, l3);
+//  printMoveList(l3);
+//  Move m3(0,1,'C');
+//  g.makemove(m3);
+//  printf("%s is Board after m3 \n", g.to_string().c_str());
+// }
+
+// void checkStackMoves()
+// {
+//  size = 3;
+//  Game g(3,21);
+//  cout << "All possible moves for White before m1 \n";
+//  list<Move> l1;
+//  g.generate_stack_moves(White, l1);
+//  printMoveList(l1);
+
+//  Move m1(2,1,'F');
+//  g.makemove(m1);
+//  printf("%s is Board after m1 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for Black before m2 \n";
+//  list<Move> l2;
+//  g.generate_stack_moves(Black, l2);
+//  printMoveList(l2);
+
+//  Move m2(1,1,'s');
+//  g.makemove(m2);
+//  printf("%s is Board after m2 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for White before m3 \n";
+//  list<Move> l3;
+//  g.generate_stack_moves(White, l3);
+//  printMoveList(l3);
+
+//  Move m3(0,1,'C');
+//  g.makemove(m3);
+//  printf("%s is Board after m3 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for White before m4 \n";
+//  list<Move> l4;
+//  g.generate_stack_moves(White, l4);
+//  printMoveList(l4);
+
+//  vector<s_int> v (1,1);
+//  Move m4(0,1,'+', &v);
+//  m4.cap_move = true;
+//  g.makemove(m4);
+//  printf("%s is Board after m4 \n", g.to_string().c_str());
+
+//  cout << "All possible moves for White after m4 \n";
+//  list<Move> l5;
+//  g.generate_stack_moves(White, l5);
+//  printMoveList(l5);
+// }
+
+int main(int argc, char const *argv[])
 {
-	std::cerr << "Moves -> \n";
-	Game g(3,12);
-
-	// Piece p = piece(Flat,White);
-	Move m(2,1,piece(Flat,White));
-	cerr << m.to_string() << std::endl;
-	g.makemove(m);
-	std::cerr << g.to_string() << ", EVAL =  "<< g.eval() << std::endl;
-
-	Piece pp = piece(Flat,false);
-	Move mm(1,1,pp);
-	cerr << mm.to_string() << std::endl;
-	g.makemove(mm);
-	std::cerr << g.to_string() << g.eval() << std::endl;
-	
-	Move m1(2,1,'-',&AllPerms[1][1][0]);
-	cerr << m1.to_string() << std::endl;
-	g.makemove(m1);
-	std::cerr << g.to_string() << std::endl;
-
-	g.antimove(m1);
-	std::cerr << g.to_string() << std::endl;
-
-	return true;
-}
-
-bool Test::checkValid()
-{
-	std::cerr << "Valid Moves -> \n";
-	Game g(3,100);
-
-	Move m(2,1,piece(Cap,White));
-	cerr << m.to_string() << std::endl;
-	g.makemove(m);
-	cout << g.eval() << "DEKHO ISSE \n";
-	std::cerr << g.to_string() << std::endl;
-
-	Move mm(1,1,piece(Stand,Black));
-	cerr << mm.to_string() << std::endl;
-	g.makemove(mm);
-	printf("%f eval \n", g.eval());
-	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
-	std::cerr << g.to_string() << std::endl;
-
-	fprintf(stderr, "Moves for white\n");
-	std::multimap<eval_type, Move> moves;
-	g.generate_valid_moves(White,moves);
-	for (auto &i : moves)
-		cerr << i.first << " " << i.second.to_string() << endl;
-	fprintf(stderr, "Done Generating moves, is there a up move(1) ? \n");
-
-	// fprintf(stderr, "Top of Stack %d\n", g.GameBoard[2][1].Stack.front().second);
-	// fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
-	g.antimove(mm);
-	// fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
-
-	Move m2(1,1,piece(Cap,Black));
-	cerr << m2.to_string() << endl;
-	g.makemove(m2);
-	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
-	cerr << g.to_string() << endl;
-
-	// Move m1(2,1,'-',&AllPerms[1][1][0]);
-	// m1.CapMove = true;
-	// cerr << m1.to_string() << std::endl;
-	// g.makemove(m1);
-	// std::cerr << g.to_string() << std::endl;
-
-	cerr << "MOVES FOR White \n";
-
-	std::multimap<eval_type, Move> moves1;
-	g.generate_valid_moves(White,moves1);
-	for (auto &i : moves1)
-		cerr << i.first << " " << i.second.to_string() << endl;
-	cerr << "up (1) nhi hai na?? \n";
-	return true;
-}
-
-
-bool Test::checkfavourable()
-{
-	Game g(3,100);
-
-	Move m(2,1,piece(Flat,White));
-	cerr << m.to_string() << std::endl;
-	g.makemove(m);
-	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
-	std::cerr << g.to_string() << std::endl;
-
-	Move mm(1,1,piece(Cap,Black));
-	cerr << mm.to_string() << std::endl;
-	g.makemove(mm);
-	fprintf(stderr, "%d : black x, %d : white x \n", g.p_black.x, g.p_white.x);
-	std::cerr << g.to_string() << std::endl;
-
-	// cerr << favourableStack(g.GameBoard, 2,1) << endl;
-	return true;
+  cout << "Yo \n";
+  // getAllPerms(3);
+  checkMove();
+  // check_makeOppo();
+  // checkValid1();
+  // checkValid2();
+  // checkStackMoves();
+  return 0;
 }

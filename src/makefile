@@ -1,36 +1,53 @@
 CFLAGS = -c -std=c++11 -Ofast -march=native
 LFLAGS = -std=c++11 -Ofast -march=native
-OBJ = main.o Misc.o Game.o Features.o
+OBJ = Misc.o Game.o Features.o
 
 all : out
 
-out : $(OBJ)
-	g++ $(LFLAGS) $(OBJ) -o out
+run1 : $(OBJ) main.o
+	g++ $(LFLAGS) $(OBJ) main.o -o run1
 
-main.o : main.cpp Header.h
+run2 : $(OBJ) main.o
+	g++ $(LFLAGS) $(OBJ) main.o -o run2
+
+out : $(OBJ) main.o
+	g++ $(LFLAGS) $(OBJ) main.o -o out
+
+test : $(OBJ) Test.o
+	g++ $(LFLAGS) $(OBJ) Test.o -o test
+
+main.o : main.cpp Game.h Header.h
 	g++ $(CFLAGS) main.cpp
 
-Game.o : Game.cpp Header.h
+Game.o : Game.cpp Game.h Header.h
 	g++ $(CFLAGS) Game.cpp
 
-Features.o : Features.cpp Header.h
+Features.o : Features.cpp Game.h Header.h
 	g++ $(CFLAGS) Features.cpp
 
-Misc.o : Misc.cpp Header.h
+Misc.o : Misc.cpp Move.h Header.h
 	g++ $(CFLAGS) Misc.cpp
 
-Test.o : Test.cpp Header.h
+Test.o : Test.cpp Game.h Header.h
 	g++ $(CFLAGS) Test.cpp
 
-client : Client.cpp
-	g++ $(LFLAGS) -o client Client.cpp
+Position.h : Header.h
+
+Transposition.h : Move.h Header.h
+
+Move.h : Header.h
+
+Game.h : Position.h Transposition.h
 
 clean : 
 	rm *.o
 	rm out
+	rm test
+	rm run1
+	rm run2
 
 run : out
 	./out
 
-debug : out
-	gdb out
+debug : test
+	gdb test

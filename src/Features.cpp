@@ -1,344 +1,180 @@
-#include "Header.h"
+#include "Game.h"
 using namespace Types;
 
-inline bool pathable(char x, char y, bool player, vector< vector<Position> > &GameBoard){
-	return (!GameBoard[x][y].empty() && GameBoard[x][y].top_piece().first != Stand && GameBoard[x][y].top_piece().second == player);
+// void Game::search(bool type, s_int x, s_int y, bool player, vector< vector<bool> > &explored, bool &found){
+//  if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
+//  if(type && y == size-1){
+//    found = true;
+//    return;
+//  }
+//  if(!type && x == size-1){
+//    found = true;
+//    return;
+//  }
+//  explored[x][y] = true;
+//  if(y!=size-1 && pathable(x,y+1,player))
+//    search(type, x, y+1, player, explored, found);
+//  if(x!=size-1 && pathable(x+1,y,player)) 
+//    search(type, x+1, y, player, explored, found);
+//  if(x!=0 && pathable(x-1,y,player)) 
+//    search(type, x-1, y, player, explored, found);
+//  if(y!=0 && pathable(x,y-1,player)) 
+//    search(type, x, y-1, player, explored, found);
+// }
+
+void Game::newsearch(s_int x, s_int y, bool player, vector< vector<bool> > &explored, vector<int> &lrud){
+  if(explored[x][y] || x<0 || x==size || y<0 || y==size) return;
+  lrud[0] = min(lrud[0], x);
+  lrud[1] = max(lrud[1], x);
+  lrud[2] = min(lrud[2], y);
+  lrud[3] = max(lrud[3], y);
+  explored[x][y] = true;
+
+  if(y!=size-1 && pathable(x,y+1,player))
+    newsearch(x, y+1, player, explored, lrud);
+  if(x!=size-1 && pathable(x+1,y,player)) 
+    newsearch(x+1, y, player, explored, lrud);
+  if(x!=0 && pathable(x-1,y,player)) 
+    newsearch(x-1, y, player, explored, lrud);
+  if(y!=0 && pathable(x,y-1,player)) 
+    newsearch(x, y-1, player, explored, lrud);
 }
 
-void search(bool type, char x, char y, bool player, vector< vector<Position> > &GameBoard, vector< vector<bool> > &explored, bool &found, char size){
-	if(found || explored[x][y] || x<0 || x==size || y<0 || y==size) return;
-	if(type && y == size-1){
-		found = true;
-		return;
-	}
-	if(!type && x == size-1){
-		found = true;
-		return;
-	}
-	explored[x][y] = true;
-	if(y!=size-1 && pathable(x,y+1,player,GameBoard))
-		search(type, x, y+1, player, GameBoard, explored, found, size);
-	if(x!=size-1 && pathable(x+1,y,player,GameBoard)) 
-		search(type, x+1, y, player, GameBoard, explored, found, size);
-	if(x!=0 && pathable(x-1,y,player,GameBoard)) 
-		search(type, x-1, y, player, GameBoard, explored, found, size);
-	if(y!=0 && pathable(x,y-1,player,GameBoard)) 
-		search(type, x, y-1, player, GameBoard, explored, found, size);
-}
-
-// path
-eval_type Game::feature0(){
-	// fprintf(stderr, "Feature 0 enter \n");
-	vector< vector<bool> > explored(size, vector<bool>(size, false));
-	for(char i=0; i<size; ++i){
-		if(GameBoard[i][0].empty() || explored[i][0]) continue;
-		bool found = false;
-		char x = i;
-		char y = 0;
-		if (GameBoard[i][0].top_piece().first != Stand)
-			search(true,x,y,GameBoard[i][0].top_piece().second, GameBoard, explored, found, size);
-		if(found){
-			if(GameBoard[i][0].top_piece().second == White) return w[0];
-			else return -w[0];
-		}
-	}
-	explored = vector< vector<bool> >(size, vector<bool>(size, false));
-	for(char j=0; j<size; ++j){
-		if(GameBoard[0][j].empty() || explored[0][j]) continue;
-		bool found = false;
-		char x = 0;
-		char y = j;
-		if (GameBoard[0][j].top_piece().first != Stand)
-			search(false,x,y,GameBoard[0][j].top_piece().second, GameBoard, explored, found, size);
-		if(found){
-			if(GameBoard[0][j].top_piece().second == White) return w[0];
-			else return -w[0];
-		}
-	}
-	return 0;
-}
-
-// csiochd@123
-inline eval_type Game::center(char i, char j)
+eval_type Game::newpath(bool player)
 {
-	float half = size/2.0;
-	// cout << "Center val is " << (abs(i - half) + abs(j - half))* w[1] << endl;
-	return (abs(i - half) + abs(j - half))* w[1];
+  vector< vector<bool> > explored(size, vector<bool>(size, false));
+  eval_type GroupVal = 0;
+  bool white_win = false;
+  bool black_win = false;
+  for (s_int i = 0; i < size; i++)
+    for (s_int j = 0; j < size; j++)
+    {
+      if (GameBoard[i][j].empty() || GameBoard[i][j].top_piece() == 'S' || explored[i][j]) continue;
+      vector<int> LRUD (4);
+      LRUD[0] = LRUD[1] = i;
+      LRUD[2] = LRUD[3] = j;
+      newsearch(i, j, GameBoard[i][j].player(), explored, LRUD);
+      GroupVal += (GROUP[LRUD[1] - LRUD[0]] + GROUP[LRUD[3] - LRUD[2]])*(GameBoard[i][j].player() == White ? 1 : -1);
+      if(GameBoard[i][j].player() == White && max(LRUD[1] - LRUD[0], LRUD[3] - LRUD[2]) == size - 1) white_win = true;
+      if(GameBoard[i][j].player() == Black && max(LRUD[1] - LRUD[0], LRUD[3] - LRUD[2]) == size - 1) black_win = true;
+      // fprintf(stderr, "%d = i,%d = j, %d %d %d %d is LRUD. \n", i, j, LRUD[0], LRUD[1], LRUD[2], LRUD[3]);
+    }
+  if(white_win && black_win){
+    // cerr << "--------WHITE BLACK BOTH WITH " << player << endl;
+    return (player ? -FLWIN : FLWIN);
+  }
+  return GroupVal;
 }
 
-
-inline eval_type Game::nbr(Piece p1, Piece p2){
-	Stone &s1 = p1.first;
-	Stone &s2 = p2.first;
-	bool same = (p1.second == p2.second);
-	int mult = (p1.second == White) ? 1 : -1;
-	if(same){
-		if(s1 == Flat){
-			switch(s2){
-				case Flat 	: return mult * w[9];
-				case Stand 	: return mult * w[10];
-				case Cap	: return mult * w[11];
-			}
-		}
-		else if(s1 == Stand){
-			switch(s2){
-				case Stand 	: return mult * w[12];
-				case Cap 	: return mult * w[13];
-				default 	: return 0;
-			}
-		}
-	}
-	else{
-		if(s1 == Flat){
-			switch(s2){
-				case Stand 	: return mult * w[14];
-				case Cap 	: return mult * w[2];
-				default 	: return 0;
-			}
-		}
-		else if(s1 == Stand){
-			if(s2 == Cap) return mult * w[3];
-		}
-		return 0;
-	}
-}
-
-inline eval_type Game::neighbor(char x, char y)
-{
-	eval_type ng = 0;
-	if(x != size-1 && !GameBoard[x+1][y].empty())
-		ng += nbr(GameBoard[x][y].top_piece(), GameBoard[x+1][y].top_piece());
-
-	if(y != size-1 && !GameBoard[x][y+1].empty())
-		ng += nbr(GameBoard[x][y].top_piece(), GameBoard[x][y+1].top_piece());
-
-	return ng;
-}
-
-inline eval_type Game::stone_weight(Stone s){
-	switch(s){
-		case Flat : return w[6];
-		case Stand : return w[7];
-		default : return w[8];
-	}
-}
-
-inline eval_type Game::top_colors(char x, char y, pair<char,char> &top5)
-{
-	auto &j = GameBoard[x][y];
-	eval_type count = 0;
-	eval_type cap_opp = 2.7;
-	if(j.top_piece().second == White){
-		// count += stone_weight(j.top_piece().first);
-		if(j.top_piece().first == Cap)
-			count += ((top5.first)*w[4] + (top5.second)*w[5]*cap_opp);
-		else 
-			count += ((top5.first)*w[4] + (top5.second)*w[5]);
-	}
-	else{
-		// count -= stone_weight(j.top_piece().first);
-		if(j.top_piece().first == Cap)
-			count -= ((top5.first)*w[5] + (top5.second)*w[4]*cap_opp);
-		else 
-			count -= ((top5.first)*w[5] + (top5.second)*w[4]);
-	}
-	return count;
-}
-
-inline char Game::sq(char i, char j)
-{
-	bool yo = true;
-	Player_Type p = GameBoard[i][j].top_piece().second;
-	if (i + 1 >= size) yo = false;
-	else yo = yo & (!GameBoard[i+1][j].empty() && GameBoard[i+1][j].top_piece().second == p);
-
-	if (i - 1 < 0) yo = false;
-	else yo = yo & (!GameBoard[i-1][j].empty() && GameBoard[i-1][j].top_piece().second == p);
-
-	if (j + 1 >= size) yo = false;
-	else yo = yo & (!GameBoard[i][j+1].empty() && GameBoard[i][j+1].top_piece().second == p);
-
-	if (j - 1 < 0) yo = false;
-	else yo = yo & (!GameBoard[i][j-1].empty() && GameBoard[i][j-1].top_piece().second == p);
-
-	if (yo) return 1;
-	return 0;
-}
-
-
-// closer to center
-eval_type Game::feature1(){
-	// fprintf(stderr, "Feature 1 enter \n");
-	eval_type count = 0;
-	pair<char,char> top5;
-	// vector<vector<int> > influence (Size, vector<int> (Size,0));
-	bool full = true;
-	char flat_count = 0;
-	char squares = 0;
-
-	for(char i=0; i<size; ++i){
-		for(char j=0; j<size; ++j){
-			if(GameBoard[i][j].empty())
-			{
-				full = false;
-				continue;
-			}
-
-			eval_type mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
-			eval_type stone = stone_weight(GameBoard[i][j].top_piece().first) * w[16];
-			GameBoard[i][j].top5(top5);
-
-				// printf("i = %d, j = %d, top5 white = %d, black = %d \n", i, j , top5.first, top5.second);
-				// printf("%f Center \n", center(i,j));
-				// printf("%f Neighbor\n", neighbor(i,j));
-				// printf("%f Top colors \n", top_colors(i,j,top5));
-
-
-			count += center(i,j)*mult;
-			// count += neighbor(i,j); ??
-			count += top_colors(i,j,top5);
-
-			count += mult * stone;
-			if (i > 0)
-				count += mult * stone;
-			if (i < size-1)
-				count += mult * stone;
-			if (j > 0)
-				count += mult * stone;
-			if (j < size-1)
-				count += mult * stone;
-
-				// cout << "Now, count = " << count << endl;
-
-			if (GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == White)
-				++flat_count;
-			else if(GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == Black)
-				--flat_count;
-
-			squares += mult * sq(i,j);
-
-		}
-	}
-
-	if (full)
-		count += flat_count*w[15];
-	else if ((p_black.StonesLeft + (char)p_black.CapLeft) == 0 || (p_white.StonesLeft + (char)p_white.CapLeft) == 0)
-		count += flat_count*w[15];
-
-	count += squares*w[17];
-
-	return count;
-}
-
-
-
-
-// neighbours  DONEEEE
-// eval_type Game::feature2(){
-// 	// fprintf(stderr, "Feature 2 enter \n");
-// 	eval_type count = 0;
-// 	for(int x=0; x<size; ++x){
-// 		for(int y=0; y<size; ++y){
-// 			if(GameBoard[x][y].empty()) continue;
-// 			if(x != size-1 && !GameBoard[x+1][y].empty())
-// 				count += nbr(GameBoard[x][y].top_piece(), GameBoard[x+1][y].top_piece());
-
-// 			if(y != size-1 && !GameBoard[x][y+1].empty())
-// 				count += nbr(GameBoard[x][y].top_piece(), GameBoard[x][y+1].top_piece());
-// 		}
-// 	}
-// 	return count;
+// eval_type Game::path(){
+//  vector< vector<bool> > explored(size, vector<bool>(size, false));
+//  // vector<int> LRUD (4,0);
+//  for(s_int i=0; i<size; ++i){
+//    if(GameBoard[i][0].empty() || GameBoard[i][0].top_piece() == 'S' || explored[i][0]) continue;
+//    bool found = false;
+//    s_int x = i;
+//    s_int y = 0;
+//    search(true, x, y, GameBoard[i][0].player(), explored, found);
+//    if(found){
+//      if(GameBoard[i][0].player() == White) return RDWIN;
+//      else return -RDWIN;
+//    }
+//  }
+//  explored = vector< vector<bool> >(size, vector<bool>(size, false));
+//  for(s_int j=0; j<size; ++j){
+//    if(GameBoard[0][j].empty() || GameBoard[0][j].top_piece() == 'S' || explored[0][j]) continue;
+//    bool found = false;
+//    s_int x = 0;
+//    s_int y = j;
+//    search(false, x, y, GameBoard[0][j].player(), explored, found);
+//    if(found){
+//      if(GameBoard[0][j].player() == White) return RDWIN;
+//      else return -RDWIN;
+//    }
+//  }
+//  return 0;
 // }
 
+inline eval_type Game::center(int i, int j){
+  return -(abs(2*i - size) + abs(2*j - (size))) * CENTER;
+}
 
-// How many of the same type below the stack
-// Weight of each stack as per piece
-// eval_type Game::feature3(){
-// 	// fprintf(stderr, "Feature 3 enter \n");
-// 	eval_type count = 0;
-// 	pair<int,int> top5;
-// 	for(auto &i : GameBoard){
-// 		for(auto &j : i){
-// 			if(j.empty()) continue;
-// 			j.top5(top5);
-// 			if(j.top_piece().second == White){
-// 				// count += stone_weight(j.top_piece().first);
-// 				if(j.top_piece().first == Cap)
-// 					count += ((top5.first)*w[4] + (top5.second)*w[5]*1);
-// 				else 
-// 					count += ((top5.first)*w[4] + (top5.second)*w[5]);
-// 			}
-// 			else{
-// 				// count -= stone_weight(j.top_piece().first);
-// 				if(j.top_piece().first == Cap)
-// 					count -= ((top5.first)*w[4] + (top5.second)*w[5]*1);
-// 				else 
-// 					count -= ((top5.first)*w[5] + (top5.second)*w[4]);
-// 			}
-// 		}
-// 	}
-// 	return count;
-// }
+inline eval_type Game::piece_type(char top){
+  switch(top){
+    case 'F' : return TOPFLAT + ENDGAMEFLAT * (eval_type)(ENDGAMECUTOFF - min((s_int)min(p_black.StonesLeft, p_white.StonesLeft), (s_int)ENDGAMECUTOFF)) / ENDGAMECUTOFF; 
+    case 'S' : return STAND;
+    default : return CAP;
+  }
+}
 
-// eval_type Game::feature4(){
-// 	eval_type count = 0;
-// 	bool full = true;
-// 	for (int i = 0 ; i < size ; ++i){
-// 		for (int j = 0 ; j < size ; ++j){
-// 			if (GameBoard[i][j].empty()){
-// 				full = false;
-// 				continue;
-// 			}
-// 			if (GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == White) ++count;
-// 			else if(GameBoard[i][j].top_piece().first != Stand && GameBoard[i][j].top_piece().second == Black) --count;
-// 		}
-// 	}
-// 	if(full) return count*w[15];
-// 	else if((p_black.StonesLeft + (int)p_black.CapLeft) == 0 || (p_white.StonesLeft + (int)p_white.CapLeft) == 0)
-// 		return count*w[15];
-// 	else return 0;
-// }
+inline eval_type Game::captive(char top, pair<s_int, s_int> &p){
+  switch(top){
+    case 'F' : return p.first * HARD_FCAPTIVE + p.second * SOFT_FCAPTIVE; 
+    case 'S' : return p.first * HARD_SCAPTIVE + p.second * SOFT_SCAPTIVE;
+    default :  return p.first * HARD_CCAPTIVE + p.second * SOFT_CCAPTIVE;
+  }
+}
+
+eval_type Game::features(){
+  eval_type count = 0;
+  pair<s_int, s_int> p;
+  bool has_empty = false;
+  int delta_flat = 0;
+  for(s_int i=0; i<size; ++i){
+    for(s_int j=0; j<size; ++j){
+      Position &pos = GameBoard[i][j];
+      if(pos.empty()){
+        has_empty = true;
+        continue;
+      }
+      if  (pos.top_piece() != 'S'){
+        if(pos.player() == White) ++delta_flat;
+        else --delta_flat;
+      }
+      int mult = pos.player() ? 1 : -1;
+      eval_type temp_count = 0;
+      pos.captive(p);
+
+      temp_count += center(i,j);
+      temp_count += piece_type(pos.top_piece());
+      temp_count += captive(pos.top_piece(), p);
+
+      // Groups : **************************
+      // vector<s_int> stack_xy (4,0);
+      // if (pos.player() == White)
+      // {
+      //  GetStackable(i,j,White,stack_xy);
+      //  // temp_count += GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];       
+      // }
+      // else
+      // {
+      //  GetStackable(i,j,Black,stack_xy);
+      //  // temp_count -= GroupWt[max(stack_xy[0],stack_xy[1])] + GroupWt[max(stack_xy[2],stack_xy[3])];       
+      // }
 
 
-// eval_type Game::feature5(){
-// 	vector<vector<int> > influence (Size, vector<int> (Size,0));
-// 	int mult = 0;
-// 	eval_type count = 0;
-// 	for (int i = 0 ; i < Size ; i ++)
-// 	{
-// 		for (int j = 0 ; j < Size ; j ++)
-// 		{
-// 			if (GameBoard[i][j].empty()) continue;
-// 			mult = (GameBoard[i][j].top_piece().second == White) ? 1 : -1;
-// 			mult *= stone_weight(GameBoard[i][j].top_piece().first);
-// 			influence[i][j] += mult;
-// 			if (i > 0)
-// 				influence[i-1][j] += mult;
-// 			if (i < size-1)
-// 				influence[i+1][j] += mult;
-// 			if (j > 0)
-// 				influence[i][j-1] += mult;
-// 			if (j < size-1)
-// 				influence[i][j+1] += mult;
-// 		}
-// 	}
-// 	// counted all!!
-// 	for (int i = 0; i < size; i++)
-// 	{
-// 		for (int j = 0 ; j < size ; j ++)
-// 			count += influence[i][j];
-// 	}
-// 	return count*w[16];
-// }
+      count += mult * temp_count;
+      // cout << count << " is the count, inside features \n";
+    }
+  }
+  // cout << "-------------------- \n";
+  if(has_empty == false || p_black.noStone() || p_white.noStone()){
+    if(delta_flat > 0) return FLWIN;
+    else if(delta_flat == 0) return count;
+    else return -FLWIN;
+    // return (delta_flat > 0) ? FLWIN : -FLWIN;
+  }
+  else return count;
+}
 
-// Number of white and black on board
-// eval_type Game::feature4(){
-// 	float count = 0;
-// 	for(int i=0; i<size; ++i){
-// 		for(int j=0; j<size; ++j){
-// 			if(GameBoard[i][j].empty()) continue;
-// 			count += favourableStack(GameBoard, i, j);
-// 		}
-// 	}
-// 	return count;
-// }
+
+
+
+
+
+
+
+
+
+
+

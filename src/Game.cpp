@@ -1,529 +1,624 @@
-#include "Header.h"
+#include "Game.h"
 
-#define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
+// const eval_type FLAT_MUL   = 1.3;
+s_int WINDOW;
+vector<eval_type> GROUP;
+const eval_type RDWIN       = 1000000;
+const eval_type FLWIN       = 1000000;
+const eval_type ENDGAMEFLAT   = 1400;       // Last best working 1000   Originals : 800 
+const eval_type TOPFLAT     = 400;      // Last best working 450   Originals : 400        // 500
+const eval_type STAND     = 200;      // Last best working 200   Originals : 200 
+const eval_type CAP       = 300;      // Last best working 300   Originals : 300 
+const eval_type HARD_FCAPTIVE = 200;      // Last best working 200   Originals : 200 
+const eval_type SOFT_FCAPTIVE = -200;     // Last best working -250  Originals : -200       //-250
+const eval_type HARD_SCAPTIVE = 300; /*TOPFLAT  - 25;*/ // Last best working 300   Originals : 300 
+const eval_type SOFT_SCAPTIVE = -150; /*-TOPFLAT - 50;*/  // Last best working -150  Originals : -150
+const eval_type HARD_CCAPTIVE = 250; /*TOPFLAT  - 25;*/ // Last best working 250   Originals : 250 
+const eval_type SOFT_CCAPTIVE = -150; /*-TOPFLAT - 50;*/  // Last best working -150  Originals : -150
 
-using namespace Types;
+const eval_type CENTER      = 7;
+const eval_type ENDGAMECUTOFF = 7;
 
-eval_type E_MIN = -99999999999;
-eval_type E_MAX = +99999999999;
-Piece NULL_PIECE = make_pair(Flat, false);
-Move NULL_MOVE = Move(-1, -1, NULL_PIECE);
+vector<vector<ms> > times_moves;
+vector<int> depth_moves;
+vector<ms> avg_time, max_time_depth;
+int moves;
+ms total_time_elapsed, cutoff_time;
+TPoint move_start_time;
 
-Game::Game(char size, char pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces))
-{
-	this->size = size;
-	GameBoard = vector< vector<Position> >(size, vector<Position>(size));
-
-	f[0] = &Game::feature0;
-	f[1] = &Game::feature1;
-	// f[2] = &Game::feature2;
-	// f[3] = &Game::feature3;
-	// f[4] = &Game::feature4;
-	// f[5] = &Game::feature5;
-	
-	// float piece_factor = 1;
-	float nbr_factor = 0.7;
-	float top_factor = 2;
-
-
-	w[0] = 1000000;
-	w[15] = 1000000;
-
-	w[1] = 0.35;
-
-	w[4] = top_factor * 150;
-	w[5] = top_factor * -10;	// original 1
-
-	w[6] = top_factor * 200;		// orinimal 12
-	w[7] = top_factor * 120;
-	w[8] = top_factor * 180;
-
-	w[9]  = nbr_factor * 8.5;
-	w[10] = nbr_factor * 5;
-	w[11] = nbr_factor * 12;
-	w[12] = nbr_factor * -2;
-	w[13] = nbr_factor * -2;  // more?
-	w[14] = nbr_factor * -6; // less? -2 orig
-	w[2]  = nbr_factor * -12; // less? -4 orig
-	w[3]  = nbr_factor * 20; // more? 10 orig
-
-	w[16] = 7;
-	w[17] = 10;
-
+Game::Game(s_int s, s_int pieces) : p_white(Player(White, pieces)), p_black(Player(Black, pieces)){
+  this->size = s;
+  GameBoard = vector< vector<Position> >(size, vector<Position>(size));
+  TTable = vector<unordered_map<string,Transposition> >(2);
+  GROUP = vector<eval_type>(7,0);
+  GROUP[2] = 30;
+  GROUP[3] = 100;
+  GROUP[4] = 300;
+  GROUP[5] = 500;
+  GROUP[size-1] = RDWIN;
+  switch(size){
+    case 5 : WINDOW = 200; break;
+    case 6 : WINDOW = 20; break;
+    case 7 : WINDOW = 20; break;
+  }
+  times_moves = vector< vector<ms> > (7,vector<ms> (5));
+  depth_moves = vector<int> (7);
+  avg_time = vector<ms> (7);
+  max_time_depth = vector<ms> (7);
+  max_time_depth[2] = std::chrono::milliseconds(2000);
+  max_time_depth[3] = std::chrono::milliseconds(4000);
+  max_time_depth[4] = (size == 7) ? ms(9000) : ms(8000);
+  max_time_depth[5] = ms(9000);
+  max_time_depth[6] = ms(11200);
+  moves = 0;
+  total_time_elapsed = ms(0);
 }
 
-string Game::to_string()
-{
-	string str = "";
-	for (char i = 0 ; i < size ; i ++){
-		for (char j = 0 ; j < size ; j ++){
-			str += GameBoard[i][j].to_string() + "_"; // this is a position.
-		}
-	}
-	return str;
+string Game::to_string(){
+  string str = "";
+  for(auto &i : GameBoard){
+    for(auto &j : i){
+      str += j.to_string() + "_";
+    }
+  }
+  return str;
 }
 
-eval_type Game::eval(){
-	string s = to_string();
-	auto ptr = duplicates.find(s);
-	if(ptr != duplicates.end()) return ptr->second;
-	eval_type e = 0;
-	for(char i=0; i<2; ++i){
-		e += CALL_MEMBER_FN(this, f[i]) ();
-	}
-	duplicates[s] = e;
-	return e;
-}
 
-// void n_tabs(int n){
-// 	for(int i=0; i<n; ++i) cerr << "  ";
-// }
-
-void Game::decide_move(Eval_Move &best_move, bool player, char depth, char max_depth, eval_type alpha, eval_type beta){
-	
-	multimap <eval_type, Move> allmoves;
-	generate_valid_moves(player, allmoves);
-
-	// n_tabs(depth); fprintf(stderr, "Plyr:%d Depth:%d\n",player,depth);
-	// for(auto &i : allmoves){
-	// 		cerr << i.first << " XXXXX " << i.second.to_string() << endl;
-	// }
-	
-	if(depth == max_depth){
-		if(player == White){
-			auto ptr = allmoves.rbegin();
-			best_move.e = ptr->first;
-			best_move.m = ptr->second;
-		}else{
-			auto ptr = allmoves.begin();
-			best_move.e = ptr->first;
-			best_move.m = ptr->second;
-		}
-		// n_tabs(depth); fprintf(stderr, "%s : Best move\n",best_move.m.to_string().c_str());
-	}
-	else{
-		Eval_Move opponent_move;
-		if(player == White) best_move.e = E_MIN;
-		else best_move.e = E_MAX;
-		char index = 0;
-		char best_index = 0;
-
-		if(player == White){
-			auto best_ptr = allmoves.rbegin();
-			if (best_ptr->first > w[0]/2){
-				best_move.e = best_ptr->first;
-				best_move.m = best_ptr->second;
-				// if(depth < 2) fprintf(stderr, "White ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
-				return;
-			}
-			bool x = true;
-			for(auto ptr = allmoves.rbegin(); x && ptr != allmoves.rend(); ++ptr){
-				++index;
-				makemove(ptr->second);
-				decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
-				if(opponent_move.e > best_move.e){
-						// if (abs(opponent_move.e + 1000000) < 10000)
-						// 	fprintf(stderr, "%f %s : Path Move Black \n", opponent_move.e, opponent_move.m.to_string().c_str());
-					best_index = index;
-					best_move.e = opponent_move.e;
-					best_ptr = ptr;
-						// if(depth < 2){
-						// 	fprintf(stderr, "d %d index %d White Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
-						// }
-				}
-				antimove(ptr->second);
-				alpha = max(alpha, best_move.e);
-				if(best_move.e >= beta){
-					// best_move.m = best_ptr->second;
-					// fprintf(stderr, "Prune %d depth %d\n",index,depth);
-					break;
-				}
-				x = (index < best_index + 5 || best_move.e < -w[0]/2);
-				// if(best_move.e < -w[0]/2){
-				// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
-				// }
-			}
-			best_move.m = best_ptr->second;
-		}
-		else
-		{
-			auto best_ptr = allmoves.begin();
-			if (best_ptr->first < -w[0]/2){
-				best_move.e = best_ptr->first;
-				best_move.m = best_ptr->second;
-				// if(depth < 2) fprintf(stderr, "Black ka final move %s at depth %d\n",best_move.m.to_string().c_str(), depth);
-				return;
-			}
-			bool x = true;
-			for(auto ptr = allmoves.begin(); x && ptr != allmoves.end(); ++ptr){
-				++index;
-				makemove(ptr->second);
-				decide_move(opponent_move, !player, depth+1, max_depth, alpha, beta);
-				if(opponent_move.e < best_move.e){
-						// if (abs(opponent_move.e - 1000000) < 10000)
-						// 	fprintf(stderr, "%f %s : Path Move White \n", opponent_move.e, opponent_move.m.to_string().c_str());
-					best_index = index;
-					best_move.e = opponent_move.e;
-					best_ptr = ptr;
-						// if(depth < 2){
-						// 	fprintf(stderr, "d %d index %d Black Predicted eval : %f Actual eval : %f Move : %s\n", depth, index, ptr->first, best_move.e, ptr->second.to_string().c_str());
-						// }
-				}
-				antimove(ptr->second);
-				beta = min(beta, best_move.e);
-				if(best_move.e <= alpha){
-					// best_move.m = best_ptr->second;
-					// fprintf(stderr, "Prune %d depth %d\n",index,depth);
-					break;
-				}
-				x = (index < best_index + 5 || best_move.e > w[0]/2);
-				// if(best_move.e > w[0]/2){
-				// 	fprintf(stderr, "Further Exploring %d at depth %d\n",index,depth);
-				// }
-			}
-			best_move.m = best_ptr->second;
-		}
-		++prune_count[max_depth - depth];
-		prune_index[max_depth - depth] += best_index;
-	}
-	++depth_count[max_depth - depth];
+void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
+  Player &p = (p_type == White) ? p_white : p_black;
+  bool is_cap = (toupper(m.piece) == 'C');
+  bool place = (m.place_move);
+  if(!anti){
+    if(place){
+      if(is_cap){
+        p.x = m.x;
+        p.y = m.y;
+        p.CapLeft = false;
+      }else{
+        p.StonesLeft -= 1;
+      }
+    }else{
+      s_int x_new = m.x + m.drops->size() * ((m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0));
+      s_int y_new = m.y + m.drops->size() * ((m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0));
+      if(GameBoard[m.x][m.y].top_piece() == 'C'){
+        p.x = x_new;
+        p.y = y_new;
+      }
+      if(m.cap_move){
+        if(GameBoard[x_new][y_new].player() == White)
+          GameBoard[x_new][y_new].stack.back() = 'F';
+        else 
+          GameBoard[x_new][y_new].stack.back() = 'f';
+      }
+    }
+  }else{
+    if(place){
+      if(is_cap){
+        p.x = -1;
+        p.y = -1;
+        p.CapLeft = true;
+      }else{
+        p.StonesLeft += 1;
+      }
+    }else{
+      s_int x_new = m.x + m.drops->size() * ((m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0));
+      s_int y_new = m.y + m.drops->size() * ((m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0));
+      if(GameBoard[x_new][y_new].top_piece() == 'C'){
+        p.x = m.x;
+        p.y = m.y;
+      }
+      if(m.cap_move){
+        auto &pos = GameBoard[x_new][y_new];
+        if(pos.stack[pos.stack.size() - 2] < 95)
+          pos.stack[pos.stack.size() - 2] = 'S';
+        else 
+          pos.stack[pos.stack.size() - 2] = 's';
+          // GameBoard[x_new][y_new].stack[1].first = Stand;
+      }
+    }
+  }
 }
 
 void Game::make_opponent_move(string s, bool player)
 {
-	char first = s.at(0);
-	Move m;
-	m.x = Size - (s.at(2) - '0');
-	m.y = s.at(1) - 'a';
-	if (first == 'F' || first == 'S' || first == 'C')
-	{
-		m.Place_Move = true;
-		switch (first)
-		{
-			case ('F'):
-				m.p = piece(Flat,player);
-				break;
-			case ('S'):
-				m.p = piece(Stand,player);
-				break;
-			case ('C'):
-				m.p = piece(Cap,player);
-				break;
-		}
-		makemove(m);
-	}
-	else
-	{
-		m.Place_Move = false;
-		m.Direction = s.at(3);
-		if (s.at(3) == '+')
-			m.Direction = '-';
-		else if (s.at(3) == '-')
-			m.Direction = '+';
-		vector<char> drops (s.length() - 4,1);
-		// fprintf(stderr, "%d\n", s.length() - 4);
-		for (char i = 0 ; i < s.length() - 4 ; i ++)
-			drops[i] = (char)(s.at(i+4) - '0');
-		m.Drops = &drops;
-		char x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
-		char y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
-		if (GameBoard[m.x][m.y].top_piece().first == Cap)
-		{
-			Position &p = GameBoard[x_new][y_new];
-			if (!p.empty() && p.top_piece().first == Stand)
-				m.CapMove = true;
-		}
-		makemove(m);
-		// cerr << "Oppo move is :::: " << m.to_string() << endl;
-	}
+  char first = s.at(0);
+  Move m;
+  m.x = size - (s.at(2) - '0');
+  m.y = s.at(1) - 'a';
+  if (first == 'F' || first == 'S' || first == 'C')
+  {
+    m.place_move = true;
+    m.piece = (player == White) ? first : tolower(first);
+    makemove(m);
+  }
+  else
+  {
+    m.place_move = false;
+    m.direction = s.at(3);
+    if (s.at(3) == '+')
+      m.direction = '-';
+    else if (s.at(3) == '-')
+      m.direction = '+';
+    vector<s_int> drops (s.length() - 4,1);
+
+    for (s_int i = 0; i < s.length() - 4; i++)
+      drops[i] = (char)(s.at(i+4) - '0');
+    
+    m.drops = &drops;
+    char x_new = m.x + m.drops->size() * ((m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0));
+    char y_new = m.y + m.drops->size() * ((m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0));
+    if (GameBoard[m.x][m.y].top_piece() == 'C')
+    {
+      Position &p = GameBoard[x_new][y_new];
+      if (!p.empty() && p.top_piece() == 'S')
+        m.cap_move = true;
+    }
+    makemove(m);
+  }
 }
 
-void Game::UpdatePlayer(Player_Type p_type, Move &m, bool anti){
-	Player &p = (p_type == White) ? p_white : p_black;
-	bool is_cap = (m.p.first == Cap);
-	bool place = (m.Place_Move);
-	if(!anti){
-		if(place){
-			if(is_cap){
-				p.x = m.x;
-				p.y = m.y;
-				p.CapLeft = false;
-			}else{
-				p.StonesLeft -= 1;
-			}
-		}else{
-			char x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
-			char y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
-			if(GameBoard[m.x][m.y].top_piece().first == Cap){
-				p.x = x_new;
-				p.y = y_new;
-			}
-			if(m.CapMove){
-				GameBoard[x_new][y_new].Stack.front().first = Flat;
-			}
-		}
-	}else{
-		if(place){
-			if(is_cap){
-				p.x = -1;
-				p.y = -1;
-				p.CapLeft = true;
-			}else{
-				p.StonesLeft += 1;
-			}
-		}else{
-			char x_new = m.x + m.Drops->size() * ((m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0));
-			char y_new = m.y + m.Drops->size() * ((m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0));
-			if(GameBoard[x_new][y_new].top_piece().first == Cap){
-				p.x = m.x;
-				p.y = m.y;
-			}
-			if(m.CapMove){
-				GameBoard[x_new][y_new].Stack[1].first = Stand;
-			}
-		}
-	}
-}
+void Game::makemove(Move &m){
+  if(m.place_move){
+    UpdatePlayer((m.piece < 95), m, false);
+    GameBoard[m.x][m.y].stack += m.piece;
+    // increment num_black, num_white no need
+  }
+  else{
+    vector<s_int> &d = *m.drops;
+    int x_add = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
+    int y_add = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
+    s_int drop_x = m.x + x_add*(m.drops->size());
+    s_int drop_y = m.y + y_add*(m.drops->size());
 
-void Game::makemove(Move &m)
-{
-	// Player &p = (m.p.second == Black)? p_black : p_white;
-	if (m.Place_Move){
-		UpdatePlayer(m.p.second,m,false);
-			// if(!GameBoard[m.x][m.y].empty()){
-			// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!\n");
-			// 	fprintf(stderr, "Game Board : %s\n", to_string().c_str());
-			// 	fprintf(stderr, "Move : %s\n", m.to_string().c_str());
-			// }
-		GameBoard[m.x][m.y].Stack.push_front(m.p);
-		if(m.p.second == Black) GameBoard[m.x][m.y].Num_Black += 1;
-		else GameBoard[m.x][m.y].Num_White += 1;
+    UpdatePlayer(GameBoard[m.x][m.y].player(), m, false);
+    auto &str = GameBoard[m.x][m.y].stack;
 
-	}
-	else{
-		// move stack!
-		vector<char> &d = *m.Drops;
-		char dirn = m.Direction;
-		int y_add = (dirn == '>') ? 1 : ((dirn == '<') ? -1 : 0);
-		int x_add = (dirn == '+') ? 1 : ((dirn == '-') ? -1 : 0);
-		char drop_x = m.x + x_add*(m.Drops->size());
-		char drop_y = m.y + y_add*(m.Drops->size());
+    for(s_int i = d.size() - 1; i>=0; --i){
+      GameBoard[drop_x][drop_y].stack += str.substr(str.size() - d[i]);
+      str.erase(str.size() - d[i]);
 
-		UpdatePlayer(GameBoard[m.x][m.y].top_piece().second,m,false);
-		auto &mainstack = GameBoard[m.x][m.y].Stack;
-
-		for (char i = d.size() - 1; i >=  0 ; i--)
-		{
-			for (char j = d[i] - 1; j > -1; j--)
-			{
-				GameBoard[drop_x][drop_y].Stack.push_front(mainstack[j]);
-				if (mainstack[j].second == Black)
-					GameBoard[drop_x][drop_y].Num_Black += 1;
-				else
-					GameBoard[drop_x][drop_y].Num_White += 1;
-			}
-			// pop all these!
-			for (char j = 0; j < d[i]; j++)
-			{
-				if (mainstack.front().second == Black)
-					GameBoard[m.x][m.y].Num_Black -= 1;
-				else
-					GameBoard[m.x][m.y].Num_White -= 1;
-				mainstack.pop_front();
-			}
-			drop_x -= x_add;
-			drop_y -= y_add;
-		}
-	}
+      drop_x -= x_add;
+      drop_y -= y_add;
+    }
+  }
 }
 
 void Game::antimove(Move &m){
-	// Player &p = (m.p.second == Black)? p_black : p_white;
-	if (m.Place_Move){
-		UpdatePlayer(m.p.second,m,true);
-		GameBoard[m.x][m.y].Stack.pop_front();
-		if(m.p.second == Black) GameBoard[m.x][m.y].Num_Black -= 1;
-		else GameBoard[m.x][m.y].Num_White -= 1;
-	}
-	else{
-		Position &current_p = GameBoard[m.x][m.y];
-		int y_add = (m.Direction == '>') ? 1 : ((m.Direction == '<') ? -1 : 0);
-		int x_add = (m.Direction == '+') ? 1 : ((m.Direction == '-') ? -1 : 0);
-		char x = m.x + x_add;
-		char y = m.y + y_add;
-		UpdatePlayer(GameBoard[m.x + m.Drops->size() * x_add][m.y + m.Drops->size() * y_add].top_piece().second,m,true);
-		for(auto &l : *m.Drops){
-			auto &S = GameBoard[x][y].Stack;
-			for(char pos = l-1; pos >= 0; --pos){
-				current_p.Stack.push_front(S[pos]);
-				if(S[pos].second == Black){ 
-					++current_p.Num_Black;
-					--GameBoard[x][y].Num_Black;
-				}
-				else{ 
-					++current_p.Num_White;
-					--GameBoard[x][y].Num_White;
-				}
-			}
-			for(char pos=0; pos<l; ++pos) GameBoard[x][y].Stack.pop_front();
-			x += x_add;
-			y += y_add;
-		}
-	}
+  if(m.place_move){
+    UpdatePlayer((m.piece < 95), m, true);
+    GameBoard[m.x][m.y].stack.clear();
+    // decrement num_black, num_white
+  }
+  else{
+    string &str = GameBoard[m.x][m.y].stack;
+    int y_add = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
+    int x_add = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
+    s_int x = m.x + x_add;
+    s_int y = m.y + y_add;
+
+    UpdatePlayer(GameBoard[m.x + m.drops->size() * x_add][m.y + m.drops->size() * y_add].player(), m, true);
+    for(auto &l :*m.drops){
+      string &temp = GameBoard[x][y].stack;
+      str += temp.substr(temp.size() - l);
+      temp.erase(temp.size() - l);
+
+      x += x_add;
+      y += y_add;
+    }
+  }
 }
 
-void Game::GetStackable(char x, char y, bool cap, vector<char> &result){
-	char l = 0;
-	char r = 0;
-	char u = 0;
-	char d = 0;
-	while (x-d-1 >= 0 && GameBoard[x-d-1][y].stackable())	d ++;
-	while (x+u+1 < size && GameBoard[x+u+1][y].stackable())	u ++;
-	while (y+r+1 < size && GameBoard[x][y+r+1].stackable())	r ++;
-	while (y-l-1 >=0 && GameBoard[x][y-l-1].stackable())	l ++;
-	if (cap){
-		if (x-d-1 >= 0 && GameBoard[x-d-1][y].capable())	d ++;	else d = -1;
-		if (x+u+1 < size && GameBoard[x+u+1][y].capable())	u ++;	else u = -1;
-		if (y-l-1 >= 0 && GameBoard[x][y-l-1].capable())	l ++;	else l = -1;
-		if (y+r+1 < size && GameBoard[x][y+r+1].capable())	r ++;	else r = -1;
-	}
-	result[0] = l;
-	result[1] = r;
-	result[2] = u;
-	result[3] = d;
-	// fprintf(stderr, "coord %d %d direction <%d >%d -%d +%d\n",x,y,l,r,u,d);
+void Game::GetStackable(s_int x, s_int y, bool cap, vector<s_int> &result){
+  s_int l = 0;
+  s_int r = 0;
+  s_int u = 0;
+  s_int d = 0;
+  while (x-d-1 >= 0 && GameBoard[x-d-1][y].stackable()) d ++;
+  while (x+u+1 < size && GameBoard[x+u+1][y].stackable()) u ++;
+  while (y+r+1 < size && GameBoard[x][y+r+1].stackable()) r ++;
+  while (y-l-1 >=0 && GameBoard[x][y-l-1].stackable())  l ++;
+  if (cap){
+    if (x-d-1 >= 0 && GameBoard[x-d-1][y].capable())  d ++; else d = -1;
+    if (x+u+1 < size && GameBoard[x+u+1][y].capable())  u ++; else u = -1;
+    if (y-l-1 >= 0 && GameBoard[x][y-l-1].capable())  l ++; else l = -1;
+    if (y+r+1 < size && GameBoard[x][y+r+1].capable())  r ++; else r = -1;
+  }
+  result[0] = l;
+  result[1] = r;
+  result[2] = u;
+  result[3] = d;
 }
 
+void Game::generate_valid_moves(Player_Type player, multimap<eval_type, Move> &moves)
+{
+  Player &p = (player == Black) ? p_black : p_white;
+  string b = to_string();
 
+  // PLACE 1
+  char cap = (player == White) ? 'C' : 'c';
+  char flat = (player == White) ? 'F' : 'f';
+  for (s_int i = 0; i < size; i++)
+  {
+    for (s_int j = 0; j < size; j++)
+    {
+      if (GameBoard[i][j].empty())
+      {
+        if (p.CapLeft)
+        {
+          Move m (i,j,cap);
+          makemove(m);
+          Transposition &t = getTransposition(!player);
+          moves.emplace(t.score, m);
+          // moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+          // moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+          // search in tt
+          antimove(m);
+        }
+        if (p.StonesLeft != 0)
+        {
+          Move m(i,j,flat);
+          makemove(m);
+          Transposition &t = getTransposition(!player);
+          moves.emplace(t.score, m);
+          // moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+          // moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+          antimove(m);
+        }
+      }
+    }
+  }
 
-void Game::generate_valid_moves(Player_Type player, multimap<eval_type,Move> &moves){
-	Player &p = (player == Black) ? p_black : p_white;
-	if(p.CapLeft){
-		for(char i=0; i<size; ++i){
-			for(char j=0; j<size; ++j){
-				if(GameBoard[i][j].empty()){
-					Move m(i, j, piece(Cap,player));
-						// string s1 = to_string();
-					makemove(m);
-					moves.insert(make_pair(eval(), m));
-					antimove(m);
-						// string s2 = to_string();
-						// if(s1.compare(s2) != 0){
-						// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-						// 	fprintf(stderr, "Board is %s\n",s1.c_str());
-						// 	fprintf(stderr, "Board is %s\n",s2.c_str());
-						// 	fprintf(stderr, "At move %s\n",m.to_string().c_str());
-						// }
-				}
-			}
-		}
-	}else{
-		// cap stone on board!
-		vector<char> range(4);
-		GetStackable(p.x, p.y, true, range);
-		char shiftmax = std::min((char)size,(char)GameBoard[p.x][p.y].Stack.size());
+  // PLACE 2
+  char s = (player == White) ? 'S' : 's';
+  for (s_int i = 0; i < size; i++)
+  {
+    for (s_int j = 0; j < size; j++)
+    {
+      if (GameBoard[i][j].empty())
+      {
+        if (p.StonesLeft != 0)
+        {
+          Move m(i,j,s);
+          makemove(m);
+          Transposition &t = getTransposition(!player);
+          moves.emplace(t.score, m);
+          // moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+          // moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+          // search in tt
+          antimove(m);
+          // assert(to_string().compare(b) == 0);
+        }
+      }
+    }
+  }
 
-		// if(p.x == 1 && p.y == 1)
-		// 	fprintf(stderr, "Stackable %d %d %d %d\n", range[0], range[1], range[2], range[3]);
-		// cap move :
-		char i = p.x;
-		char j = p.y;
+  // STACK
+  vector<s_int> range(4);
+  char dir[4] = {'<', '>', '+', '-'};
+  
+  if(!p.CapLeft){
+    GetStackable(p.x, p.y, true, range);
+    s_int shiftmax = min((s_int)size, (s_int)GameBoard[p.x][p.y].stack.size());
 
-		for (char i1 = 1 ; i1 <= shiftmax ; i1 ++){
-			char dir[4] = {'<', '>', '+', '-'};
-			for(char r=0; r<4; ++r){
-				if(range[r] != -1)
-				for(auto &d : AllPerms[i1][range[r]]){
-					if(d.back() == 1){
-						Move m(i,j,dir[r],&d);
-						m.CapMove = true;
-							// string s1 = to_string();
-						makemove(m);
-						moves.insert(make_pair(eval(), m));
-						antimove(m);
-							// string s2 = to_string();
-							// if(s1.compare(s2) != 0){
-							// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-							// 	fprintf(stderr, "Board is %s\n",s1.c_str());
-							// 	fprintf(stderr, "Board is %s\n",s2.c_str());
-							// 	fprintf(stderr, "At move %s\n",m.to_string().c_str());
-							// }
-					}
-				}
-			}
-		}
-	}
+    for (s_int i1 = 1; i1 <= shiftmax; ++i1){
+      for(s_int r=0; r<4; ++r){
+        if(range[r] == -1) continue;
+        for(auto &d : AllPerms[i1][range[r]]){
+          if(d.back() == 1){
+            Move m(p.x,p.y,dir[r],&d);
+            m.cap_move = true;
+            makemove(m);
+            Transposition &t = getTransposition(!player);
+            moves.emplace(t.score, m);
+            // moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+            // moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+            // search in tt
+            antimove(m);
+            // assert(to_string().compare(b) == 0);
+          }
+        }
+      }
+    }
+  }
 
-	// placing caps done.
-	if(p.StonesLeft != 0)
-	
-	for(char i=0; i<size; ++i){
-		for(char j=0; j<size; ++j){
-			if(GameBoard[i][j].empty()){
-				// place Flat/Stand
-				Move m1(i, j, piece(Flat,player));
-					// string s1 = to_string();
-				makemove(m1);
-				moves.insert(make_pair(eval(), m1));
-				antimove(m1);
-					// string s2 = to_string();
-					// if(s1.compare(s2) != 0){
-					// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-					// 	fprintf(stderr, "Board is %s\n",s1.c_str());
-					// 	fprintf(stderr, "Board is %s\n",s2.c_str());
-					// 	fprintf(stderr, "At move %s\n",m1.to_string().c_str());
-					// }
-				Move m2(i, j, piece(Stand,player));
-					// s1 = to_string();
-				makemove(m2);
-				moves.insert(make_pair(eval(), m2));
-				antimove(m2);
-					// s2 = to_string();
-					// if(s1.compare(s2) != 0){
-					// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-					// 	fprintf(stderr, "Board is %s\n",s1.c_str());
-					// 	fprintf(stderr, "Board is %s\n",s2.c_str());
-					// 	fprintf(stderr, "At move %s\n",m2.to_string().c_str());
-					// }
-			
-			}
-			else if (GameBoard[i][j].top_piece().second == player) {
-				// all possible stack moves.
-				char shiftmax = std::min((char)size, (char)GameBoard[i][j].Stack.size()); // max pieces.
-				for (char i1 = 1 ; i1 <= shiftmax ; i1 ++){
-					// how many stackable in each dirn?
-					vector<char> range(4);
- 					GetStackable(i,j,false,range);
-					
-					char dir[] = {'<', '>', '+', '-'};
-						// if (i==1 && j==1){
-						// 	// fprintf(stderr, "Coordinates %d %d\n",i,j);
-						// 	fprintf(stderr, "direction <%d >%d -%d +%d\n", range[0], range[1], range[2], range[3]);						
-						// }
-					for(char r=0; r<4; ++r){
-						for (char m=1; m<=range[r]; ++m){
-							for (auto &d : AllPerms[i1][m]){
-								Move mv(i,j,dir[r],&d);
-									// string s1 = to_string();
-								makemove(mv);
-									// string s3 = to_string();
-								moves.insert(make_pair(eval(),mv));
-								antimove(mv);
-									// string s2 = to_string();
-									// if(s1.compare(s2) != 0){
-									// 	fprintf(stderr, "ERRRRROOOOOORRRRRRRRRR!!!!!!!!!\n");
-									// 	fprintf(stderr, "Board now %s\n",s1.c_str());
-									// 	fprintf(stderr, "Board after move %s\n",s3.c_str());
-									// 	fprintf(stderr, "Board later %s\n",s2.c_str());
-									// 	fprintf(stderr, "At move %s\n",mv.to_string().c_str());
-									// }
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+  if(p.StonesLeft != 0)
+  for(s_int i=0; i<size; ++i){
+    for(s_int j=0; j<size; ++j){
+      if (!GameBoard[i][j].empty() && GameBoard[i][j].player() == player) {
+        s_int shiftmax = min((s_int)size, (s_int)GameBoard[i][j].stack.size()); // max pieces.
+        GetStackable(i,j,false,range);
+        for (s_int i1 = 1; i1 <= shiftmax; ++i1){
+          for(s_int r=0; r<4; ++r){
+            for (s_int m=1; m<=range[r]; ++m){
+              for (auto &d : AllPerms[i1][m]){
+                Move m(i,j,dir[r],&d);
+                makemove(m);
+                Transposition &t = getTransposition(!player);
+                moves.emplace(t.score, m);
+                // moves.emplace(make_pair(-t.depth + 501*t.score/500,t.score),m);
+                // moves.emplace(make_pair(HistoryTable[player][m.to_string()] + t.score,t.score),m);
+                // search in tt
+                antimove(m);
+                // assert(to_string().compare(b) == 0);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+string tab(int n){
+  string s;
+  for(int i=0; i<n; ++i) s += "\t";
+  return s;
 }
 
+pair<eval_type, bool> Game::negaMax(bool player, s_int depth, eval_type alpha, eval_type beta, pair<Move, Move> &killer)
+{
+  // assert (depth >= 0);
+  if(std::chrono::duration_cast<ms>(Time::now() - move_start_time) > cutoff_time) return make_pair(0,false);
+  eval_type alpha_orig = alpha;
+  Transposition &t = getTransposition(player);
 
+  if(depth == 0 || abs(t.score) > FLWIN / 2){
+    return make_pair(t.score,true);
+  }
+
+  if (t.depth >= depth)
+  {
+    if (t.flag == 'e') return make_pair(t.score,true);
+    else if (t.flag == 'l') alpha = max(alpha, t.score);
+    else if (t.flag == 'u') beta = min(beta, t.score);
+    if (alpha >= beta) return make_pair(t.score,true);
+  }
+  else{
+    pair<Move, Move> useless_stuff;
+    negaMax(player, depth-1, alpha, beta, useless_stuff);
+  }
+
+  eval_type best_val = -2*FLWIN;
+  Move *best_move = NULL;
+  int count = 0;
+  pair<Move, Move> next_killer;
+  bool done = false;
+  bool broken = false;
+
+  // assert(to_string().compare(b) == 0);
+
+  // PV move
+  if (t.depth > 0)
+  {
+    // assert(t.best_move.x != -1);
+    makemove(t.best_move);
+    auto child = negaMax(!player,depth-1,-beta,-alpha, next_killer);
+    antimove(t.best_move);
+    if(!child.second) return child;
+    else best_val = -child.first;
+    best_move = &t.best_move;
+    
+    alpha = max(alpha, best_val);
+    if (alpha >= beta || best_val > FLWIN / 2){
+      update_trans(player,t, depth, best_val, best_move, alpha_orig, beta, false);
+      // cerr << "pruned at PV!! depth = " << depth << endl;
+      return make_pair(best_val,true);
+    }
+  }
+
+  // assert(to_string().compare(b) == 0);
+
+  // Killer move
+  if(isMoveValid(killer.first, player)){  
+    makemove(killer.first);
+    auto child = negaMax(!player,depth-1,-beta,-alpha, next_killer);
+    antimove(killer.first);
+    if(!child.second) return child;
+    else best_val = -child.first;
+    best_move = &killer.first;
+    
+    alpha = max(alpha, best_val);
+    if (alpha >= beta || best_val > FLWIN / 2){
+      update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, false);
+      // cerr << "pruned at killer move 1 !!!! depth = " << depth << endl;
+      return make_pair(best_val,true);
+    }
+  }
+  if(isMoveValid(killer.second, player)){
+    makemove(killer.second);
+    auto child = negaMax(!player,depth-1,-beta,-alpha, next_killer);
+    antimove(killer.second);
+    if(!child.second) return child;
+    else best_val = -child.first;
+    best_move = &killer.second;
+
+    alpha = max(alpha, best_val);
+    if (alpha >= beta || best_val > FLWIN / 2){
+      update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, false);
+      // cerr << "pruned at killer move 2 !!!! depth = " << depth << endl;
+      Move temp = killer.first;
+      killer.first = killer.second;
+      killer.second = temp;
+      return make_pair(best_val,true);
+    }
+  }
+
+  multimap<eval_type, Move> move_list;
+  generate_valid_moves(player, move_list);
+
+  if(depth == 1){
+    best_val = -move_list.begin()->first;
+    best_move = &(move_list.begin()->second);
+    update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, false);
+    return make_pair(best_val,true);
+  }
+
+  for(auto itr = move_list.begin(); itr != move_list.end(); ++itr)
+  {
+    ++count;
+    makemove(itr->second);
+    auto child = negaMax(!player,depth-1,-beta,-alpha,next_killer);
+    antimove(itr->second);
+    if(!child.second){
+      broken = true;
+      break;
+    }
+    if(-child.first < -FLWIN/2) count = 0;
+    if(-child.first > best_val){
+      count = 0;
+      best_val = -child.first;
+      best_move = &(itr->second);
+    }
+    alpha = max(alpha, -child.first);
+    if (alpha >= beta || -child.first > FLWIN/2) break;
+    if (depth == 2 && count > WINDOW) break;
+  }
+
+  update_trans(player, t, depth, best_val, best_move, alpha_orig, beta, broken);
+  killer.second = killer.first;
+  killer.first = *best_move;
+  return make_pair(best_val,!broken);
+}
+
+void Game::print_move_seq(int depth){
+  vector<Move> move_list;
+  bool player = !opponent_type;
+  for(int i=0; i<depth; ++i){
+    auto &t = getTransposition(player);
+    if (t.best_move.x == -1) break;
+    move_list.push_back(t.best_move);
+    if(i==0) cerr << t.score << "\t" << depth << " ";
+    cerr << t.best_move.to_string() << " ";
+    player = !player;
+    makemove(t.best_move);
+  }
+  cerr << endl;
+  for(auto it = move_list.rbegin(); it != move_list.rend(); ++it){
+    antimove(*it);
+  }
+}
+
+string Game::ids(){
+  // find cut off time -> 
+  auto move_time = Time::now();
+  s_int used_black = pieces - p_black.StonesLeft;
+  s_int used_white = pieces - p_white.StonesLeft;
+  int depth = 4;
+  cutoff_time = ms(1000000);
+  if (!(used_black < 3 || used_white < 3))
+  {
+    switch (size)
+    {
+      case 5:
+        depth = 5;
+        break;
+      case 6:
+        depth = 5;
+        break;
+      case 7:
+        depth = 4;
+        break;
+    }
+    s_int empty_squares = 0;
+    ms time_rem = ms(TimeLimit*1000) - total_time_elapsed;
+    for(auto &i : GameBoard)
+      for(auto &j : i)
+        if(j.empty()) ++empty_squares;
+    while (depth > 1 && avg_time[depth].count() > 3*time_rem.count()/(7 + empty_squares))
+      depth--;
+    cutoff_time = ms(min(max_time_depth[depth].count(), time_rem.count()*2/5)); // TODO;
+    cerr << "Time remaining = " << time_rem.count() << ", avg time = " << avg_time[depth].count();
+  }
+  cerr << " Cutoff time = " << (cutoff_time).count() << ", Decided depth = " << depth << endl;
+  for(int d=1; d<=depth; ++d){
+    pair<Move, Move> useless_stuff;
+    move_start_time = Time::now();
+    auto val =  negaMax(!opponent_type, d, -2*RDWIN, 2*RDWIN, useless_stuff);
+    print_move_seq(d);
+    if(depth == d && !val.second){
+      for (s_int i = d+1; i <= 5; i++){
+        avg_time[i] = ms(avg_time[i].count()*9/10);
+        for(auto &x : times_moves[d]) x = ms(x.count()*9/10);
+      }
+    }
+    if(!val.second || d == depth){
+      ms time_taken = std::chrono::duration_cast<ms>(Time::now() - move_time);
+      avg_time[d] = ms( (avg_time[d].count()*7 - times_moves[d][depth_moves[d]%7].count() + time_taken.count())/7);
+      times_moves[d][depth_moves[d]%7] = ms(time_taken);
+      depth_moves[d] += 1;
+      break;
+    }
+
+
+    // if (!val.second || d == depth)
+    // {
+    //  // if (!val.second) d--;
+    //  cerr << "Actual depth = " <<  (!val.second ? (d-1) : d) << ", Expected Depth = " << depth << endl;
+    //  ms time_taken = std::chrono::duration_cast<ms>(Time::now() - move_time);
+    //  avg_time[d] = ms( (avg_time[d].count()*7 - times_moves[d][depth_moves[d]%7].count() + time_taken.count())/7 );
+    //  times_moves[d][depth_moves[d]%7] = ms(time_taken);
+    //  depth_moves[d] += 1;
+    //  for (s_int i = d+1; i <= 5; i++)
+    //    avg_time[i] = ms(avg_time[i].count()*9/10);
+    // }
+    // if (!val.second) 
+    //  break;
+  }
+
+  Transposition& t = getTransposition(!opponent_type);
+  makemove(t.best_move);
+  Move m = t.best_move;
+  moves += 1;
+  fprintf(stderr, "Size of transposition table = %lld\n", (sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024));
+  if((sizeof(Transposition)*(TTable[0].size() + TTable[1].size())/1024/1024) > 290 && TimeLimit*1000 - total_time_elapsed.count() > 10000){
+    TTable[0].clear();
+    TTable[1].clear();
+    cerr << "Transposition cleared!! on move " <<moves<< "\n";
+  }
+  ms this_move_time = std::chrono::duration_cast<ms>(Time::now() - move_time);
+  total_time_elapsed += this_move_time;
+  fprintf(stderr, "%s time %d\n",m.to_string().c_str(), this_move_time.count());
+  return m.to_string();
+}
+
+bool Game::isMoveValid(Move &m, bool x)
+{
+  if (m.x == -1) return false;
+  if (m.place_move)
+  {
+    // x,y should be empty!!
+    return GameBoard[m.x][m.y].empty();
+  }
+  else
+  {
+    auto &p = GameBoard[m.x][m.y];
+
+    bool valid = (!p.empty() && x == p.player());
+    valid = valid && ( (m.cap_move) ? ((p.top_piece()) == 'C') : true );
+    int x = (m.direction == '+') ? 1 : ((m.direction == '-') ? -1 : 0);
+    int y = (m.direction == '>') ? 1 : ((m.direction == '<') ? -1 : 0);
+
+    s_int dropx = m.x;
+    s_int dropy = m.y;
+    vector<s_int> &d = *m.drops;
+    s_int total = 0;
+    s_int i = 0;
+    for (; i < d.size()-1; i++)
+    {
+      dropx += x;
+      dropy += y;
+      valid = valid && (GameBoard[dropx][dropy].empty() || ((GameBoard[dropx][dropy].top_piece()) == 'F'));
+      total += d[i];
+    }
+    total += d[i];
+
+    bool last_stand = (!GameBoard[dropx+x][dropy+y].empty()) && (GameBoard[dropx+x][dropy+y].top_piece() == 'S');
+    bool last_flat = GameBoard[dropx+x][dropy+y].empty() || ((GameBoard[dropx+x][dropy+y].top_piece() == 'F'));
+
+    valid = valid && ((m.cap_move) ? last_stand : last_flat);
+    valid = valid && (p.stack.length() >= total);
+
+    return valid;
+  }
+}

@@ -1,140 +1,109 @@
-#include "Header.h"
+#include "Move.h"
 using namespace Types;
 
-Player::Player(bool player_type, char pieces){
-	type = player_type;
-	StonesLeft = pieces;
-	CapLeft = true;
-	x = -1;
-	y = -1;
+vector< vector< vector< vector<s_int> > > > AllPerms;
+
+Player::Player(bool player_type, s_int pieces){
+  type = player_type;
+  StonesLeft = pieces;
+  CapLeft = true;
+  x = -1;
+  y = -1;
+}
+
+void getAllPerms(s_int dim)
+{
+  // fill this matrix!
+  // AllPerms[i][j] = all vectors with size = j, sum = i.
+  AllPerms = vector<vector<vector<vector<s_int> > > > (dim+1, std::vector<vector<vector<s_int> > > (dim));
+  for (s_int sum = 1; sum <= dim; sum++)
+  {
+    for (s_int l = 1; l < dim; l++)
+    {
+      vector<vector<s_int> > & fillthis = AllPerms[sum][l];
+      if (l == 1)
+      {
+        vector<s_int> x (1,sum);
+        fillthis.push_back(x);
+      }
+      s_int i = sum-1;
+      while (i > 0)
+      {
+        // pick all vectors at [i][size-1]
+        for (auto &j : AllPerms[i][l-1])
+        {
+          vector<s_int> x = j;
+          x.push_back(sum-i);
+          fillthis.push_back(x);
+        }
+        i--;
+      }
+    }
+  }
 }
 
 string Move::to_string()
 {
-	string s = "";
-	s += (char)('a' + y);
-	s += (char)('0' + Size - x);
-	if (Place_Move)
-	{
-		switch (p.first)
-		{
-			case Flat:
-				return "F" + s;
-			case Stand:
-				return "S" + s;
-			case Cap:
-				return "C" + s;
-		}
-	}
-	else
-	{
-		// move stack!
-		int sum = 0;
-		switch (Direction)
-		{
-			case '<':
-				s += '<';
-				break;
-			case '>':
-				s += '>';
-				break;
-			case '+':
-				s += '-';
-				break;
-			case '-':
-				s += '+';
-				break;
-		}
-		for (auto &i : *Drops)
-		{
-			s += Types::to_string((int)i);
-			sum += i;
-		}
-		return (Types::to_string(sum) + s);
-	}
-	return s;
+  string s = "";
+  s += (char)('a' + y);
+  s += (char)('0' + size - x);
+  if (place_move)
+  {
+    // append F or S or C.
+    // cout << (char)(piece) << " is the piece in move\n";
+    s = (char)(toupper((char)piece)) + s;
+  }
+  else
+  {
+    // move stack!
+    int sum = 0;
+    switch (direction)
+    {
+      case '<':
+        s += '<';
+        break;
+      case '>':
+        s += '>';
+        break;
+      case '+':
+        s += '-';
+        break;
+      case '-':
+        s += '+';
+        break;
+    }
+    for (auto &i : *drops)
+    {
+      s += Types::to_string((int)i);
+      sum += i;
+    }
+    return (Types::to_string(sum) + s);
+  }
+  return s;
 }
 
-Move::Move(char x, char y, Piece p) : Drops(NULL)
+Move::Move(s_int x, s_int y, char p) : drops(NULL)
 {
-	this->CapMove = false;
-	this->Place_Move = true;
-	this->x = x;
-	this->y = y;
-	this->p = p;
+  this->cap_move = false;
+  this->place_move = true;
+  this->x = x;
+  this->y = y;
+  this->piece = p;
 }
 
-Move::Move(char x, char y, char d, vector<char> *v){
-	this->CapMove = false;
-	this->Place_Move = false;
-	this->x = x;
-	this->y = y;
-	this->Direction = d;
-	this->Drops = v;
+Move::Move(s_int x, s_int y, char d, vector<s_int> *v){
+  this->cap_move = false;
+  this->place_move = false;
+  this->x = x;
+  this->y = y;
+  this->direction = d;
+  this->drops = v;
 }
 
-Move::Move() {}
-
-bool Eval_Move::operator<(const Eval_Move &other_move){
-	return (this->e < other_move.e);
-}
-
-bool Eval_Move::operator>(const Eval_Move &other_move){
-	return (this->e > other_move.e);
-}
-
-Eval_Move::Eval_Move(eval_type &e, Move &m) : e(e), m(m) {}
-Eval_Move::Eval_Move(const Eval_Move &other_move) : e(other_move.e), m(other_move.m) {}
-Eval_Move::Eval_Move() {}
-
-string Position::to_string(){
-	int val=0;
-	int mul = 1;
-	string s = "";
-	for(auto i = Stack.rbegin() ; i != Stack.rend() ; i ++){
-		if(i->second == White) val += mul;
-		mul = mul << 1;
-	}
-	val += mul;
-	s += Types::to_string(val);
-	if(!empty()){
-		if(Stack.front().first == Flat) s += "F";
-		else if(Stack.front().first == Stand) s+= "S";
-		else s += "C";
-	}
-	return s;
-}
-
-
-vector< vector< vector< vector<char> > > > AllPerms;
-
-void getAllPerms(char dim)
-{
-	// fill this matrix!
-	// AllPerms[i][j] = all vectors with size = j, sum = i.
-	AllPerms = vector<vector<vector<vector<char> > > > (dim+1, std::vector<vector<vector<char> > > (dim));
-	for (char sum = 1 ; sum <= dim ; sum ++)
-	{
-		for (char size = 1 ; size < dim ; size ++)
-		{
-			vector<vector<char> > & fillthis = AllPerms[sum][size];
-			if (size == 1)
-			{
-				vector<char> x (1,sum);
-				fillthis.push_back(x);
-			}
-			char i = sum-1;
-			while (i > 0)
-			{
-				// pick all vectors at [i][size-1]
-				for (auto &j : AllPerms[i][size-1])
-				{
-					vector<char> x = j;
-					x.push_back(sum-i);
-					fillthis.push_back(x);
-				}
-				i --;
-			}
-		}
-	}
+Move::Move(){
+  this->cap_move = false;
+  this->place_move = true;
+  this->x = -1;
+  this->piece = '/';
+  // this->piece
 }
