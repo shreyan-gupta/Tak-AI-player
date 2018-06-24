@@ -14,3 +14,6 @@
 
 # OSX
 *.DS_Store
+
+# Additional source files
+/src2/*
