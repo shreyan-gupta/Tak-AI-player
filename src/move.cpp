@@ -4,6 +4,12 @@ namespace Tak {
 
 s_int Move::board_size = 5;
 
+Move::Move() :
+  move_type(MoveType::PlaceFlat),
+  pos(0),
+  cap_move(false),
+  slide(0) {}
+
 Move::Move(string move){  
   pos = (move[1] - 'a') + board_size*(move[2] - '1');
 
@@ -14,6 +20,9 @@ Move::Move(string move){
   else if(move[3] == '>') move_type = MoveType::SlideRight;
   else if(move[3] == '+') move_type = MoveType::SlideUp;
   else if(move[3] == '-') move_type = MoveType::SlideDown;
+
+  cap_move = false;
+  slide = 0;
 
   if(is_slide()){
     for(int i=4; i<move.size(); ++i){

@@ -31,6 +31,7 @@ struct Move {
   // 0 separated bits for slide
   // Example 2,3 -> 00000110111 (binary)
 
+  Move();
   Move(string move);
   Move(MoveType move_type, s_int pos);
   Move(MoveType move_type, s_int pos, Bit slide);
