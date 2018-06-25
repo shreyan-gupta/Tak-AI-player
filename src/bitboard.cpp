@@ -39,6 +39,11 @@ inline bool is_last_part_one(Bit b){
   return ((b & ((-1) - ((-1)>>1))) == 0);
 }
 
+inline switch_player(Player &player){
+  if(player == Player::Black) player = Player:White;
+  else player = Player::Black;
+}
+
 
 // 0 -> Black
 // 1 -> White
@@ -51,8 +56,9 @@ BitBoard::BitBoard() :
   height(vector<s_int>(board_size*board_size, 0)),
   pieces(vector<s_int>(board_size*board_size, 0)) {}
 
+// Play move on bitboard
+// Changes the required states
 void BitBoard::play_move(Move &move){
-  
   auto pos = move.pos;
   
   // Check if valid move position
@@ -65,17 +71,18 @@ void BitBoard::play_move(Move &move){
     height[pos] = 1;
     
     // update stones board and pieces array
-    if(current_player == Player::Black){
+    if(current_player == Player::Black)
       add_bit(black_stones, pos);
-    }
     else {
       add_bit(white_stones, pos);
       pieces[pos] = 1;
     }
 
     // update wall and cap stones
-    if(move.move_type == MoveType::PlaceWall) add_bit(wall_stones, pos);
-    if(move.move_type == MoveType::PlaceCapstone) add_bit(cap_stones, pos);
+    if(move.move_type == MoveType::PlaceWall)
+      add_bit(wall_stones, pos);
+    if(move.move_type == MoveType::PlaceCapstone)
+      add_bit(cap_stones, pos);
   }
 
   if(move.is_slide()){
@@ -125,6 +132,9 @@ void BitBoard::play_move(Move &move){
       assert(has_bit(wall_stones, pos));
       assert(has_bit(cap_stones, old_pos));
       remove_bit(wall_stones, pos);
+    }
+
+    if(has_bit(cap_stones, old_pos)){
       remove_bit(cap_stones, old_pos);
       add_bit(cap_stones, pos);
     }
@@ -170,10 +180,91 @@ void BitBoard::play_move(Move &move){
     // Final pos should be same as old_pos
     assert(pos == old_pos);
   }
+
+  // Switch current player
+  switch_player(current_player);
 }
 
+// Undo a move played on the board
+// We assume this is the state we have reached after play_move
 void BitBoard::undo_move(Move &move){
+  auto pos = move.pos;
   
+  if(move.is_place()){
+    height[pos] = 0;
+    pieces[pos] = 0;
+    if(current_player == Place::White)
+      remove_bit(black_stones, pos);
+    else
+      remove_bit(white_stones, pos);
+    if(move.move_type == MoveType::PlaceWall)
+      remove_bit(wall_stones, pos);
+    if(move.move_type == MoveType::PlaceCapstone)
+      remove_bit(cap_stones, pos);
+  }
+
+  if(move.is_slide()){
+    // Get delta pos
+    int dpos;
+    switch(move.move_type){
+      case MoveType::SlideLeft  : dpos = -1; break; 
+      case MoveType::SlideRight : dpos = 1; break; 
+      case MoveType::SlideUp    : dpos = board_size; break; 
+      case MoveType::SlideDown  : dpos = -board_size; break; 
+      default : assert(false);
+    }
+
+    auto &curr_piece = pieces[pos];
+    auto &curr_height = height[pos];
+    auto temp_slide = move.slide;
+    auto old_pos = pos;
+
+    // Iterate in forward direction
+    while(temp_slide != 0){
+      // Get rid of the 0s
+      while((temp_slide & ((-1) - ((-1)>>1))) == 0) temp_slide <<= 1;
+      int i = 0;
+      // Increment till we see 1
+      while((temp_slide & ((-1) - ((-1)>>1))) != 0){
+        ++i;
+        temp_slide <<= 1;
+      }
+
+      curr_height += i;
+      curr_piece <<= i;
+      curr_piece |= (pieces[pos] & ((1 << i) - 1));
+      height[pos] -= i;
+      pieces[pos] >>= i;
+
+      if(pieces[pos] & 1){
+        add_bit(white_stones, pos);
+        remove_bit(black_stones, pos);
+      }
+      else {
+        add_bit(black_stones, pos);
+        remove_bit(white_stones, pos);
+      }
+
+      pos += dpos;
+    }
+
+    if(move.cap_move){
+      add_bit(wall_stones, pos);
+    }
+
+    if(has_bit(cap_stones, pos)){
+      add_bit(cap_stones, old_pos);
+      remove_bit(cap_stones, pos);
+    }
+
+    if(has_bit(wall_stones, pos)){
+      add_bit(wall_stones, old_pos);
+      remove_bit(wall_stones, pos);
+    }
+  }
+
+  // Switch current player
+  switch_player(current_player);
 }
 
 } // namespace Tak
