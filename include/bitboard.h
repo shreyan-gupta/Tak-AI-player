@@ -21,9 +21,10 @@ enum class Player {
 class BitBoard {
  public:
   // board size
-  static int board_size;
+  static s_int board_size;
   
   BitBoard();
+  bool is_valid_move(Move &move);
   void play_move(Move &move);
   void undo_move(Move &move);
   void print();

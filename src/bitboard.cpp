@@ -6,15 +6,15 @@ namespace Tak {
 
 using namespace std;
 
-inline bool has_bit(Bit &b, s_int &pos){
+inline bool has_bit(Bit &b, s_int pos){
   return ((b & (1 << pos)) != 0);
 }
 
-inline void add_bit(Bit &b, s_int &pos){
+inline void add_bit(Bit &b, s_int pos){
   b |= (1 << pos);
 }
 
-inline void remove_bit(Bit &b, s_int &pos){
+inline void remove_bit(Bit &b, s_int pos){
   if((b & (1 << pos)) != 0) b ^= (1 << pos);
 }
 
@@ -32,15 +32,16 @@ inline s_int count_part(Bit b){
   while(b != 0){
     assert(b & 1);
     while(b & 1) b >>= 1;
+    b >>= 1;
     ++gap;
   }
   return gap;
 }
 
 inline bool is_last_part_one(Bit b){
-  while((b & ((-1) - ((-1)>>1))) == 0) b <<= 1;
+  while((b & ((Bit)(-1) - ((Bit)(-1)>>1))) == 0) b <<= 1;
   b <<= 1;
-  return ((b & ((-1) - ((-1)>>1))) == 0);
+  return ((b & ((Bit)(-1) - ((Bit)(-1)>>1))) == 0);
 }
 
 inline void switch_player(Player &player){
@@ -48,6 +49,7 @@ inline void switch_player(Player &player){
   else player = Player::Black;
 }
 
+s_int BitBoard::board_size = 5;
 
 // 0 -> Black
 // 1 -> White
@@ -60,18 +62,70 @@ BitBoard::BitBoard() :
   height(vector<s_int>(board_size*board_size, 0)),
   pieces(vector<s_int>(board_size*board_size, 0)) {}
 
-// Play move on bitboard
-// Changes the required states
-void BitBoard::play_move(Move &move){
+
+// Check if a move is valid
+// Assert checks are always suppose to be true
+// Other checks may return false
+bool BitBoard::is_valid_move(Move &move){
   auto pos = move.pos;
   
   // Check if valid move position
   assert(pos < board_size*board_size);
+  
+  if(move.is_place()){
+    if(height[pos] != 0) return false;
+  }
+  else { // move.is_slide()
+    // atleast 1 element
+    assert(move.slide != 0);
+    // less than carry_limit pieces
+    assert(count_bit(move.slide) <= board_size);
+    // atleast sum_slide number of pieces in stack
+    assert(count_bit(move.slide) <= height[pos]);
+    
+    // Boundary asserts
+    switch(move.move_type){
+      case MoveType::SlideLeft  : assert(pos%board_size >= count_part(move.slide)); break; 
+      case MoveType::SlideRight : assert(pos%board_size + count_part(move.slide) < board_size); break; 
+      case MoveType::SlideUp    : assert(pos + board_size*count_part(move.slide) < board_size*board_size); break; 
+      case MoveType::SlideDown  : assert(pos > board_size*count_part(move.slide)); break; 
+      default : assert(false);
+    }
+
+    // if slide move, then ownership with current player
+    if(current_player == Player::Black && !has_bit(black_stones, pos)) return false;
+    if(current_player == Player::White && !has_bit(white_stones, pos)) return false;
+
+    int dpos = move.get_dpos();
+    int num_part = count_part(move.slide);
+
+    move.cap_move = 
+      has_bit(cap_stones, pos) &&
+      has_bit(wall_stones, (s_int)(pos + num_part*dpos)) &&
+      is_last_part_one(move.slide);
+
+    // Either a cap move or there should be no walls
+    for(int i=0; i<num_part; ++i){
+      pos += num_part;
+      if(has_bit(wall_stones, pos)){
+        // If not cap move, then invalid move
+        // else i should be the last slide
+        if(!move.cap_move) return false;
+        else if(i != num_part-1) return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Play move on bitboard
+// Changes the required states
+void BitBoard::play_move(Move &move){
+  auto pos = move.pos;
 
   // Place move
   if(move.is_place()){
-    // if place move, then position should be empty
-    assert(height[pos] == 0);
+    // update height to 1
     height[pos] = 1;
     
     // update stones board and pieces array
@@ -90,37 +144,10 @@ void BitBoard::play_move(Move &move){
   }
 
   if(move.is_slide()){
-    // atleast 1 element
-    assert(move.slide != 0);
-    // less than carry_limit pieces
-    assert(count_bit(move.slide) <= board_size);
-    // atleast sum_slide number of pieces in stack
-    assert(count_bit(move.slide) <= height[pos]);
-    // if slide move, then ownership with current player
-    if(current_player == Player::Black){
-      assert(has_bit(black_stones, pos));
-    }
-    else{
-      assert(has_bit(white_stones, pos));
-    }
-    // Boundary asserts
-    switch(move.move_type){
-      case MoveType::SlideLeft  : assert(pos%board_size >= count_part(move.slide)); break; 
-      case MoveType::SlideRight : assert(pos%board_size + count_part(move.slide) < board_size); break; 
-      case MoveType::SlideUp    : assert(pos + board_size*count_part(move.slide) < board_size*board_size); break; 
-      case MoveType::SlideDown  : assert(pos > board_size*count_part(move.slide)); break; 
-      default : assert(false);
-    }
 
     // Direction of slide
-    int dpos;
-    switch(move.move_type){
-      case MoveType::SlideLeft  : dpos = -1; break; 
-      case MoveType::SlideRight : dpos = 1; break; 
-      case MoveType::SlideUp    : dpos = board_size; break; 
-      case MoveType::SlideDown  : dpos = -board_size; break; 
-      default : assert(false);
-    }
+    int dpos = move.get_dpos();
+    int num_part = count_part(move.slide);
 
     auto &curr_piece = pieces[pos];
     auto &curr_height = height[pos];
@@ -128,13 +155,16 @@ void BitBoard::play_move(Move &move){
     auto old_pos = pos;
 
     // Start with last pos
-    pos += dpos*count_part(move.slide);
+    pos += dpos*num_part;
+
+    // Decide whether cap move
+    move.cap_move = 
+      has_bit(cap_stones, old_pos) &&
+      has_bit(wall_stones, pos) &&
+      is_last_part_one(move.slide);
 
     // If cap_move
     if(move.cap_move){
-      assert(is_last_part_one(move.slide));
-      assert(has_bit(wall_stones, pos));
-      assert(has_bit(cap_stones, old_pos));
       remove_bit(wall_stones, pos);
     }
 
@@ -157,9 +187,6 @@ void BitBoard::play_move(Move &move){
         temp_slide >>= 1;
       }
       temp_slide >>= 1;
-
-      // Should not be a wall
-      assert(!has_bit(wall_stones, pos));
 
       // Update heiht and pieces at pos and old_pos
       height[pos] += i;
@@ -209,14 +236,7 @@ void BitBoard::undo_move(Move &move){
 
   if(move.is_slide()){
     // Get delta pos
-    int dpos;
-    switch(move.move_type){
-      case MoveType::SlideLeft  : dpos = -1; break; 
-      case MoveType::SlideRight : dpos = 1; break; 
-      case MoveType::SlideUp    : dpos = board_size; break; 
-      case MoveType::SlideDown  : dpos = -board_size; break; 
-      default : assert(false);
-    }
+    int dpos = move.get_dpos();
 
     auto &curr_piece = pieces[pos];
     auto &curr_height = height[pos];
@@ -225,11 +245,14 @@ void BitBoard::undo_move(Move &move){
 
     // Iterate in forward direction
     while(temp_slide != 0){
+      // Update position
+      pos += dpos;
+
       // Get rid of the 0s
-      while((temp_slide & ((-1) - ((-1)>>1))) == 0) temp_slide <<= 1;
+      while((temp_slide & ((Bit)(-1) - ((Bit)(-1)>>1))) == 0) temp_slide <<= 1;
       int i = 0;
       // Increment till we see 1
-      while((temp_slide & ((-1) - ((-1)>>1))) != 0){
+      while((temp_slide & ((Bit)(-1) - ((Bit)(-1)>>1))) != 0){
         ++i;
         temp_slide <<= 1;
       }
@@ -248,8 +271,6 @@ void BitBoard::undo_move(Move &move){
         add_bit(black_stones, pos);
         remove_bit(white_stones, pos);
       }
-
-      pos += dpos;
     }
 
     if(move.cap_move){
@@ -273,8 +294,12 @@ void BitBoard::undo_move(Move &move){
 
 // For debugging
 void BitBoard::print(){
-  for(s_int x=0; x<board_size; ++x){
-    for(s_int y=board_size-1; y>=0; --y){
+  int board_size = 5;
+  cout << "Board size " << board_size << endl;
+  cout << ((current_player == Player::Black)? "Black":"White") << " player playing" << endl;
+  for(int y=board_size-1; y>=0; --y){
+    cout << y+1;
+    for(int x=0; x<board_size; ++x){
       cout << "\t";
       s_int i = x + board_size*y;
       if(height[i] == 0) continue;
@@ -289,6 +314,10 @@ void BitBoard::print(){
     }
     cout << endl;
   }
+  for(int x=0; x<board_size; ++x){
+    cout << "\t" << (char)('a' + x);
+  }
+  cout << endl;
 }
 
 } // namespace Tak

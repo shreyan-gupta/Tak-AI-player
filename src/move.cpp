@@ -48,6 +48,16 @@ Move::Move(MoveType move_type, s_int pos, Bit slide) :
   assert(move_type >= MoveType::SlideLeft);
 }
 
+int Move::get_dpos(){
+  switch(move_type){
+    case MoveType::SlideLeft  : return -1;
+    case MoveType::SlideRight : return 1;
+    case MoveType::SlideUp    : return board_size;
+    case MoveType::SlideDown  : return -board_size;
+    default : assert(false);
+  }
+}
+
 // Convert move to string
 // Place a flat stone on the square a1 : Fa1
 // Place a wall at d3 : Sd3

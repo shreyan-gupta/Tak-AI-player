@@ -37,9 +37,10 @@ struct Move {
 
   bool operator==(const Move &rhs);
 
-  string to_string();
+  int get_dpos();
   bool is_place() {return move_type <= MoveType::PlaceCapstone;}
   bool is_slide() {return !is_place();}
+  string to_string();
 };
 
 } // namespace Tak
