@@ -292,6 +292,15 @@ void BitBoard::undo_move(Move &move){
   switch_player(current_player);
 }
 
+size_t BitBoard::hash() const {
+  size_t seed = black_stones + wall_stones;
+  for(int i=0; i<height.size(); ++i){
+    seed ^= 0x9e3779b9 + pieces[i] + (height[i] << 8) + (seed << 3);
+  }
+  seed ^= white_stones + cap_stones;
+  return seed;
+}
+
 // For debugging
 void BitBoard::print(){
   int board_size = 5;

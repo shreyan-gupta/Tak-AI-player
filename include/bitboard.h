@@ -12,6 +12,8 @@ using namespace std;
 using Bit = uint64_t;
 using s_int = uint8_t;
 
+class Feature;
+
 enum class Player {
   Black,
   White
@@ -27,7 +29,10 @@ class BitBoard {
   bool is_valid_move(Move &move);
   void play_move(Move &move);
   void undo_move(Move &move);
+  size_t hash() const;
   void print();
+
+  friend class Feature;
 
  private:
   Player current_player;
@@ -45,5 +50,15 @@ class BitBoard {
 };
 
 } // namespace Tak
+
+namespace std {
+
+template <> struct hash<Tak::BitBoard> {
+  size_t operator()(const Tak::BitBoard &b) const {
+    return b.hash();
+  }
+};
+
+} // namespace std
 
 #endif
