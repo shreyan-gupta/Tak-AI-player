@@ -26,6 +26,7 @@ class BitBoard {
   BitBoard();
   void play_move(Move &move);
   void undo_move(Move &move);
+  void print();
 
  private:
   Player current_player;

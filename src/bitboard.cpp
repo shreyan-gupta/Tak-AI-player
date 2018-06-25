@@ -1,6 +1,10 @@
+#include <iostream>
+
 #include "bitboard.h"
 
 namespace Tak {
+
+using namespace std;
 
 inline bool has_bit(Bit &b, s_int &pos){
   return ((b & (1 << pos)) != 0);
@@ -39,8 +43,8 @@ inline bool is_last_part_one(Bit b){
   return ((b & ((-1) - ((-1)>>1))) == 0);
 }
 
-inline switch_player(Player &player){
-  if(player == Player::Black) player = Player:White;
+inline void switch_player(Player &player){
+  if(player == Player::Black) player = Player::White;
   else player = Player::Black;
 }
 
@@ -193,7 +197,7 @@ void BitBoard::undo_move(Move &move){
   if(move.is_place()){
     height[pos] = 0;
     pieces[pos] = 0;
-    if(current_player == Place::White)
+    if(current_player == Player::White)
       remove_bit(black_stones, pos);
     else
       remove_bit(white_stones, pos);
@@ -265,6 +269,26 @@ void BitBoard::undo_move(Move &move){
 
   // Switch current player
   switch_player(current_player);
+}
+
+// For debugging
+void BitBoard::print(){
+  for(s_int x=0; x<board_size; ++x){
+    for(s_int y=board_size-1; y>=0; --y){
+      cout << "\t";
+      s_int i = x + board_size*y;
+      if(height[i] == 0) continue;
+      for(s_int h=height[i]-1; h>0; --h){
+        bool is_white = (pieces[i] >> h) & 1;
+        cout << (is_white?"F":"f");
+      }
+      bool is_white = pieces[i] & 1;
+      if(has_bit(wall_stones, i)) cout << (is_white?"S":"s");
+      else if(has_bit(cap_stones, i)) cout << (is_white?"C":"c");
+      else cout << (is_white?"F":"f");
+    }
+    cout << endl;
+  }
 }
 
 } // namespace Tak
