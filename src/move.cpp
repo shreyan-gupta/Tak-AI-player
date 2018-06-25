@@ -2,7 +2,29 @@
 
 namespace Tak {
 
-Move::Move(MoveType &move_type, size_t &pos) :
+s_int Move::board_size = 5;
+
+Move::Move(string move){  
+  pos = (move[1] - 'a') + board_size*(move[2] - '1');
+
+  if(move[0] == 'F') move_type = MoveType::PlaceFlat;
+  else if(move[0] == 'S') move_type = MoveType::PlaceWall;
+  else if(move[0] == 'C') move_type = MoveType::PlaceCapstone;
+  else if(move[3] == '<') move_type = MoveType::SlideLeft;
+  else if(move[3] == '>') move_type = MoveType::SlideRight;
+  else if(move[3] == '+') move_type = MoveType::SlideUp;
+  else if(move[3] == '-') move_type = MoveType::SlideDown;
+
+  if(is_slide()){
+    for(int i=4; i<move.size(); ++i){
+      int shift = move[i] - '0';
+      slide <<= (shift+1);
+      slide |= ((1 << shift) - 1);
+    }
+  }
+}
+
+Move::Move(MoveType move_type, s_int pos) :
   move_type(move_type),
   pos(pos),
   cap_move(false),
@@ -10,10 +32,18 @@ Move::Move(MoveType &move_type, size_t &pos) :
   assert(move_type < MoveType::SlideLeft);
 }
 
-Move::Move(MoveType &move_type, size_t &pos, bool &cap_move, Bit &slide) :
+bool Move::operator==(const Move &rhs){
+  return(
+    move_type == rhs.move_type &&
+    pos == rhs.pos &&
+    slide == rhs.slide
+  );
+}
+
+Move::Move(MoveType move_type, s_int pos, Bit slide) :
   move_type(move_type),
   pos(pos),
-  cap_move(cap_move),
+  cap_move(false),
   slide(slide) {
   assert(move_type >= MoveType::SlideLeft);
 }

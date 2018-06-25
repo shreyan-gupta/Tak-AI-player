@@ -1,7 +1,10 @@
 # Compiled Object files
 *.o
 
-#Text files
+# Build
+/build/*
+
+# Text files
 /src/*.txt
 
 # Executables
