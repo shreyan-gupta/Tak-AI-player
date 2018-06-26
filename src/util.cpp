@@ -2,14 +2,21 @@
 
 namespace Tak {
 
+using namespace SlideVec;
+
 // Global variables
 int size;
 vector<vector<vector<Bit>>> cap_slides;
 vector<vector<vector<Bit>>> all_slides;
 
-void init(int board_size) {
-  size = board_size;
-  init_slide();
+void init_bits(){
+  Bits::Mask = (1 << size*size) - 1;
+  for(int i=0; i<size; ++i){
+    Bits::L |= 1 << (i*size);
+    Bits::R |= 1 << (i*size + size - 1);
+    Bits::U |= 1 << (size*(size-1) + i);
+    Bits::D |= 1 << i;
+  }
 }
 
 void init_slide(){
@@ -55,6 +62,12 @@ void init_slide(){
       cap_slides[i][j] = new_slide;
     }
   }
+}
+
+void init(int board_size) {
+  size = board_size;
+  init_bits();
+  init_slide();
 }
 
 } // namespace Tak

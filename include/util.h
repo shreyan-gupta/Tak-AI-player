@@ -11,12 +11,22 @@ using s_int = uint8_t;
 
 // Global variables
 extern int size;
-extern vector<vector<vector<Bit>>> cap_slides;
-extern vector<vector<vector<Bit>>> all_slides;
 
-// init functions
+namespace SlideVec {
+  extern vector<vector<vector<Bit>>> cap_slides;
+  extern vector<vector<vector<Bit>>> all_slides;
+}
+
+namespace Bits {
+  extern Bit Mask;
+  extern Bit L;
+  extern Bit R;
+  extern Bit U;
+  extern Bit D;
+} // namespace Bit
+
+// init function
 void init(int board_size);
-void init_slide();
 
 enum class Player {
   Black,
@@ -53,7 +63,7 @@ inline void add_bit(Bit &b, s_int pos){
 }
 
 inline void remove_bit(Bit &b, s_int pos){
-  b &= !(1 << pos);
+  b &= ~(1 << pos);
 }
 
 } // namespace Tak
