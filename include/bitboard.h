@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 
+#include "util.h"
 #include "move.h"
 
 namespace Tak {
@@ -12,30 +13,26 @@ using namespace std;
 using Bit = uint64_t;
 using s_int = uint8_t;
 
+// Forward declare class Feature
 class Feature;
-
-enum class Player {
-  Black,
-  White
-};
 
 // represents the board class
 class BitBoard {
- public:
-  // board size
-  static s_int board_size;
-  
-  BitBoard();
+ public:  
+  BitBoard(Pieces pieces);
   bool is_valid_move(Move &move);
   void play_move(Move &move);
   void undo_move(Move &move);
   size_t hash() const;
   void print();
 
+  bool operator==(const BitBoard &rhs);
+
   friend class Feature;
 
  private:
   Player current_player;
+  Pieces pieces;
 
   Bit black_stones; // all black owned positions
   Bit white_stones; // all white owned positions
@@ -44,9 +41,9 @@ class BitBoard {
 
   // each position of board
   vector<s_int> height;
-  vector<s_int> pieces;
+  vector<s_int> stack;
 
-  // TODO : need to define a hash
+  void set_player_at_pos(s_int pos);
 };
 
 } // namespace Tak
