@@ -10,7 +10,7 @@ void Feature::init() {
   // TODO : implement
 }
 
-eval_t operator()(const BitBoard &board) {
+eval_t Feature::operator()(const BitBoard &board) {
   // TODO : implement
   return 0;
 }

@@ -15,11 +15,12 @@ using s_int = uint8_t;
 
 // Forward declare class Feature
 class Feature;
+class MoveGenerator;
 
 // represents the board class
 class BitBoard {
  public:  
-  BitBoard(Pieces pieces);
+  BitBoard(Pieces pieces = default_pieces);
   bool is_valid_move(Move &move);
   void play_move(Move &move);
   void undo_move(Move &move);
@@ -29,6 +30,7 @@ class BitBoard {
   bool operator==(const BitBoard &rhs);
 
   friend class Feature;
+  friend class MoveGenerator;
 
  private:
   Player current_player;

@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "util.h"
+#include "bitboard.h"
 #include "move_generator.h"
 
 #define crBegin STATE=0; switch(STATE) { case 0:
@@ -10,11 +11,9 @@
 namespace Tak {
 
 MoveGenerator::MoveGenerator(BitBoard &board) : 
-  board(board),
-  move(Move()),
-  done(false) {}
+  board(board) {}
 
-const Move& MoveGenerator::next() {
+bool MoveGenerator::has_next() {
 
   crBegin;
 
@@ -47,7 +46,7 @@ const Move& MoveGenerator::next() {
     move.pos = i;
     for(j=0; j<STATE_move_type.size(); ++j){
       move.move_type = STATE_move_type[j];
-      crReturn(move);
+      crReturn(true);
     }
   }
 
@@ -74,23 +73,23 @@ const Move& MoveGenerator::next() {
       // Set the move type
       move.move_type = STATE_move_type[j];
 
-      // Get the value of num_drops and num_pieces
-      int num_pieces = std::min(board.height[i], size);
-      int num_drops = (STATE_slides >> (4*j + 4)) & 0xf;
+      // Get the value of numx_drops and numx_pieces
+      STATE_num_pieces = std::min((int)board.height[i], size);
+      STATE_num_drops = (STATE_slides >> (4*j + 4)) & 0xf;
       // If we can't reach cap_move wall, unset cap_move
-      if(num_pieces < num_drops+1) remove_bit(STATE_slides, j);
-      num_drops = std::min(num_drops, num_pieces);
+      if(STATE_num_pieces < STATE_num_drops+1) remove_bit(STATE_slides, j);
+      STATE_num_drops = std::min(STATE_num_drops, STATE_num_pieces);
       
       // Get pointer to appropriate slide_vec
       // Iterate over all slide values
-      STATE_slide_vec = &SlideVec::all_slides[num_drops][num_pieces];
-      for(k=0; k<*STATE_slide_vec.size(); ++k){
-        move.slide = *STATE_slide_vec[k];
-        crReturn(move);
+      STATE_slide_vec = &SlideVec::all_slides[STATE_num_drops][STATE_num_pieces];
+      for(k=0; k<STATE_slide_vec->size(); ++k){
+        move.slide = (*STATE_slide_vec)[k];
+        crReturn(true);
       }
 
       // If cap bit is not set, continue
-      if(!has_bit(slide, j)) continue;
+      if(!has_bit(STATE_slides, j)) continue;
 
       // Set cap_move
       // Get pointer to appropriate slide_vec for cap moves
@@ -98,16 +97,16 @@ const Move& MoveGenerator::next() {
       // Unset cap_move
       
       move.cap_move = true;
-      STATE_slide_vec = &SlideVec::cap_slides[num_drops+1][num_pieces];
-      for(k=0; k<*STATE_slide_vec.size(); ++k){
-        move.slide = *STATE_slide_vec[k];
-        crReturn(move);
+      STATE_slide_vec = &SlideVec::cap_slides[STATE_num_drops+1][STATE_num_pieces];
+      for(k=0; k<STATE_slide_vec->size(); ++k){
+        move.slide = (*STATE_slide_vec)[k];
+        crReturn(true);
       }
       move.cap_move = false;
     }
   }
-  done = true;
   crFinish;
+  return false;
 }
 
 // Returns the slides possible for each direction

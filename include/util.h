@@ -9,13 +9,29 @@ using namespace std;
 using Bit = uint64_t;
 using s_int = uint8_t;
 
+// enum Player
+enum class Player {
+  Black,
+  White
+};
+
+// Contains information about pieces left
+// for each player
+struct Pieces {
+  s_int black_flat;
+  s_int white_flat;
+  s_int black_cap;
+  s_int white_cap;
+};
+
 // Global variables
 extern int size;
+extern Pieces default_pieces;
 
 namespace SlideVec {
   extern vector<vector<vector<Bit>>> cap_slides;
   extern vector<vector<vector<Bit>>> all_slides;
-}
+} // namespace SlideVec
 
 namespace Bits {
   extern Bit Mask;
@@ -25,21 +41,15 @@ namespace Bits {
   extern Bit D;
 } // namespace Bit
 
+namespace InitPieces {
+  extern Pieces init5;
+  extern Pieces init6;
+  extern Pieces init7;
+  extern Pieces init_default;
+} // namespace InitPieces
+
 // init function
 void init(int board_size);
-
-enum class Player {
-  Black,
-  White
-};
-
-struct Pieces {
-  s_int black_flat;
-  s_int white_flat;
-  s_int black_cap;
-  s_int white_cap;
-};
-
 
 inline bool is_black(Player &p){
   return p == Player::Black;

@@ -10,7 +10,7 @@ using namespace Tak;
 int main(int argc, char const *argv[])
 {
   init(5);
-  BitBoard state({10,1,10,1});
+  BitBoard state;
   cout << "Testing bitboard " << size << endl;
 
   Move xFa1("Fa1");

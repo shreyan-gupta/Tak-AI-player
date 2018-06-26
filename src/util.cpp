@@ -6,8 +6,36 @@ using namespace SlideVec;
 
 // Global variables
 int size;
-vector<vector<vector<Bit>>> cap_slides;
-vector<vector<vector<Bit>>> all_slides;
+Pieces default_pieces;
+
+namespace SlideVec {
+  vector<vector<vector<Bit>>> cap_slides;
+  vector<vector<vector<Bit>>> all_slides;
+} // namespace SlideVec
+
+namespace Bits {
+  Bit Mask;
+  Bit L;
+  Bit R;
+  Bit U;
+  Bit D;
+} // namespace Bit
+
+namespace InitPieces {
+  Pieces init5 = {21, 21, 1, 1};
+  Pieces init6 = {30, 30, 1, 1};
+  Pieces init7 = {40, 40, 1, 1};
+  Pieces init_default = {100, 100, 2, 2};
+} // namespace InitPieces
+
+void init_pieces(){
+  switch(size){
+    case 5: default_pieces = InitPieces::init5; return;
+    case 6: default_pieces = InitPieces::init6; return;
+    case 7: default_pieces = InitPieces::init7; return;
+    default: default_pieces = InitPieces::init_default; return;
+  }
+}
 
 void init_bits(){
   Bits::Mask = (1 << size*size) - 1;
@@ -66,6 +94,7 @@ void init_slide(){
 
 void init(int board_size) {
   size = board_size;
+  init_pieces();
   init_bits();
   init_slide();
 }
