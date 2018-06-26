@@ -121,6 +121,8 @@ Bit MoveGenerator::get_max_slide(s_int pos){
   vector<int> directions = {-1, +1, size, -size};
   vector<Bit> boundaries = {Bits::L, Bits::R, Bits::U, Bits::D};
 
+  auto forbidden = board.wall_stones | board.cap_stones;
+
   for(int i=0; i<4; ++i){
     // If pos lies on the boundry, continue
     capable <<= 1;
@@ -133,7 +135,7 @@ Bit MoveGenerator::get_max_slide(s_int pos){
       temp_pos += directions[i];
       // break if we hit the wall, set capable
       // note that the wall may be on the boundary
-      if((1 << temp_pos) & board.wall_stones){
+      if((1 << temp_pos) & forbidden){
         ++capable;
         break;
       }
