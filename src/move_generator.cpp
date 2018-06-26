@@ -41,7 +41,7 @@ bool MoveGenerator::has_next() {
 
   // Generate place moves
   for(i=0; i<board.height.size(); ++i){
-    if(!has_bit(STATE_curr_stones, i)) continue;
+    if(!test_bit(STATE_curr_stones, i)) continue;
     // Set move pos
     move.pos = i;
     for(j=0; j<STATE_move_type.size(); ++j){
@@ -61,7 +61,7 @@ bool MoveGenerator::has_next() {
   // Generate slide moves
   for(i=0; i<board.height.size(); ++i){
     // If not owned by current_player, continue
-    if(!has_bit(STATE_curr_stones, i)) continue;
+    if(!test_bit(STATE_curr_stones, i)) continue;
 
     // set move pos
     // get informations about slides
@@ -77,7 +77,7 @@ bool MoveGenerator::has_next() {
       STATE_num_pieces = std::min((int)board.height[i], size);
       STATE_num_drops = (STATE_slides >> (4*j + 4)) & 0xf;
       // If we can't reach cap_move wall, unset cap_move
-      if(STATE_num_pieces < STATE_num_drops+1) remove_bit(STATE_slides, j);
+      if(STATE_num_pieces < STATE_num_drops+1) reset_bit(STATE_slides, j);
       STATE_num_drops = std::min(STATE_num_drops, STATE_num_pieces);
       
       // Get pointer to appropriate slide_vec
@@ -89,7 +89,7 @@ bool MoveGenerator::has_next() {
       }
 
       // If cap bit is not set, continue
-      if(!has_bit(STATE_slides, j)) continue;
+      if(!test_bit(STATE_slides, j)) continue;
 
       // Set cap_move
       // Get pointer to appropriate slide_vec for cap moves

@@ -50,20 +50,20 @@ bool BitBoard::is_valid_move(Move &move){
     }
 
     // if slide move, then ownership with current player
-    if(is_black(current_player) && !has_bit(black_stones, pos)) return false;
-    if(is_white(current_player) && !has_bit(white_stones, pos)) return false;
+    if(is_black(current_player) && !test_bit(black_stones, pos)) return false;
+    if(is_white(current_player) && !test_bit(white_stones, pos)) return false;
 
     int num_slide = move.num_slide();
 
     move.cap_move = 
-      has_bit(cap_stones, pos) &&
-      has_bit(wall_stones, pos + num_slide*move.get_dpos()) &&
+      test_bit(cap_stones, pos) &&
+      test_bit(wall_stones, pos + num_slide*move.get_dpos()) &&
       (move.slide_at(num_slide - 1) == 1);
 
     // Either a cap move or there should be no walls
     for(int i=0; i<num_slide; ++i){
       pos += num_slide;
-      if(has_bit(wall_stones, pos)){
+      if(test_bit(wall_stones, pos)){
         // If not cap move, then invalid move
         // else i should be the last slide
         if(!move.cap_move) return false;
@@ -86,13 +86,13 @@ void BitBoard::play_move(Move &move){
     
     // update stones board and stack array
     if(is_black(current_player)){
-      add_bit(black_stones, pos);
+      set_bit(black_stones, pos);
       if(move.move_type == MoveType::PlaceCapstone)
         pieces.black_cap--;
       else pieces.black_flat--;
     }
     else {
-      add_bit(white_stones, pos);
+      set_bit(white_stones, pos);
       stack[pos] = 1;
       if(move.move_type == MoveType::PlaceCapstone)
         pieces.white_cap--;
@@ -101,9 +101,9 @@ void BitBoard::play_move(Move &move){
 
     // update wall and cap stones
     if(move.move_type == MoveType::PlaceWall)
-      add_bit(wall_stones, pos);
+      set_bit(wall_stones, pos);
     if(move.move_type == MoveType::PlaceCapstone)
-      add_bit(cap_stones, pos);
+      set_bit(cap_stones, pos);
   }
 
   if(move.is_slide()){
@@ -115,25 +115,25 @@ void BitBoard::play_move(Move &move){
 
     // Decide whether cap move
     move.cap_move = 
-      has_bit(cap_stones, pos) &&
-      has_bit(wall_stones, end_pos) &&
+      test_bit(cap_stones, pos) &&
+      test_bit(wall_stones, end_pos) &&
       (move.slide_at(move.num_slide() - 1) == 1);
 
     // If cap_move
     if(move.cap_move){
-      remove_bit(wall_stones, end_pos);
+      reset_bit(wall_stones, end_pos);
     }
 
     // If capstone moved
-    if(has_bit(cap_stones, pos)){
-      remove_bit(cap_stones, pos);
-      add_bit(cap_stones, end_pos);
+    if(test_bit(cap_stones, pos)){
+      reset_bit(cap_stones, pos);
+      set_bit(cap_stones, end_pos);
     }
 
     // If wall moved
-    if(has_bit(wall_stones, pos)){
-      remove_bit(wall_stones, pos);
-      add_bit(wall_stones, end_pos);
+    if(test_bit(wall_stones, pos)){
+      reset_bit(wall_stones, pos);
+      set_bit(wall_stones, end_pos);
     }
 
     for(int i=num_part-1; i>=0; --i){
@@ -166,22 +166,22 @@ void BitBoard::undo_move(Move &move){
     height[pos] = 0;
     stack[pos] = 0;
     if(is_white(current_player)){
-      remove_bit(black_stones, pos);
+      reset_bit(black_stones, pos);
       if(move.move_type == MoveType::PlaceCapstone)
         pieces.black_cap++;
       else pieces.black_flat++;
     }
     else{
-      remove_bit(white_stones, pos);
+      reset_bit(white_stones, pos);
       if(move.move_type == MoveType::PlaceCapstone)
         pieces.white_cap++;
       else pieces.white_flat++;
     }
     
     if(move.move_type == MoveType::PlaceWall)
-      remove_bit(wall_stones, pos);
+      reset_bit(wall_stones, pos);
     if(move.move_type == MoveType::PlaceCapstone)
-      remove_bit(cap_stones, pos);
+      reset_bit(cap_stones, pos);
   }
 
   if(move.is_slide()){
@@ -193,19 +193,19 @@ void BitBoard::undo_move(Move &move){
 
     // If cap_move
     if(move.cap_move){
-      add_bit(wall_stones, end_pos);
+      set_bit(wall_stones, end_pos);
     }
 
     // If capstone moved
-    if(has_bit(cap_stones, end_pos)){
-      remove_bit(cap_stones, end_pos);
-      add_bit(cap_stones, pos);
+    if(test_bit(cap_stones, end_pos)){
+      reset_bit(cap_stones, end_pos);
+      set_bit(cap_stones, pos);
     }
 
     // If wall moved
-    if(has_bit(wall_stones, end_pos)){
-      remove_bit(wall_stones, end_pos);
-      add_bit(wall_stones, pos);
+    if(test_bit(wall_stones, end_pos)){
+      reset_bit(wall_stones, end_pos);
+      set_bit(wall_stones, pos);
     }
 
     for(int i=0; i<num_part; ++i){
@@ -257,8 +257,8 @@ void BitBoard::print(){
         cout << (is_white?"F":"f");
       }
       bool is_white = stack[i] & 1;
-      if(has_bit(wall_stones, i)) cout << (is_white?"S":"s");
-      else if(has_bit(cap_stones, i)) cout << (is_white?"C":"c");
+      if(test_bit(wall_stones, i)) cout << (is_white?"S":"s");
+      else if(test_bit(cap_stones, i)) cout << (is_white?"C":"c");
       else cout << (is_white?"F":"f");
     }
     cout << endl;
@@ -290,16 +290,16 @@ bool BitBoard::operator==(const BitBoard &rhs){
 // Sets position ownership at location pos
 void BitBoard::set_player_at_pos(s_int pos){
   if(height[pos] == 0){
-    remove_bit(black_stones, pos);
-    remove_bit(white_stones, pos);
+    reset_bit(black_stones, pos);
+    reset_bit(white_stones, pos);
   }
   else if(stack[pos] & 1){
-    add_bit(white_stones, pos);
-    remove_bit(black_stones, pos);
+    set_bit(white_stones, pos);
+    reset_bit(black_stones, pos);
   }
   else {
-    add_bit(black_stones, pos);
-    remove_bit(white_stones, pos);
+    set_bit(black_stones, pos);
+    reset_bit(white_stones, pos);
   }
 }
 

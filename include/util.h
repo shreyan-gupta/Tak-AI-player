@@ -64,15 +64,15 @@ inline void switch_player(Player &p){
   else p = Player::Black;
 }
 
-inline bool has_bit(Bit &b, s_int pos){
-  return ((b & (1 << pos)) != 0);
+inline bool test_bit(Bit b, s_int pos){
+  return (b >> pos) & 1; 
 }
 
-inline void add_bit(Bit &b, s_int pos){
+inline void set_bit(Bit &b, s_int pos){
   b |= (1 << pos);
 }
 
-inline void remove_bit(Bit &b, s_int pos){
+inline void reset_bit(Bit &b, s_int pos){
   b &= ~(1 << pos);
 }
 
