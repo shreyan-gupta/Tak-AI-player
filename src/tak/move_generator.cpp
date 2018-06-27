@@ -4,6 +4,12 @@
 #include "tak/bitboard.h"
 #include "tak/move_generator.h"
 
+// Jugaad for coroutine. To be used as shown below
+// crBegin;
+// for(int i=0; i<n; ++i){
+//   crReturn(i);
+// }
+// crFinish;
 #define crBegin switch(STATE) { case 0:
 #define crReturn(x) do { STATE=__LINE__; return x; case __LINE__:; } while (0)
 #define crFinish STATE=-1; break; case -1: assert(false); }
@@ -15,9 +21,10 @@ MoveGenerator::MoveGenerator(BitBoard &board) :
   STATE(0) {}
 
 bool MoveGenerator::has_next() {
-
+  // begin coroutine
   crBegin;
 
+  // find if current_player has flats or caps
   bool has_flat;
   bool has_cap;
   if(is_black(board.current_player)) {
@@ -46,6 +53,7 @@ bool MoveGenerator::has_next() {
     // Set move pos
     move.pos = i;
     for(j=0; j<STATE_move_type.size(); ++j){
+      // Set move_type
       move.move_type = STATE_move_type[j];
       crReturn(true);
     }
@@ -61,7 +69,6 @@ bool MoveGenerator::has_next() {
 
   // Generate slide moves
   for(i=0; i<board.height.size(); ++i){
-    // If not owned by current_player, continue
     if(!test_bit(STATE_curr_stones, i)) continue;
 
     // set move pos
@@ -76,7 +83,7 @@ bool MoveGenerator::has_next() {
       // Set the move type
       move.move_type = STATE_move_type[j];
 
-      // Get the value of numx_drops and numx_pieces
+      // Get the value of num_drops and num_pieces
       STATE_num_pieces = std::min((int)board.height[i], size);
       STATE_num_drops = (STATE_slides >> (4*j + 4)) & 0xf;
       // If we can't reach cap_move wall, unset cap_move
@@ -95,19 +102,19 @@ bool MoveGenerator::has_next() {
       if(!test_bit(STATE_slides, j)) continue;
 
       // Set cap_move
-      // Get pointer to appropriate slide_vec for cap moves
-      // Iterate over all slide values
-      // Unset cap_move
-
       move.cap_move = true;
+      // Get pointer to appropriate slide_vec for cap moves
       STATE_slide_vec = &SlideVec::cap_slides[STATE_num_drops+1][STATE_num_pieces];
+      // Iterate over all slide values
       for(k=0; k<STATE_slide_vec->size(); ++k){
         move.slide = (*STATE_slide_vec)[k];
         crReturn(true);
       }
+      // Unset cap_move
       move.cap_move = false;
     }
   }
+  // finish coroutine
   crFinish;
   return false;
 }
@@ -121,8 +128,8 @@ Bit MoveGenerator::get_max_slide(s_int pos){
   Bit slides = 0;
 
   // In the sequence left, right, up, down
-  vector<int> directions = {-1, +1, size, -size};
-  vector<Bit> boundaries = {Bits::L, Bits::R, Bits::U, Bits::D};
+  int directions[] = {-1, +1, size, -size};
+  Bit boundaries[] = {Bits::L, Bits::R, Bits::U, Bits::D};
 
   auto forbidden = board.wall_stones | board.cap_stones;
 

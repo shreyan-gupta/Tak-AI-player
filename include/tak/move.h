@@ -3,11 +3,9 @@
 
 #include <string>
 
-namespace Tak {
+#include "tak/util.h"
 
-using namespace std;
-using Bit = uint64_t;
-using s_int = uint8_t;
+namespace Tak {
 
 // Enum for move type
 enum class MoveType {

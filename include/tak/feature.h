@@ -1,24 +1,32 @@
 #ifndef FEATURE_H
 #define FEATURE_H
 
+#include "tak/util.h"
 #include "tak/bitboard.h"
 
 namespace Tak {
 
-using eval_t = uint32_t;
-using s_int = uint8_t;
-
-
 // Used to get the eval of board
 // Feature eval(board_size);
 // eval_t eval_value = eval(board);
+// Note that the eval is wrt current_player
 class Feature {
  public:
-  Feature();
-  eval_t operator()(const BitBoard &board);
+  eval_t operator()(const BitBoard &b);
 
  private:
+  int delta_flat;
+  int delta_wall;
+  int delta_cap;
+
+  // feature functions
+  eval_t score_groups(Bit base);
+  eval_t score_captive(s_int stack, s_int height, eval_t hard, eval_t soft);
+  eval_t score_top_piece(const BitBoard &b);
+  eval_t score_center(Bit base);
   
+  // Sets the value of delta_flat, delta_wall, delta_cap
+  void set_delta(const BitBoard &b);
 };
 
 } // namespace Tak

@@ -3,15 +3,16 @@
 
 namespace Tak {
 
+// Default constructor
 Move::Move() :
   move_type(MoveType::PlaceFlat),
   pos(0),
   cap_move(false),
   slide(0) {}
 
-Move::Move(string move){  
+// Note that cap_move is not set as it can not be known
+Move::Move(string move){
   pos = (move[1] - 'a') + size*(move[2] - '1');
-
 
   if(move[0] == 'F') move_type = MoveType::PlaceFlat;
   else if(move[0] == 'S') move_type = MoveType::PlaceWall;
@@ -57,6 +58,7 @@ bool Move::operator==(const Move &rhs) const {
   );
 }
 
+// Returns the increment (direction) in pos
 int Move::get_dpos() const {
   switch(move_type){
     case MoveType::SlideLeft  : return -1;
@@ -96,8 +98,6 @@ string Move::to_string() const {
 
   // Moves are stored in locations 0xf0, 0xf00...
   // Location 0xf has the number of drops
-  // Example 2,3 -> (3)(2)(2)
-  // Example 3,1,1,1 -> (1)(1)(1)(3)(4)
   int sum = 0;
   for(int i=0; i<num_slide(); ++i){
     sum += slide_at(i);

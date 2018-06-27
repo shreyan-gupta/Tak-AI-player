@@ -3,14 +3,24 @@
 
 #include <vector>
 
+#include "tak/util.h"
 #include "tak/move.h"
 
 namespace Tak {
 
-using Bit = uint64_t;
-using s_int = uint8_t;
-
 class BitBoard;
+
+// Generates all moves for a given board. Use as below
+// MoveGenerator gen(board);
+// while(gen.has_next()){
+//   const Move &move = gen.next();
+// }
+
+// Note that returned move changes on calling has_next()
+// DO NOT call has_next() again before accessing move
+// DO NOT call has_next() once it has returned false
+
+// This implementation of MoveGenerator uses a coroutine hack
 
 class MoveGenerator {
  public:
@@ -22,7 +32,7 @@ class MoveGenerator {
   BitBoard &board;
   Move move;
 
-  // All states required
+  // All states required for pseudo coroutine
   int i;
   int j;
   int k;

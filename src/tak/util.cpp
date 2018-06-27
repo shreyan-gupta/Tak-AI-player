@@ -19,14 +19,42 @@ namespace Bits {
   Bit R;
   Bit U;
   Bit D;
+  Bit Edge;
 } // namespace Bit
 
 namespace InitPieces {
+  Pieces init3 = {10, 10, 0, 0};
+  Pieces init4 = {15, 15, 0, 0};
   Pieces init5 = {21, 21, 1, 1};
   Pieces init6 = {30, 30, 1, 1};
   Pieces init7 = {40, 40, 1, 1};
+  Pieces init8 = {50, 50, 2, 2};
   Pieces init_default = {100, 100, 2, 2};
 } // namespace InitPieces
+
+namespace Weights {
+  // positions       0 1 2 3   4   5   6   7   8    9
+  eval_t GROUPS[] = {0,0,0,30,100,300,500,750,1100,1500};
+  eval_t WIN = 2000000;
+  eval_t CHECKWIN = 1000000;
+  eval_t INF = 10000000;
+  eval_t FLAT = 400;
+  eval_t WALL = 200;
+  eval_t CAP = 300;
+  eval_t HARD_FCAPTIVE = 200;
+  eval_t SOFT_FCAPTIVE = -200;
+  eval_t HARD_SCAPTIVE = 300;
+  eval_t SOFT_SCAPTIVE = -150;
+  eval_t HARD_CCAPTIVE = 250;
+  eval_t SOFT_CCAPTIVE = -150;
+  eval_t CENTER = 7;
+  eval_t ENDGAMEFLAT = 1400;
+  float ENDGAMECUTOFF = 7;
+} // namespace Weights
+
+void init_weights(){
+  Weights::GROUPS[size] = Weights::WIN;
+}
 
 void init_pieces(){
   switch(size){
@@ -45,6 +73,7 @@ void init_bits(){
     Bits::U |= 1 << (size*(size-1) + i);
     Bits::D |= 1 << i;
   }
+  Bits::Edge = Bits::L | Bits::R | Bits::U | Bits::D;
 }
 
 void init_slide(){
@@ -94,6 +123,7 @@ void init_slide(){
 
 void init(int board_size) {
   size = board_size;
+  init_weights();
   init_pieces();
   init_bits();
   init_slide();

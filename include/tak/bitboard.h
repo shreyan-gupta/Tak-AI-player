@@ -9,21 +9,20 @@
 
 namespace Tak {
 
-using namespace std;
-using Bit = uint64_t;
-using s_int = uint8_t;
-
 // Forward declare class Feature
 class Feature;
 class MoveGenerator;
 
-// represents the board class
+// Represents the board class
+// Deals with checking, playing and undoing moves
+// Note that the init() function should be called before
+// declaring a BitBoard instance
 class BitBoard {
  public:  
   BitBoard(Pieces pieces = default_pieces);
   bool is_valid_move(Move &move) const;
-  void play_move(Move &move);
-  void undo_move(Move &move);
+  void play_move(const Move &move);
+  void undo_move(const Move &move);
   size_t hash() const;
   void print() const;
 
@@ -42,8 +41,9 @@ class BitBoard {
   Bit cap_stones;   // position of all capstones
 
   // each position of board
-  vector<s_int> height;
-  vector<s_int> stack;
+  // Top of the stack is least significant bit
+  std::vector<s_int> height;
+  std::vector<s_int> stack;
 
   void set_player_at_pos(s_int pos);
 };

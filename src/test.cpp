@@ -4,6 +4,7 @@
 #include "tak/bitboard.h"
 #include "tak/move.h"
 #include "tak/move_generator.h"
+#include "tak/feature.h"
 
 using namespace std;
 using namespace Tak;
@@ -12,6 +13,7 @@ int main(int argc, char const *argv[])
 {
   init(5);
   BitBoard state;
+  Feature eval;
   cout << "Testing bitboard " << size << endl;
 
   string str;
@@ -30,6 +32,7 @@ int main(int argc, char const *argv[])
     Move move(str);
     state.play_move(move);
     state.print();
+    cout << "EVAL : " << eval(state) << endl;
   }
   return 0;
 }
