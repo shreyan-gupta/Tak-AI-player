@@ -4,14 +4,15 @@
 #include "bitboard.h"
 #include "move_generator.h"
 
-#define crBegin STATE=0; switch(STATE) { case 0:
+#define crBegin switch(STATE) { case 0:
 #define crReturn(x) do { STATE=__LINE__; return x; case __LINE__:; } while (0)
-#define crFinish STATE=-1; case -1: assert(false); }
+#define crFinish STATE=-1; break; case -1: assert(false); }
 
 namespace Tak {
 
 MoveGenerator::MoveGenerator(BitBoard &board) : 
-  board(board) {}
+  board(board),
+  STATE(0) {}
 
 bool MoveGenerator::has_next() {
 
@@ -41,7 +42,7 @@ bool MoveGenerator::has_next() {
 
   // Generate place moves
   for(i=0; i<board.height.size(); ++i){
-    if(!test_bit(STATE_curr_stones, i)) continue;
+    if(board.height[i] != 0) continue;
     // Set move pos
     move.pos = i;
     for(j=0; j<STATE_move_type.size(); ++j){
@@ -65,8 +66,10 @@ bool MoveGenerator::has_next() {
 
     // set move pos
     // get informations about slides
+    // If not a cap_stone at pos i, then reset capable
     move.pos = i;
     STATE_slides = get_max_slide(i);
+    if(!test_bit(board.cap_stones, i)) STATE_slides &= ~0xf;
 
     // Iterate over all the slide moves
     for(j=0; j<STATE_move_type.size(); ++j){
@@ -95,7 +98,7 @@ bool MoveGenerator::has_next() {
       // Get pointer to appropriate slide_vec for cap moves
       // Iterate over all slide values
       // Unset cap_move
-      
+
       move.cap_move = true;
       STATE_slide_vec = &SlideVec::cap_slides[STATE_num_drops+1][STATE_num_pieces];
       for(k=0; k<STATE_slide_vec->size(); ++k){
@@ -136,7 +139,7 @@ Bit MoveGenerator::get_max_slide(s_int pos){
       // break if we hit the wall, set capable
       // note that the wall may be on the boundary
       if((1 << temp_pos) & forbidden){
-        ++capable;
+        if((1 << temp_pos) & board.wall_stones) ++capable;
         break;
       }
       // Only increment slides if neither on boundry or wall

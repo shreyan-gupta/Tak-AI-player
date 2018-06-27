@@ -14,11 +14,11 @@ using s_int = uint8_t;
 // eval_t eval_value = eval(board);
 class Feature {
  public:
-  Feature(s_int board_size);
-  void init();
+  Feature();
   eval_t operator()(const BitBoard &board);
+
  private:
-  s_int board_size;
+  
 };
 
 } // namespace Tak

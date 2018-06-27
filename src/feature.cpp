@@ -2,13 +2,7 @@
 
 namespace Tak {
 
-Feature::Feature(s_int board_size) : board_size(board_size) {
-  init();
-}
-
-void Feature::init() {
-  // TODO : implement
-}
+Feature::Feature() {}
 
 eval_t Feature::operator()(const BitBoard &board) {
   // TODO : implement

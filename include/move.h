@@ -25,8 +25,8 @@ struct Move {
 
   // Moves are stored in locations 0xf0, 0xf00...
   // Location 0xf has the number of drops
-  // Example 2,3 -> (3)(2)(2)
-  // Example 3,1,1,1 -> (1)(1)(1)(3)(4)
+  // Example 5a1+23 -> (3)(2)(2)
+  // Example 6a1+3111 -> (1)(1)(1)(3)(4)
   Bit slide;          // if move_type = slide, then slide values
   MoveType move_type; // move type
   s_int pos;          // position at which move is initiated
@@ -37,16 +37,16 @@ struct Move {
   Move(MoveType move_type, s_int pos);
   Move(MoveType move_type, s_int pos, Bit slide);
 
-  bool operator==(const Move &rhs);
+  bool operator==(const Move &rhs) const;
 
-  int get_dpos();
-  string to_string();
+  int get_dpos() const;
+  string to_string() const;
 
-  inline bool is_place() {return move_type <= MoveType::PlaceCapstone;}
-  inline bool is_slide() {return !is_place();}
-  inline int slide_at(int i) {return (slide >> (4*i + 4)) & 0xf;}
-  inline int num_slide() {return slide & 0xf;}
-  inline int num_stack() {
+  inline bool is_place() const {return move_type <= MoveType::PlaceCapstone;}
+  inline bool is_slide() const {return !is_place();}
+  inline int slide_at(int i) const {return (slide >> (4*i + 4)) & 0xf;}
+  inline int num_slide() const {return slide & 0xf;}
+  inline int num_stack() const {
     int sum = 0;
     for(int i=0; i<num_slide(); ++i) sum += slide_at(i);
     return sum;

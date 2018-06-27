@@ -41,14 +41,6 @@ Move::Move(MoveType move_type, s_int pos) :
   assert(move_type < MoveType::SlideLeft);
 }
 
-bool Move::operator==(const Move &rhs){
-  return(
-    move_type == rhs.move_type &&
-    pos == rhs.pos &&
-    slide == rhs.slide
-  );
-}
-
 Move::Move(MoveType move_type, s_int pos, Bit slide) :
   move_type(move_type),
   pos(pos),
@@ -57,7 +49,15 @@ Move::Move(MoveType move_type, s_int pos, Bit slide) :
   assert(move_type >= MoveType::SlideLeft);
 }
 
-int Move::get_dpos(){
+bool Move::operator==(const Move &rhs) const {
+  return(
+    move_type == rhs.move_type &&
+    pos == rhs.pos &&
+    slide == rhs.slide
+  );
+}
+
+int Move::get_dpos() const {
   switch(move_type){
     case MoveType::SlideLeft  : return -1;
     case MoveType::SlideRight : return 1;
@@ -72,7 +72,7 @@ int Move::get_dpos(){
 // Place a wall at d3 : Sd3
 // Place a Capstone at b4 : Cb4
 // Move 5 stones from e4, dropping two on d4 and three on c4 : 5e4<23
-string Move::to_string(){
+string Move::to_string() const {
   string m = "";
 
   // Append coordinated
