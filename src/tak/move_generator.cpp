@@ -1,8 +1,8 @@
 #include <algorithm>
 
-#include "util.h"
-#include "bitboard.h"
-#include "move_generator.h"
+#include "tak/util.h"
+#include "tak/bitboard.h"
+#include "tak/move_generator.h"
 
 #define crBegin switch(STATE) { case 0:
 #define crReturn(x) do { STATE=__LINE__; return x; case __LINE__:; } while (0)
@@ -127,7 +127,6 @@ Bit MoveGenerator::get_max_slide(s_int pos){
   auto forbidden = board.wall_stones | board.cap_stones;
 
   for(int i=0; i<4; ++i){
-    // If pos lies on the boundry, continue
     capable <<= 1;
     auto temp_pos = pos;
     while(true){

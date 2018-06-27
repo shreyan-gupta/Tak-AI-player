@@ -1,7 +1,7 @@
 #ifndef FEATURE_H
 #define FEATURE_H
 
-#include "bitboard.h"
+#include "tak/bitboard.h"
 
 namespace Tak {
 

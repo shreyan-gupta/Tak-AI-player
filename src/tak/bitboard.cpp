@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "util.h"
-#include "bitboard.h"
+#include "tak/util.h"
+#include "tak/bitboard.h"
 
 namespace Tak {
 
@@ -23,7 +23,7 @@ BitBoard::BitBoard(Pieces pieces) :
 // Check if a move is valid
 // Assert checks are always suppose to be true
 // Other checks may return false
-bool BitBoard::is_valid_move(Move &move){
+bool BitBoard::is_valid_move(Move &move) const {
   auto pos = move.pos;
   
   // Check if valid move position
@@ -242,7 +242,7 @@ size_t BitBoard::hash() const {
 }
 
 // For debugging
-void BitBoard::print(){
+void BitBoard::print() const {
   int size = 5;
   cout << "Board size " << size << endl;
   cout << ((current_player == Player::Black)? "Black":"White") << " player playing" << endl;
@@ -269,7 +269,7 @@ void BitBoard::print(){
   cout << endl;
 }
 
-bool BitBoard::operator==(const BitBoard &rhs){
+bool BitBoard::operator==(const BitBoard &rhs) const {
   if(
     black_stones != rhs.black_stones ||
     white_stones != rhs.white_stones ||

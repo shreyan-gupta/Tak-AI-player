@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <vector>
+#include <cstdint>
 
 namespace Tak {
 
@@ -51,11 +52,11 @@ namespace InitPieces {
 // init function
 void init(int board_size);
 
-inline bool is_black(Player &p){
+inline bool is_black(const Player &p){
   return p == Player::Black;
 }
 
-inline bool is_white(Player &p){
+inline bool is_white(const Player &p){
   return !is_black(p);
 }
 

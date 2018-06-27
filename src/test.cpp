@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "util.h"
-#include "bitboard.h"
-#include "move.h"
-#include "move_generator.h"
+#include "tak/util.h"
+#include "tak/bitboard.h"
+#include "tak/move.h"
+#include "tak/move_generator.h"
 
 using namespace std;
 using namespace Tak;

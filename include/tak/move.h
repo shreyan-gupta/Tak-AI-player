@@ -2,7 +2,6 @@
 #define MOVE_H
 
 #include <string>
-#include <cstdint>
 
 namespace Tak {
 

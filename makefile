@@ -1,25 +1,20 @@
 CC = g++
 CFLAGS = -std=c++11 -I include/
 
-OBJECTS = \
-	build/bitboard.o \
-	build/feature.o \
-	build/move.o \
-	build/move_generator.o \
-	build/util.o
-
-all : build/out
+TAKOBJECTS = \
+	build/tak/bitboard.o \
+	build/tak/feature.o \
+	build/tak/move.o \
+	build/tak/move_generator.o \
+	build/tak/util.o
 
 test : build/test
 
-build/out : $(OBJECTS) build/main.o
-	$(CC) $^ -o $@
-
-build/test : $(OBJECTS) build/test.o
+build/test : $(TAKOBJECTS) build/test.o
 	$(CC) $^ -o $@
 
 build/%.o : src/%.cpp
-	@mkdir -p build
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY : clean

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "move.h"
+#include "tak/move.h"
 
 namespace Tak {
 

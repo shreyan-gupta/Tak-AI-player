@@ -1,5 +1,5 @@
-#include "util.h"
-#include "move.h"
+#include "tak/util.h"
+#include "tak/move.h"
 
 namespace Tak {
 

@@ -4,8 +4,8 @@
 #include <vector>
 #include <cstdint>
 
-#include "util.h"
-#include "move.h"
+#include "tak/util.h"
+#include "tak/move.h"
 
 namespace Tak {
 
@@ -21,13 +21,13 @@ class MoveGenerator;
 class BitBoard {
  public:  
   BitBoard(Pieces pieces = default_pieces);
-  bool is_valid_move(Move &move);
+  bool is_valid_move(Move &move) const;
   void play_move(Move &move);
   void undo_move(Move &move);
   size_t hash() const;
-  void print();
+  void print() const;
 
-  bool operator==(const BitBoard &rhs);
+  bool operator==(const BitBoard &rhs) const;
 
   friend class Feature;
   friend class MoveGenerator;
