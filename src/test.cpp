@@ -1,17 +1,15 @@
 #include <iostream>
+#include <chrono>
 
-#include "tak/util.h"
-#include "tak/bitboard.h"
-#include "tak/move.h"
-#include "tak/move_generator.h"
-#include "tak/feature.h"
+#include "tak/tak.h"
+#include "minimax/minimax.h"
 
 using namespace std;
+using namespace std::chrono;
 using namespace Tak;
+// using namespace Minimax;
 
-int main(int argc, char const *argv[])
-{
-  init(5);
+void test_board(){
   BitBoard state;
   Feature eval;
   cout << "Testing bitboard " << size << endl;
@@ -34,5 +32,33 @@ int main(int argc, char const *argv[])
     state.print();
     cout << "EVAL : " << eval(state) << endl;
   }
+}
+
+void test_minimax(){
+  Minimax::Minimax m;
+  
+  string str;
+  while(true){
+    cin >> str;
+    if(str == "end") break;
+    if(str[0] == '#') continue;
+    Move move(str);
+    cout << "my_move " << move.to_string() << endl;
+    m.play_move(move);
+    auto start = high_resolution_clock::now();
+    Move minimax_move = m.get_move(5);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    cout << "minimax_move " << minimax_move.to_string() << endl;
+    cout << "duration " << duration.count() << endl;
+    m.play_move(minimax_move);
+    m.print_board();
+  }
+}
+
+int main(int argc, char const *argv[])
+{
+  Tak::init(5);
+  test_minimax();
   return 0;
 }

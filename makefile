@@ -8,9 +8,14 @@ TAKOBJECTS = \
 	build/tak/move_generator.o \
 	build/tak/util.o
 
+MINIMAXOBJECTS = \
+	build/minimax/minimax.o
+
+all : $(TAKOBJECTS) $(MINIMAXOBJECTS)
+
 test : build/test
 
-build/test : $(TAKOBJECTS) build/test.o
+build/test : $(TAKOBJECTS) $(MINIMAXOBJECTS) build/test.o
 	$(CC) $^ -o $@
 
 build/%.o : src/%.cpp
