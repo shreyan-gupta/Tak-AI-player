@@ -27,6 +27,7 @@ class BitBoard {
   void print() const;
 
   bool operator==(const BitBoard &rhs) const;
+  bool operator!=(const BitBoard &rhs) const {return !(*this == rhs);}
 
   friend class Feature;
   friend class MoveGenerator;

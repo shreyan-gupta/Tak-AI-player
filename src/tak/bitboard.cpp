@@ -206,7 +206,8 @@ void BitBoard::undo_move(const Move &move){
     }
 
     // If wall moved
-    if(test_bit(wall_stones, end_pos)){
+    // Move must not be a cap move
+    if(test_bit(wall_stones, end_pos) && !move.cap_move){
       reset_bit(wall_stones, end_pos);
       set_bit(wall_stones, pos);
     }

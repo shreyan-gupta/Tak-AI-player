@@ -157,7 +157,7 @@ eval_t Feature::score_center(Bit base) {
   Bit v_wall = Bits::D;
   for(int i=0; i<size; ++i){
     int p = popcnt(base & h_wall) + popcnt(base & v_wall);
-    score -= CENTER * p * std::abs(2*i - size - 1);
+    score -= CENTER * p * std::abs(2*i - (size-1));
     h_wall <<= 1;
     v_wall <<= size;
   }
