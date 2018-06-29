@@ -108,15 +108,6 @@ inline void reset_bit(Bit &b, s_int pos){
   b &= ~(1 << pos);
 }
 
-// inline int popcnt(Bit b){
-//   int sum = 0;
-//   while(b){
-//     sum += b&1;
-//     b >>= 1;
-//   }
-//   return sum;
-// }
-
 inline int popcnt(Bit b){
   return __builtin_popcountll(b);
 }
