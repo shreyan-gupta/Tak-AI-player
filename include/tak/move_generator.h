@@ -44,7 +44,7 @@ class MoveGenerator {
   vector<MoveType> STATE_move_type;
   vector<Bit> *STATE_slide_vec;
 
-  Bit get_max_slide(s_int pos);
+  Bit get_max_slide(int pos);
 };
 
 } // namespace Tak

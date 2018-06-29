@@ -47,6 +47,9 @@ bool MoveGenerator::has_next() {
     STATE_move_type.push_back(MoveType::PlaceCapstone);
   }
 
+  move.cap_move = false;
+  move.slide = 0;
+
   // Generate place moves
   for(i=0; i<board.height.size(); ++i){
     if(board.height[i] != 0) continue;
@@ -123,34 +126,30 @@ bool MoveGenerator::has_next() {
 // ret & 0xf gives the 4 cap_able bits
 // (ret & 0xf0) to (ret & 0xf0000) gives the max slide values
 // for directions L, R, U, D respectively
-Bit MoveGenerator::get_max_slide(s_int pos){
+Bit MoveGenerator::get_max_slide(int pos){
   Bit capable = 0;
   Bit slides = 0;
 
   // In the sequence left, right, up, down
+  // boundaries are shifted by 1 position 
   int directions[] = {-1, +1, size, -size};
-  Bit boundaries[] = {Bits::L, Bits::R, Bits::U, Bits::D};
-
-  auto forbidden = board.wall_stones | board.cap_stones;
+  Bit boundaries[] = {Bits::R, (Bits::R << 1), (Bits::U << size), 0};
 
   for(int i=0; i<4; ++i){
     capable <<= 1;
-    auto temp_pos = pos;
-    while(true){
-      // break if we hit the boundary
-      // note that there is no wall on boundary
-      if((1 << temp_pos) & boundaries[i]) break;
-      // Increment the position
+    int temp_pos = pos;
+    Bit forbidden = board.wall_stones | board.cap_stones | boundaries[i];
+    temp_pos += directions[i];
+    
+    // temp_pos should not go out of bounds and not touch forbidden
+    while(temp_pos >= 0 && !test_bit(forbidden, temp_pos)){
       temp_pos += directions[i];
-      // break if we hit the wall, set capable
-      // note that the wall may be on the boundary
-      if((1 << temp_pos) & forbidden){
-        if((1 << temp_pos) & board.wall_stones) ++capable;
-        break;
-      }
-      // Only increment slides if neither on boundry or wall
       ++slides;
     }
+
+    // If not on boundary but wall, then capable
+    bool on_boundary = temp_pos < 0 || test_bit(boundaries[i], temp_pos);
+    if(!on_boundary && test_bit(board.wall_stones, temp_pos)) ++capable;
     slides <<= 4;
   }
   return slides | capable;
