@@ -85,6 +85,7 @@ eval_t Feature::operator()(const BitBoard &b) {
   // Iterate over all position to get captive score
   eval_t score = 0;
   for(int i=0; i<size*size; ++i){
+    if(b.height[i] <= 1) continue;
     if(test_bit(b.wall_stones, i))
       score += score_captive(b.stack[i], b.height[i], HARD_SCAPTIVE, SOFT_SCAPTIVE);
     else if(test_bit(b.cap_stones, i))
@@ -120,8 +121,6 @@ eval_t Feature::score_groups(Bit base) {
 // Hard captive are player's pieces, soft captive are opponent's
 // Negate value if owned by black
 eval_t Feature::score_captive(s_int stack, s_int height, eval_t hard, eval_t soft) {
-  if(height == 0) return 0;
-
   bool owner = stack & 1;
   int my_captive = 0;
   int their_captive = 0;
