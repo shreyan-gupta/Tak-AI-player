@@ -24,13 +24,16 @@ class BitBoard {
   void play_move(const Move &move);
   void undo_move(const Move &move);
   size_t hash() const;
-  void print() const;
 
   bool operator==(const BitBoard &rhs) const;
   bool operator!=(const BitBoard &rhs) const {return !(*this == rhs);}
 
   friend class Feature;
   friend class MoveGenerator;
+
+  // For debugging
+  bool is_valid() const;
+  void print() const;
 
  private:
   Player current_player;

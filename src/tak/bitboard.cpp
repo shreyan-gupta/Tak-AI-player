@@ -25,30 +25,50 @@ BitBoard::BitBoard(Pieces pieces) :
 // Other checks may return false
 // Also sets the value of cap_move
 bool BitBoard::is_valid_move(Move &move) const {
-  auto pos = move.pos;
+  if(move.move_type == MoveType::Invalid) return false;
+  int pos = move.pos;
   
   // Check if valid move position
   assert(pos < size*size);
   
   if(move.is_place()){
     if(height[pos] != 0) return false;
+    
+    auto &curr_cap = is_black(current_player)? pieces.black_cap: pieces.white_cap;
+    auto &curr_flat = is_black(current_player)? pieces.black_flat: pieces.white_flat;
+    
+    // There should be enough pieces to play move
+    switch(move.move_type) {
+      case MoveType::PlaceFlat : if(curr_flat == 0) return false; break;
+      case MoveType::PlaceWall : if(curr_flat == 0) return false; break;
+      case MoveType::PlaceCapstone : if(curr_cap == 0) return false; break;
+      default : assert(false);
+    }
+
+    assert(stack[pos] == 0);
+    assert(!test_bit(black_stones, pos));
+    assert(!test_bit(white_stones, pos));
+    assert(!test_bit(wall_stones, pos));
+    assert(!test_bit(cap_stones, pos));
   }
 
   if(move.is_slide()) {
-    // atleast 1 element
-    assert(move.slide != 0);
+    int num_slide = move.num_slide();
+    int dpos = move.get_dpos();
+    
+    // num_stack less than number of pieces in stack
+    if(move.num_stack() > height[pos]) return false;
+    
     // num_stack less than carry_limit stack
     assert(move.num_stack() <= size);
-    // num_stack less than number of pieces in stack
-    assert(move.num_stack() <= height[pos]);
-    
-    int num_slide = move.num_slide();
+    // atleast 1 element
+    assert(num_slide > 0);
     // Boundary asserts
     switch(move.move_type){
       case MoveType::SlideLeft  : assert(pos%size >= num_slide); break; 
       case MoveType::SlideRight : assert(pos%size + num_slide < size); break; 
-      case MoveType::SlideUp    : assert(pos + size * num_slide < size*size); break; 
-      case MoveType::SlideDown  : assert(pos > size * num_slide); break; 
+      case MoveType::SlideUp    : assert(pos + size * num_slide < size*size); break;
+      case MoveType::SlideDown  : assert(pos >= size * num_slide); break;
       default : assert(false);
     }
 
@@ -64,7 +84,9 @@ bool BitBoard::is_valid_move(Move &move) const {
 
     // Either a cap move or there should be no walls
     for(int i=0; i<num_slide; ++i){
-      pos += num_slide;
+      assert(move.slide_at(i) > 0);
+      pos += dpos;
+      if(test_bit(cap_stones, pos)) return false;
       if(test_bit(wall_stones, pos)){
         // If not cap move, then invalid move
         // else i should be the last slide
@@ -85,27 +107,26 @@ void BitBoard::play_move(const Move &move){
   if(move.is_place()){
     // update height to 1
     height[pos] = 1;
+
+    auto &curr_cap = is_black(current_player)? pieces.black_cap: pieces.white_cap;
+    auto &curr_flat = is_black(current_player)? pieces.black_flat: pieces.white_flat;
     
-    // update stones board and stack array
+    // Set number of stones left
+    switch(move.move_type) {
+      case MoveType::PlaceFlat : --curr_flat; break;
+      case MoveType::PlaceWall : --curr_flat; set_bit(wall_stones, pos); break;
+      case MoveType::PlaceCapstone : --curr_cap; set_bit(cap_stones, pos); break;
+      default : assert(false);
+    }
+
+    // update stones board
     if(is_black(current_player)){
       set_bit(black_stones, pos);
-      if(move.move_type == MoveType::PlaceCapstone)
-        pieces.black_cap--;
-      else pieces.black_flat--;
     }
     else {
       set_bit(white_stones, pos);
       stack[pos] = 1;
-      if(move.move_type == MoveType::PlaceCapstone)
-        pieces.white_cap--;
-      else pieces.white_flat--;
     }
-
-    // update wall and cap stones
-    if(move.move_type == MoveType::PlaceWall)
-      set_bit(wall_stones, pos);
-    if(move.move_type == MoveType::PlaceCapstone)
-      set_bit(cap_stones, pos);
   }
 
   // Slide move
@@ -164,26 +185,22 @@ void BitBoard::undo_move(const Move &move){
     // Set stack and height to 0
     height[pos] = 0;
     stack[pos] = 0;
+
+    reset_bit(black_stones, pos);
+    reset_bit(white_stones, pos);
+    reset_bit(wall_stones, pos);
+    reset_bit(cap_stones, pos);
     
-    // Reset ownership bit
-    if(is_white(current_player)){
-      reset_bit(black_stones, pos);
-      if(move.move_type == MoveType::PlaceCapstone)
-        pieces.black_cap++;
-      else pieces.black_flat++;
-    }
-    else{
-      reset_bit(white_stones, pos);
-      if(move.move_type == MoveType::PlaceCapstone)
-        pieces.white_cap++;
-      else pieces.white_flat++;
-    }
+    auto &opp_cap = is_white(current_player)? pieces.black_cap: pieces.white_cap;
+    auto &opp_flat = is_white(current_player)? pieces.black_flat: pieces.white_flat;
     
-    // Reset wall_stones and cap_stones
-    if(move.move_type == MoveType::PlaceWall)
-      reset_bit(wall_stones, pos);
-    if(move.move_type == MoveType::PlaceCapstone)
-      reset_bit(cap_stones, pos);
+    // Reset number of stones left
+    switch(move.move_type) {
+      case MoveType::PlaceFlat : ++opp_flat; break;
+      case MoveType::PlaceWall : ++opp_flat; break;
+      case MoveType::PlaceCapstone : ++opp_cap; break;
+      default : assert(false);
+    }
   }
 
   // Slide move
@@ -237,11 +254,55 @@ void BitBoard::undo_move(const Move &move){
 size_t BitBoard::hash() const {
   size_t seed = black_stones + wall_stones;
   for(int i=0; i<height.size(); ++i){
-    seed ^= 0x9e3779b9 + stack[i] + (height[i] << 8) + (seed << 3) + (seed >> 5);
+    seed ^= 0x9e3779b9 + stack[i] + (seed << 3) + (seed >> 5);
   }
   seed ^= white_stones + cap_stones;
-  if(current_player == Player::Black) return seed;
+  if(is_black(current_player)) return seed;
   else return ~seed;
+}
+
+// operator==
+bool BitBoard::operator==(const BitBoard &rhs) const {
+  if(
+    black_stones != rhs.black_stones ||
+    white_stones != rhs.white_stones ||
+    wall_stones != rhs.wall_stones ||
+    cap_stones != rhs.cap_stones ||
+    current_player != rhs.current_player
+  ) return false;;
+
+  for(int i=0; i<height.size(); ++i){
+    if(
+      height[i] != rhs.height[i] ||
+      stack[i] != rhs.stack[i]
+    ) return false;
+  }
+  return true;
+}
+
+// Check if the board is in a valid state
+// Used for debugging
+bool BitBoard::is_valid() const {
+  auto bw_stones = black_stones | white_stones;
+  assert((black_stones & white_stones) == 0);
+  assert((wall_stones & ~bw_stones) == 0);
+  assert((cap_stones & ~bw_stones) == 0);
+
+  for(int i=0; i<size*size; ++i){
+    if(height[i] == 0){
+      assert(stack[i] == 0);
+      assert(!test_bit(black_stones, i));
+      assert(!test_bit(white_stones, i));
+      assert(!test_bit(wall_stones, i));
+      assert(!test_bit(cap_stones, i));
+    }
+    else {
+      assert((stack[i] >> height[i]) == 0);
+      if(stack[i] & 1) assert(test_bit(white_stones, i));
+      else assert(test_bit(black_stones, i));
+    }
+  }
+  return true;
 }
 
 // For debugging
@@ -269,25 +330,6 @@ void BitBoard::print() const {
     cout << "\t" << (char)('a' + x);
   }
   cout << endl;
-}
-
-// operator==
-bool BitBoard::operator==(const BitBoard &rhs) const {
-  if(
-    black_stones != rhs.black_stones ||
-    white_stones != rhs.white_stones ||
-    wall_stones != rhs.wall_stones ||
-    cap_stones != rhs.cap_stones ||
-    current_player != rhs.current_player
-  ) return false;;
-
-  for(int i=0; i<height.size(); ++i){
-    if(
-      height[i] != rhs.height[i] ||
-      stack[i] != rhs.stack[i]
-    ) return false;
-  }
-  return true;
 }
 
 // Sets position ownership at location 'pos'
