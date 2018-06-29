@@ -3,13 +3,6 @@
 
 namespace Tak {
 
-// Default constructor
-Move::Move() :
-  move_type(MoveType::PlaceFlat),
-  pos(0),
-  cap_move(false),
-  slide(0) {}
-
 // Note that cap_move is not set as it can not be known
 Move::Move(string move){
   pos = (move[1] - 'a') + size*(move[2] - '1');
@@ -32,22 +25,6 @@ Move::Move(string move){
     }
     slide |= (move.size() - 4);
   }
-}
-
-Move::Move(MoveType move_type, s_int pos) :
-  move_type(move_type),
-  pos(pos),
-  cap_move(false),
-  slide(0) {
-  assert(move_type < MoveType::SlideLeft);
-}
-
-Move::Move(MoveType move_type, s_int pos, Bit slide) :
-  move_type(move_type),
-  pos(pos),
-  cap_move(false),
-  slide(slide) {
-  assert(move_type >= MoveType::SlideLeft);
 }
 
 bool Move::operator==(const Move &rhs) const {
@@ -91,6 +68,7 @@ string Move::to_string() const {
     case MoveType::SlideRight     : m = m + ">"; break; 
     case MoveType::SlideUp        : m = m + "+"; break; 
     case MoveType::SlideDown      : m = m + "-"; break; 
+    case MoveType::Invalid        : return "INVALID_MOVE";
   }
 
   // Done if place move

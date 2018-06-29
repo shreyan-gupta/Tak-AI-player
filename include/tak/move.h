@@ -15,12 +15,13 @@ enum class MoveType {
   SlideLeft,
   SlideRight,
   SlideUp,
-  SlideDown
+  SlideDown,
+  Invalid
 };
 
 struct Move {
 
-  // Moves are stored in locations 0xf0, 0xf00...
+  // Slides are stored in locations 0xf0, 0xf00...
   // Location 0xf has the number of drops
   // Example 5a1+23 -> (3)(2)(2)
   // Example 6a1+3111 -> (1)(1)(1)(3)(4)
@@ -29,10 +30,8 @@ struct Move {
   s_int pos;          // position at which move is initiated
   bool cap_move;      // whether to flatten wall at end
 
-  Move();
+  Move() : move_type(MoveType::Invalid) {}
   Move(string move);
-  Move(MoveType move_type, s_int pos);
-  Move(MoveType move_type, s_int pos, Bit slide);
 
   bool operator==(const Move &rhs) const;
 
