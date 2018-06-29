@@ -23,7 +23,8 @@ void test_board(){
       cout << str << endl;
       MoveGenerator mg(state);
       while(mg.has_next()){
-        cout << mg.next().to_string() << endl;
+        const auto &move = mg.next();
+        cout << move.to_string() << " cap_move " << move.cap_move << endl;
       }
       continue;
     }

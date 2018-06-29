@@ -1,5 +1,13 @@
+BUILD_TYPE = debug
 CC = g++
 CFLAGS = -std=c++11 -I include/
+
+ifeq ($(BUILD_TYPE), debug)
+	CFLAGS += -g
+endif
+ifeq ($(BUILD_TYPE), optimize)
+	CFLAGS += -O3 -march=native -DNDEBUG
+endif
 
 TAKOBJECTS = \
 	build/tak/bitboard.o \
@@ -16,7 +24,7 @@ all : $(TAKOBJECTS) $(MINIMAXOBJECTS)
 test : build/test
 
 build/test : $(TAKOBJECTS) $(MINIMAXOBJECTS) build/test.o
-	$(CC) $^ -o $@
+	$(CC) -g $^ -o $@
 
 build/%.o : src/%.cpp
 	@mkdir -p $(@D)
