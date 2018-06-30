@@ -17,7 +17,7 @@ BitBoard::BitBoard(Pieces pieces) :
   wall_stones(0),
   cap_stones(0),
   height(std::vector<s_int>(size*size, 0)),
-  stack(std::vector<s_int>(size*size, 0)) {}
+  stack(std::vector<uint32_t>(size*size, 0)) {}
 
 
 // Check if a move is valid

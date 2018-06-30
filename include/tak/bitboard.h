@@ -47,7 +47,7 @@ class BitBoard {
   // each position of board
   // Top of the stack is least significant bit
   std::vector<s_int> height;
-  std::vector<s_int> stack;
+  std::vector<uint32_t> stack;
 
   void set_player_at_pos(s_int pos);
 };
