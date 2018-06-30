@@ -10,8 +10,6 @@ using namespace std;
 
 namespace Minimax {
 
-Minimax::Minimax() {}
-
 void Minimax::play_move(Move &move){
   if(board.is_valid_move(move)) board.play_move(move);
   else assert(false);
@@ -34,6 +32,7 @@ void Minimax::print_seq(int depth){
   BitBoard temp_board = board; 
   for(int i=0; i<depth; ++i){
     auto &t = ttable[temp_board];
+    if(t.get_move().move_type == MoveType::Invalid) break;
     cout << t.get_move().to_string() << " ";
     temp_board.play_move(t.get_move());
   }
@@ -46,9 +45,9 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
   // fetch values from transposition table
   auto alpha_orig = alpha;
   auto &t = ttable[board];
-  // Ensures eval(board) called only once
   if(!t.is_valid()){
     // Assume that eval returns value wrt current_player
+    // Ensures eval(board) called only once
     eval_t curr_eval = eval(board);
     t.set_eval(curr_eval);
     t.set_flag(EXACT);
@@ -58,7 +57,9 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
       t.set_depth(MAXDEPTH);
     }
   }
-  // Base case, depth = 0 or some player has won, t.depth = 15 
+  
+  // Base case, depth = 0 -> t.flag = EXACT and t.depth >= 0
+  // Base case, abs(eval) = WIN -> 
   if(t.get_depth() >= depth){
     switch(t.get_flag()){
       case EXACT      : return t.get_eval();
@@ -67,12 +68,48 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
     }
     if(alpha >= beta) return t.get_eval();
   }
+  else negamax(depth-1, alpha, beta);
+  // In case t.depth < depth, then we call ids with depth-1
+  // This ensures the ttable is filled with t.depth = depth-1
 
-  // Iterate through all the moves
+  bool done = false;
   Move best_move;
   eval_t best_val = -Weights::INF;
+
+  // Try move m
+  auto try_move = [&](const Move &m) {
+    board.play_move(m);
+    eval_t child = -negamax(depth-1, -beta, -alpha);
+    board.undo_move(m);
+
+    #ifdef DEBUG
+      if(depth == 6) cout << "depth " << depth << " " << m.to_string() << " " << child << endl;
+      // if(depth == 2) cout << "depth " << depth << " " << m.to_string() << " " << child << endl;
+    #endif
+
+    alpha = std::max(alpha, child);
+    if(child > best_val){
+      best_move = m;
+      best_val = child;
+    }
+    if(alpha >= beta || best_val > Weights::CHECKWIN) done = true;
+  };
+
+  // PV Move
+  if(t.get_depth() > 0) {
+    const Move &move = t.get_move();
+
+    #ifdef DEBUG
+      Move temp_move = move;
+      assert(board.is_valid_move(temp_move));
+    #endif
+
+    try_move(move);
+  }
+
+  // Iterate through all the moves
   MoveGenerator gen(board);
-  while(gen.has_next()){
+  while(!done && gen.has_next()){
     const Move &move = gen.next();
     
     #ifdef DEBUG
@@ -100,35 +137,23 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
       // END TESTING
     #endif
 
-    board.play_move(move);
-    eval_t child = -negamax(depth-1, -beta, -alpha);
-    board.undo_move(move);
-    
-    #ifdef DEBUG
-      if(depth == 5) cout << "depth " << depth << " " << move.to_string() << " " << child << endl;
-      // if(depth == 2) cout << "depth " << depth << " " << move.to_string() << " " << child << endl;
-    #endif
-
-    alpha = std::max(alpha, child);
-    if(child > best_val){
-      best_move = move;
-      best_val = child;
-    }
-    // Set max_depth in transposition table
-    if(child > Weights::CHECKWIN){
-      depth = MAXDEPTH;
-      break;
-    }
-    if(alpha >= beta) break;
+    try_move(move);
   }
 
   // Update transposition table
-  t.set_depth(depth);
   t.set_move(best_move);
   t.set_eval(best_val);
-  if(best_val <= alpha_orig) t.set_flag(UPPERBOUND);
-  else if(best_val >= beta) t.set_flag(LOWERBOUND);
-  else t.set_flag(EXACT);
+  if(best_val > Weights::CHECKWIN) {
+    // If win, always take best_move
+    t.set_depth(0xf);
+    t.set_flag(EXACT);
+  }
+  else {
+    t.set_depth(depth);
+    if(best_val <= alpha_orig) t.set_flag(UPPERBOUND);
+    else if(best_val >= beta) t.set_flag(LOWERBOUND);
+    else t.set_flag(EXACT);
+  }
 
   return best_val;
 }

@@ -12,7 +12,7 @@ using namespace Tak;
 
 class Minimax {
  public:
-  Minimax();
+  Minimax() {}
   void play_move(Move &move);
   Move get_move(int depth);
 

@@ -29,7 +29,7 @@ class Transposition {
   bool is_valid() {return get_flag() != 0;}
 
   int get_depth() {return (data & 0xf);}
-  Move& get_move() {return move;}
+  const Move& get_move() {return move;}
   eval_t get_eval() {return (data >> 6);}
   int get_flag() {return (data & 0x30);}
 
