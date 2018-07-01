@@ -63,12 +63,12 @@ bool BitBoard::is_valid_move(Move &move) const {
     assert(move.num_stack() <= size);
     // atleast 1 element
     assert(num_slide > 0);
-    // Boundary asserts
+    // Boundary checks
     switch(move.move_type){
-      case MoveType::SlideLeft  : assert(pos%size >= num_slide); break; 
-      case MoveType::SlideRight : assert(pos%size + num_slide < size); break; 
-      case MoveType::SlideUp    : assert(pos + size * num_slide < size*size); break;
-      case MoveType::SlideDown  : assert(pos >= size * num_slide); break;
+      case MoveType::SlideLeft  : if(pos%size < num_slide) return false; break;
+      case MoveType::SlideRight : if(pos%size + num_slide >= size) return false; break;
+      case MoveType::SlideUp    : if(pos + size * num_slide >= size*size) return false; break;
+      case MoveType::SlideDown  : if(pos < size * num_slide) return false; break;
       default : assert(false);
     }
 
@@ -254,7 +254,7 @@ void BitBoard::undo_move(const Move &move){
 size_t BitBoard::hash() const {
   size_t seed = black_stones + wall_stones;
   for(int i=0; i<height.size(); ++i){
-    seed ^= 0x9e3779b9 + stack[i] + (seed << 3) + (seed >> 5);
+    seed ^= 0x9e3779b9 + stack[i] + height[i] + (seed << 3) + (seed >> 5);
   }
   seed ^= white_stones + cap_stones;
   if(is_black(current_player)) return seed;
