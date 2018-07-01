@@ -10,6 +10,9 @@ using namespace std;
 
 namespace Minimax {
 
+Minimax::Minimax() : 
+  killer_move(vector<pair<Move, Move>>(0xf)) {}
+
 void Minimax::play_move(Move &move){
   if(board.is_valid_move(move)) board.play_move(move);
   else assert(false);
@@ -78,6 +81,31 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
 
   // Try move m
   auto try_move = [&](const Move &m) {
+    #ifdef DEBUG
+      // TESTING PLAY_MOVE, UNDO_MOVE
+      if(!board.is_valid()){
+        board.print();
+        cout << "STATE ERROR!!!!!" << endl;
+      }
+      Move temp_move = m;
+      bool valid_move = board.is_valid_move(temp_move);
+      if(!valid_move || (temp_move.cap_move != m.cap_move)){
+        board.print();
+        cout << "MOVE ERROR!!!! MOVE " << m.to_string() << " CAP " << m.cap_move << temp_move.cap_move << endl;
+        assert(false);
+      }
+      auto temp_board = board;
+      board.play_move(m);
+      board.undo_move(m);
+      if(board != temp_board){
+        temp_board.print();
+        board.print();
+        cout << "UNDO ERROR!!!!! MOVE " << m.to_string() << " CAP " << m.cap_move << endl;
+        assert(false);
+      }
+      // END TESTING
+    #endif
+
     board.play_move(m);
     eval_t child = -negamax(depth-1, -beta, -alpha);
     board.undo_move(m);
@@ -95,66 +123,56 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
     if(alpha >= beta || best_val > Weights::CHECKWIN) done = true;
   };
 
+  // Update transposition table
+  auto update_transposition = [&]() {
+    t.set_move(best_move);
+    t.set_eval(best_val);
+    // If win, always take best_move
+    if(best_val > Weights::CHECKWIN) {
+      t.set_depth(0xf);
+      t.set_flag(EXACT);
+    }
+    else {
+      t.set_depth(depth);
+      if(best_val <= alpha_orig) t.set_flag(UPPERBOUND);
+      else if(best_val >= beta) t.set_flag(LOWERBOUND);
+      else t.set_flag(EXACT);
+    }
+  };
+
   // PV Move
   if(t.get_depth() > 0) {
     const Move &move = t.get_move();
-
-    #ifdef DEBUG
-      Move temp_move = move;
-      assert(board.is_valid_move(temp_move));
-    #endif
-
     try_move(move);
   }
 
-  // Iterate through all the moves
-  MoveGenerator gen(board);
-  while(!done && gen.has_next()){
-    const Move &move = gen.next();
-    
-    #ifdef DEBUG
-      // TESTING PLAY_MOVE, UNDO_MOVE
-      if(!board.is_valid()){
-        board.print();
-        cout << "STATE ERROR!!!!!" << endl;
-      }
-      Move temp_move = move;
-      bool valid_move = board.is_valid_move(temp_move);
-      if(!valid_move || (temp_move.cap_move != move.cap_move)){
-        board.print();
-        cout << "MOVE ERROR!!!! MOVE " << move.to_string() << " CAP " << move.cap_move << temp_move.cap_move << endl;
-        assert(false);
-      }
-      auto temp_board = board;
-      board.play_move(move);
-      board.undo_move(move);
-      if(board != temp_board){
-        temp_board.print();
-        board.print();
-        cout << "UNDO ERROR!!!!! MOVE " << move.to_string() << " CAP " << move.cap_move << endl;
-        assert(false);
-      }
-      // END TESTING
-    #endif
-
-    try_move(move);
+  // Killer move 1
+  if(!done){  
+    Move move = killer_move[depth].first;
+    if(board.is_valid_move(move)) try_move(move);
   }
 
-  // Update transposition table
-  t.set_move(best_move);
-  t.set_eval(best_val);
-  if(best_val > Weights::CHECKWIN) {
-    // If win, always take best_move
-    t.set_depth(0xf);
-    t.set_flag(EXACT);
-  }
-  else {
-    t.set_depth(depth);
-    if(best_val <= alpha_orig) t.set_flag(UPPERBOUND);
-    else if(best_val >= beta) t.set_flag(LOWERBOUND);
-    else t.set_flag(EXACT);
+  // Killer move 2
+  if(!done){
+    Move move = killer_move[depth].second;
+    if(board.is_valid_move(move)) try_move(move);
+    if(done) std::swap(killer_move[depth].first, killer_move[depth].second);
   }
 
+  // Iterate through all other moves
+  if(!done){
+    MoveGenerator gen(board);
+    while(gen.has_next()){
+      const Move &move = gen.next();
+      try_move(move);
+      if(done) break;
+    }
+    // Append best_move to killer_move list
+    killer_move[depth].second = killer_move[depth].first;
+    killer_move[depth].first = best_move;
+  }
+
+  update_transposition();
   return best_val;
 }
 
