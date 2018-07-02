@@ -46,14 +46,14 @@ class BitBoard {
 
   // each position of board
   // Top of the stack is least significant bit
-  std::vector<s_int> height;
+  std::vector<uint8_t> height;
   std::vector<uint32_t> stack;
 
   // hash_val stored the xor of the hash of all
   // board positions. Uses idea of Zobrist's hash fn
   size_t hash_val;
 
-  void set_player_at_pos(s_int pos);
+  void set_player_at_pos(uint8_t pos);
 };
 
 } // namespace Tak

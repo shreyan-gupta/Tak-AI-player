@@ -17,7 +17,7 @@ BitBoard::BitBoard(Pieces pieces) :
   white_stones(0),
   wall_stones(0),
   cap_stones(0),
-  height(std::vector<s_int>(size*size, 0)),
+  height(std::vector<uint8_t>(size*size, 0)),
   stack(std::vector<uint32_t>(size*size, 0)) {}
 
 
@@ -162,7 +162,7 @@ void BitBoard::play_move(const Move &move){
       // Update height and stack at pos and curr_pos
       height[curr_pos] += d;
       stack[curr_pos] <<= d;
-      stack[curr_pos] |= (stack[pos] & ((1 << d) - 1));
+      stack[curr_pos] |= (stack[pos] & ((Bit(1) << d) - 1));
       stack[pos] >>= d;
       height[pos] -= d;
 
@@ -239,7 +239,7 @@ void BitBoard::undo_move(const Move &move){
       // Update height and stack at pos and curr_pos
       height[pos] += d;
       stack[pos] <<= d;
-      stack[pos] |= (stack[curr_pos] & ((1 << d) - 1));
+      stack[pos] |= (stack[curr_pos] & ((Bit(1) << d) - 1));
       stack[curr_pos] >>= d;
       height[curr_pos] -= d;
 
@@ -327,9 +327,9 @@ void BitBoard::print() const {
     cout << y+1;
     for(int x=0; x<size; ++x){
       cout << "\t";
-      s_int i = x + size*y;
+      uint8_t i = x + size*y;
       if(height[i] == 0) continue;
-      for(s_int h=height[i]-1; h>0; --h){
+      for(uint8_t h=height[i]-1; h>0; --h){
         bool is_white = (stack[i] >> h) & 1;
         cout << (is_white?"F":"f");
       }
@@ -347,7 +347,7 @@ void BitBoard::print() const {
 }
 
 // Sets position ownership at location 'pos'
-void BitBoard::set_player_at_pos(s_int pos){
+void BitBoard::set_player_at_pos(uint8_t pos){
   if(height[pos] == 0){
     reset_bit(black_stones, pos);
     reset_bit(white_stones, pos);

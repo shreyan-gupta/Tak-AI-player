@@ -27,7 +27,7 @@ struct Move {
   // Example 6a1+3111 -> (1)(1)(1)(3)(4)
   Bit slide;          // if move_type = slide, then slide values
   MoveType move_type; // move type
-  s_int pos;          // position at which move is initiated
+  uint8_t pos;        // position at which move is initiated
   bool cap_move;      // whether to flatten wall at end
 
   Move() : move_type(MoveType::Invalid) {}

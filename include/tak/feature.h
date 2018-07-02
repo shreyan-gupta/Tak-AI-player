@@ -21,7 +21,7 @@ class Feature {
 
   // feature functions
   eval_t score_groups(Bit base);
-  eval_t score_captive(uint32_t stack, s_int height, eval_t hard, eval_t soft);
+  eval_t score_captive(uint32_t stack, uint8_t height, eval_t hard, eval_t soft);
   eval_t score_top_piece(const BitBoard &b);
   eval_t score_center(Bit base);
   

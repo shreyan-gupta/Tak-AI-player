@@ -76,12 +76,12 @@ void init_pieces(){
 }
 
 void init_bits(){
-  Bits::Mask = (1 << size*size) - 1;
+  Bits::Mask = (Bit(1) << size*size) - 1;
   for(int i=0; i<size; ++i){
-    Bits::L |= 1 << (i*size);
-    Bits::R |= 1 << (i*size + size - 1);
-    Bits::U |= 1 << (size*(size-1) + i);
-    Bits::D |= 1 << i;
+    Bits::L |= Bit(1) << (i*size);
+    Bits::R |= Bit(1) << (i*size + size - 1);
+    Bits::U |= Bit(1) << (size*(size-1) + i);
+    Bits::D |= Bit(1) << i;
   }
   Bits::Edge = Bits::L | Bits::R | Bits::U | Bits::D;
 }

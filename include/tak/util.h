@@ -10,7 +10,6 @@ namespace Tak {
 using namespace std;
 
 using Bit = uint64_t;
-using s_int = uint8_t;
 using eval_t = int32_t;
 
 // enum Player
@@ -22,12 +21,12 @@ enum class Player {
 // Contains information about pieces left
 // for each player
 struct Pieces {
-  s_int black_flat;
-  s_int white_flat;
-  s_int black_cap;
-  s_int white_cap;
-  s_int num_black() const {return black_flat + black_cap;}
-  s_int num_white() const {return black_flat + black_cap;}
+  uint8_t black_flat;
+  uint8_t white_flat;
+  uint8_t black_cap;
+  uint8_t white_cap;
+  uint8_t num_black() const {return black_flat + black_cap;}
+  uint8_t num_white() const {return black_flat + black_cap;}
 };
 
 // Global variables
@@ -85,8 +84,8 @@ namespace HashVal {
   extern size_t num_entry;
   extern vector<size_t> stack_hash;
   extern vector<size_t> pos_hash;
-  inline size_t get_hash_val(s_int pos, s_int height, size_t stack) {
-    return pos_hash[pos] * stack_hash[std::min(stack | (1 << height), num_entry-1)];
+  inline size_t get_hash_val(uint8_t pos, uint8_t height, size_t stack) {
+    return pos_hash[pos] * stack_hash[std::min(stack | (size_t(1) << height), num_entry-1)];
   }
 } // namespace HashVal
 
@@ -106,16 +105,16 @@ inline void switch_player(Player &p){
   else p = Player::Black;
 }
 
-inline bool test_bit(Bit b, s_int pos){
+inline bool test_bit(Bit b, uint8_t pos){
   return (b >> pos) & 1; 
 }
 
-inline void set_bit(Bit &b, s_int pos){
-  b |= (1 << pos);
+inline void set_bit(Bit &b, uint8_t pos){
+  b |= (Bit(1) << pos);
 }
 
-inline void reset_bit(Bit &b, s_int pos){
-  b &= ~(1 << pos);
+inline void reset_bit(Bit &b, uint8_t pos){
+  b &= ~(Bit(1) << pos);
 }
 
 inline int popcnt(Bit b){
