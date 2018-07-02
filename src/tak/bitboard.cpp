@@ -3,9 +3,10 @@
 #include "tak/util.h"
 #include "tak/bitboard.h"
 
-using namespace std;
-
 namespace Tak {
+
+using namespace std;
+using namespace HashVal;
 
 // Black is represented by bit 0
 // White is represented by bit 1
@@ -171,6 +172,8 @@ void BitBoard::play_move(const Move &move){
     // Update black and white stones at pos
     set_player_at_pos(pos);
   }
+  // update hash
+  hash_val ^= get_hash_val(pos, height[pos], stack[pos]);
   // Switch current player
   switch_player(current_player);
 }
@@ -246,17 +249,28 @@ void BitBoard::undo_move(const Move &move){
     // Update black and white stones at pos
     set_player_at_pos(pos);
   }
+  // update hash
+  hash_val ^= get_hash_val(pos, height[pos], stack[pos]);
   // Switch current player
   switch_player(current_player);
 }
 
+// Old Hash function for BitBoard
+// size_t BitBoard::hash() const {
+//   size_t seed = black_stones + wall_stones;
+//   for(int i=0; i<height.size(); ++i){
+//     seed ^= 0x9e3779b9 + stack[i] + height[i] + (seed << 3) + (seed >> 5);
+//   }
+//   seed ^= white_stones + cap_stones;
+//   if(is_black(current_player)) return seed;
+//   else return ~seed;
+// }
+
 // Hash function for BitBoard
 size_t BitBoard::hash() const {
-  size_t seed = black_stones + wall_stones;
-  for(int i=0; i<height.size(); ++i){
-    seed ^= 0x9e3779b9 + stack[i] + height[i] + (seed << 3) + (seed >> 5);
-  }
-  seed ^= white_stones + cap_stones;
+  size_t seed = hash_val;
+  seed ^= black_stones + wall_stones + (seed << 3) + (seed >> 5);
+  seed ^= white_stones + cap_stones + (seed << 3) + (seed >> 5);
   if(is_black(current_player)) return seed;
   else return ~seed;
 }

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <algorithm>
 
 namespace Tak {
 
@@ -79,6 +80,15 @@ namespace Weights {
   extern eval_t ENDGAMEFLAT;    // increase weight of flat towards endgame
   extern float ENDGAMECUTOFF;   // how many pieces left of either player
 } // namespace Weights
+
+namespace HashVal {
+  extern size_t num_entry;
+  extern vector<size_t> stack_hash;
+  extern vector<size_t> pos_hash;
+  inline size_t get_hash_val(s_int pos, s_int height, size_t stack) {
+    return pos_hash[pos] * stack_hash[std::min(stack | (1 << height), num_entry-1)];
+  }
+} // namespace HashVal
 
 // init function
 void init(int board_size);

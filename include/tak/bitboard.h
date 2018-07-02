@@ -49,6 +49,10 @@ class BitBoard {
   std::vector<s_int> height;
   std::vector<uint32_t> stack;
 
+  // hash_val stored the xor of the hash of all
+  // board positions. Uses idea of Zobrist's hash fn
+  size_t hash_val;
+
   void set_player_at_pos(s_int pos);
 };
 

@@ -1,7 +1,10 @@
+#include <random>
+
 #include "tak/util.h"
 
 namespace Tak {
 
+using namespace std;
 using namespace SlideVec;
 
 // Global variables
@@ -51,6 +54,13 @@ namespace Weights {
   eval_t ENDGAMEFLAT = 1400;
   float ENDGAMECUTOFF = 7;
 } // namespace Weights
+
+namespace HashVal {
+  // 2**13 -> 12 stack places
+  size_t num_entry = 8192;
+  vector<size_t> stack_hash;
+  vector<size_t> pos_hash;
+} // namespace HashVal
 
 void init_weights(){
   Weights::GROUPS[size] = Weights::WIN;
@@ -121,12 +131,22 @@ void init_slide(){
   }
 }
 
+void init_hash() {
+  default_random_engine gen;
+  uniform_int_distribution<size_t> r;
+  HashVal::stack_hash = vector<size_t>(HashVal::num_entry);
+  HashVal::pos_hash = vector<size_t>(size*size);
+  for(auto &h : HashVal::stack_hash) h = r(gen);
+  for(auto &h : HashVal::pos_hash) h = r(gen);
+}
+
 void init(int board_size) {
   size = board_size;
-  init_weights();
-  init_pieces();
-  init_bits();
   init_slide();
+  init_bits();
+  init_pieces();
+  init_weights();
+  init_hash();
 }
 
 } // namespace Tak
