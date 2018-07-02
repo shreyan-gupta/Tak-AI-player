@@ -123,7 +123,7 @@ eval_t Feature::score_groups(Bit base) {
 // Negate value if owned by black
 eval_t Feature::score_captive(uint32_t stack, uint8_t height, eval_t hard, eval_t soft) {
   bool owner = stack & 1;
-  int white_captive = popcnt((uint32_t(1) << size) - 2);
+  int white_captive = popcnt(stack & ((uint32_t(1) << size) - 2));
   int black_captive = std::min(height, (uint8_t)size) - 1 - white_captive;
   // if(owner) -> white
   if(owner) return (white_captive * hard + black_captive * soft);
