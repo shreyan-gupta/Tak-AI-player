@@ -118,22 +118,18 @@ eval_t Feature::score_groups(Bit base) {
 }
 
 // Calculate the captive scores for a given position stack
+// Only consider the top 'size' elements
 // Hard captive are player's pieces, soft captive are opponent's
 // Negate value if owned by black
 eval_t Feature::score_captive(uint32_t stack, uint8_t height, eval_t hard, eval_t soft) {
   bool owner = stack & 1;
-  int my_captive = 0;
-  int their_captive = 0;
-  
-  for(int i=1; i<height; ++i){
-    stack >>= 1;
-    if((stack & 1) == owner) ++my_captive;
-    else ++their_captive;
-  }
-  
-  eval_t score = my_captive * hard + their_captive * soft;
-  if(owner) return score;
-  else return -score;
+  stack &= (uint32_t(1) << size) - 2;
+  int white_captive = popcnt(stack);
+  int black_captive = size - 1 - white_captive;
+
+  // if(owner) -> white
+  if(owner) return (white_captive * hard + black_captive * soft);
+  else return -(black_captive * hard + white_captive * soft);
 }
 
 // Score of the top most pieces
