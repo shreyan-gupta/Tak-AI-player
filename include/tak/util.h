@@ -80,15 +80,6 @@ namespace Weights {
   extern float ENDGAMECUTOFF;   // how many pieces left of either player
 } // namespace Weights
 
-namespace HashVal {
-  extern size_t num_entry;
-  extern vector<size_t> stack_hash;
-  extern vector<size_t> pos_hash;
-  inline size_t get_hash_val(uint8_t pos, uint8_t height, size_t stack) {
-    return pos_hash[pos] * stack_hash[std::min(stack | (size_t(1) << height), num_entry-1)];
-  }
-} // namespace HashVal
-
 // init function
 void init(int board_size);
 
