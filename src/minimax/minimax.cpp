@@ -2,15 +2,19 @@
 
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 #include "minimax/minimax.h"
 #include "minimax/transposition.h"
 
 using namespace std;
+using namespace std::chrono;
 
 namespace Minimax {
 
-Minimax::Minimax() : 
+Minimax::Minimax() :
+  time_up(false),
   killer_move(vector<pair<Move, Move>>(0xf)) {}
 
 void Minimax::play_move(Move &move){
@@ -19,7 +23,19 @@ void Minimax::play_move(Move &move){
 }
 
 // currently with iterative deepning
-Move Minimax::get_move(int depth){
+Move Minimax::get_move(int depth, int max_time_ms){
+
+  // Keep yielding till timeout or ids is finished
+  auto timer = [&](){
+    auto end_time = steady_clock::now() + milliseconds(max_time_ms);
+    while(!time_up && steady_clock::now() < end_time){
+      this_thread::yield();
+    }
+    time_up = true;
+  };
+
+  time_up = false;
+  thread timer_thread(timer);
   for(int d=1; d<=depth; ++d){
     eval_t score = negamax(d, -Weights::INF, Weights::INF);
     #ifdef DEBUG
@@ -27,6 +43,9 @@ Move Minimax::get_move(int depth){
       print_seq(d);
     #endif
   }
+  time_up = true;
+  timer_thread.join();
+
   return ttable[board].get_move();
 }
 
@@ -44,7 +63,8 @@ void Minimax::print_seq(int depth){
 
 // negamax algorithm
 eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
-  
+  if(time_up) return Weights::INF;
+
   // fetch values from transposition table
   auto alpha_orig = alpha;
   auto &t = ttable[board];
@@ -141,38 +161,40 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
   };
 
   // PV Move
-  if(t.get_depth() > 0) {
+  if(!time_up && t.get_depth() > 0) {
     const Move &move = t.get_move();
     try_move(move);
   }
 
   // Killer move 1
-  if(!done){  
+  if(!time_up && !done){  
     Move move = killer_move[depth].first;
     if(board.is_valid_move(move)) try_move(move);
   }
 
   // Killer move 2
-  if(!done){
+  if(!time_up && !done){
     Move move = killer_move[depth].second;
     if(board.is_valid_move(move)) try_move(move);
     if(done) std::swap(killer_move[depth].first, killer_move[depth].second);
   }
 
   // Iterate through all other moves
-  if(!done){
+  if(!time_up && !done){
     MoveGenerator gen(board);
     while(gen.has_next()){
       const Move &move = gen.next();
       try_move(move);
-      if(done) break;
+      if(time_up || done) break;
     }
     // Append best_move to killer_move list
-    killer_move[depth].second = killer_move[depth].first;
-    killer_move[depth].first = best_move;
+    if(!time_up){
+      killer_move[depth].second = killer_move[depth].first;
+      killer_move[depth].first = best_move;
+    }
   }
 
-  update_transposition();
+  if(!time_up) update_transposition();
   return best_val;
 }
 

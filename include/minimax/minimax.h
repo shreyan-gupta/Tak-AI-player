@@ -16,13 +16,14 @@ class Minimax {
  public:
   Minimax();
   void play_move(Move &move);
-  Move get_move(int depth);
+  Move get_move(int depth, int max_time_ms);
 
   // For debugging
   void print_board() {board.print();}
   void print_seq(int depth);
 
  private:
+  bool time_up;
   BitBoard board;
   Feature eval;
   unordered_map<BitBoard, Transposition> ttable;
