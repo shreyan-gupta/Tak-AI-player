@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "tak/tak.h"
+#include "minimax/statistics.h"
 #include "minimax/transposition.h"
 
 namespace Minimax {
@@ -24,8 +25,11 @@ class Minimax {
 
  private:
   bool time_up;
+  Statistics stats;
+
   BitBoard board;
   Feature eval;
+
   unordered_map<BitBoard, Transposition> ttable;
   vector<pair<Move, Move>> killer_move;
 
