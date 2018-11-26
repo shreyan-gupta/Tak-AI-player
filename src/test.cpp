@@ -12,7 +12,7 @@ using namespace Tak;
 void test_board(){
   BitBoard state;
   Feature eval;
-  cout << "Testing bitboard " << size << endl;
+  cerr << "Testing bitboard " << size << endl;
 
   string str;
   while(true){
@@ -20,18 +20,18 @@ void test_board(){
     if(str == "end") break;
     if(str[0] == '#') continue;
     if(str == "move_gen"){
-      cout << str << endl;
+      cerr << str << endl;
       MoveGenerator mg(state);
       while(mg.has_next()){
         const auto &move = mg.next();
-        cout << move.to_string() << " cap_move " << move.cap_move << endl;
+        cerr << move.to_string() << " cap_move " << move.cap_move << endl;
       }
       continue;
     }
     Move move(str);
     state.play_move(move);
     state.print();
-    cout << "EVAL : " << eval(state) << endl;
+    cerr << "EVAL : " << eval(state) << endl;
   }
 }
 
@@ -44,14 +44,14 @@ void test_minimax(){
     if(str == "end") break;
     if(str[0] == '#') continue;
     Move move(str);
-    cout << "my_move " << move.to_string() << endl;
+    cerr << "my_move " << move.to_string() << endl;
     m.play_move(move);
     auto start = high_resolution_clock::now();
-    Move minimax_move = m.get_move(5);
+    Move minimax_move = m.get_move(5, 10000);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
-    cout << "minimax_move " << minimax_move.to_string() << endl;
-    cout << "duration " << duration.count() << endl;
+    cerr << "minimax_move " << minimax_move.to_string() << endl;
+    cerr << "duration " << duration.count() << endl;
     m.play_move(minimax_move);
     m.print_board();
   }
@@ -59,7 +59,8 @@ void test_minimax(){
 
 int main(int argc, char const *argv[])
 {
-  Tak::init(5);
+  Tak::init(7);
+  cerr << "size " << size << endl;
   test_minimax();
   return 0;
 }

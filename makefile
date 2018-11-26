@@ -1,4 +1,5 @@
 BUILD_TYPE = debug
+# BUILD_TYPE = optimize
 CC = g++
 CFLAGS = -std=c++11 -I include/
 
@@ -23,7 +24,12 @@ all : $(TAKOBJECTS) $(MINIMAXOBJECTS)
 
 test : build/test
 
+main : build/main
+
 build/test : $(TAKOBJECTS) $(MINIMAXOBJECTS) build/test.o
+	$(CC) -g $^ -o $@
+
+build/main : $(TAKOBJECTS) $(MINIMAXOBJECTS) build/main.o
 	$(CC) -g $^ -o $@
 
 build/%.o : src/%.cpp
