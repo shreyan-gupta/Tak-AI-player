@@ -16,7 +16,8 @@ using namespace Tak;
 class Minimax {
  public:
   Minimax();
-  void play_move(Move &move);
+  void play_move(string move) {play_move(Tak::Move(move));}
+  void play_move(Move move);
   Move get_move(int depth, int max_time_ms);
 
   // For debugging

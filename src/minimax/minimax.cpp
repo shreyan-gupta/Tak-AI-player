@@ -1,5 +1,3 @@
-#define DEBUG
-
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -17,7 +15,7 @@ Minimax::Minimax() :
   time_up(false),
   killer_move(vector<pair<Move, Move>>(0xf)) {}
 
-void Minimax::play_move(Move &move){
+void Minimax::play_move(Move move){
   if(board.is_valid_move(move)) board.play_move(move);
   else assert(false);
 }
@@ -36,6 +34,7 @@ Move Minimax::get_move(int depth, int max_time_ms){
 
   time_up = false;
   thread timer_thread(timer);
+  stats.clear();
   for(int d=1; d<=depth; ++d){
     eval_t score = negamax(d, -Weights::INF, Weights::INF);
     print_seq(d);
@@ -43,20 +42,21 @@ Move Minimax::get_move(int depth, int max_time_ms){
   time_up = true;
   timer_thread.join();
   stats.print(depth);
+  cerr << "Transposition Table size: " << ttable.size() << endl;
   return ttable[board].get_move();
 }
 
 // For debugging
 void Minimax::print_seq(int depth){
   BitBoard temp_board = board;
-  cout << "ids d=" << depth << " score=" << ttable[temp_board].get_eval() << "\t";
+  cerr << "ids d=" << depth << " score=" << ttable[temp_board].get_eval() << "\t";
   for(int i=0; i<depth; ++i){
     auto &t = ttable[temp_board];
     if(t.get_move().move_type == MoveType::Invalid) break;
-    cout << t.get_move().to_string() << " ";
+    cerr << t.get_move().to_string() << " ";
     temp_board.play_move(t.get_move());
   }
-  cout << endl;
+  cerr << endl;
 }
 
 // negamax algorithm
@@ -100,39 +100,10 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
 
   // Try move m
   auto try_move = [&](const Move &m) {
-    #ifdef DEBUG
-      // TESTING PLAY_MOVE, UNDO_MOVE
-      if(!board.is_valid()){
-        board.print();
-        cout << "STATE ERROR!!!!!" << endl;
-      }
-      Move temp_move = m;
-      bool valid_move = board.is_valid_move(temp_move);
-      if(!valid_move || (temp_move.cap_move != m.cap_move)){
-        board.print();
-        cout << "MOVE ERROR!!!! MOVE " << m.to_string() << " CAP " << m.cap_move << temp_move.cap_move << endl;
-        assert(false);
-      }
-      auto temp_board = board;
-      board.play_move(m);
-      board.undo_move(m);
-      if(board != temp_board){
-        temp_board.print();
-        board.print();
-        cout << "UNDO ERROR!!!!! MOVE " << m.to_string() << " CAP " << m.cap_move << endl;
-        assert(false);
-      }
-      // END TESTING
-    #endif
-
+    // Play the move m
     board.play_move(m);
     eval_t child = -negamax(depth-1, -beta, -alpha);
     board.undo_move(m);
-
-    #ifdef DEBUG
-      if(depth == 6) cout << "depth " << depth << " " << m.to_string() << " " << child << endl;
-      // if(depth == 2) cout << "depth " << depth << " " << m.to_string() << " " << child << endl;
-    #endif
 
     alpha = std::max(alpha, child);
     if(child > best_val){
@@ -148,7 +119,7 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
     t.set_eval(best_val);
     // If win, always take best_move
     if(best_val > Weights::CHECKWIN) {
-      t.set_depth(0xf);
+      t.set_depth(MAXDEPTH);
       t.set_flag(EXACT);
     }
     else {
