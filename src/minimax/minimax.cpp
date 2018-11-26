@@ -42,7 +42,8 @@ Move Minimax::get_move(int depth, int max_time_ms){
   time_up = true;
   timer_thread.join();
   stats.print(depth);
-  cerr << "Transposition Table size: " << ttable.size() << endl;
+  float size = ttable.size() * (sizeof(BitBoard) + sizeof(Transposition)) / (1024.0 * 1024.0 * 1024.0);
+  cerr << "Transposition Table size: " << ttable.size() << " " << size << " GB" << endl;
   return ttable[board].get_move();
 }
 
@@ -97,6 +98,9 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
   bool done = false;
   Move best_move;
   eval_t best_val = -Weights::INF;
+
+  // Lock the transposition before recursively calling negamax
+  t.lock();
 
   // Try move m
   auto try_move = [&](const Move &m) {
@@ -169,6 +173,7 @@ eval_t Minimax::negamax(int depth, eval_t alpha, eval_t beta) {
   }
 
   if(!time_up) update_transposition();
+  t.unlock();
   return best_val;
 }
 

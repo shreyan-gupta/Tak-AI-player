@@ -7,7 +7,7 @@
 
 #include "tak/tak.h"
 #include "minimax/statistics.h"
-#include "minimax/transposition.h"
+#include "minimax/transposition_table.h"
 
 namespace Minimax {
 
@@ -31,7 +31,7 @@ class Minimax {
   BitBoard board;
   Feature eval;
 
-  unordered_map<BitBoard, Transposition> ttable;
+  TranspositionTable ttable;
   vector<pair<Move, Move>> killer_move;
 
   eval_t negamax(int depth, eval_t alpha, eval_t beta);
