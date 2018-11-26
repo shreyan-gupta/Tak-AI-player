@@ -307,29 +307,29 @@ bool BitBoard::is_valid() const {
 
 // For debugging
 void BitBoard::print() const {
-  cout << "Board size " << size << endl;
-  cout << ((current_player == Player::Black)? "Black":"White") << " player playing" << endl;
+  cerr << "Board size " << size << endl;
+  cerr << ((current_player == Player::Black)? "Black":"White") << " player playing" << endl;
   for(int y=size-1; y>=0; --y){
-    cout << y+1;
+    cerr << y+1;
     for(int x=0; x<size; ++x){
-      cout << "\t";
+      cerr << "\t";
       uint8_t i = x + size*y;
       if(height[i] == 0) continue;
       for(uint8_t h=height[i]-1; h>0; --h){
         bool is_white = (stack[i] >> h) & 1;
-        cout << (is_white?"F":"f");
+        cerr << (is_white?"F":"f");
       }
       bool is_white = stack[i] & 1;
-      if(test_bit(wall_stones, i)) cout << (is_white?"S":"s");
-      else if(test_bit(cap_stones, i)) cout << (is_white?"C":"c");
-      else cout << (is_white?"F":"f");
+      if(test_bit(wall_stones, i)) cerr << (is_white?"S":"s");
+      else if(test_bit(cap_stones, i)) cerr << (is_white?"C":"c");
+      else cerr << (is_white?"F":"f");
     }
-    cout << endl;
+    cerr << endl;
   }
   for(int x=0; x<size; ++x){
-    cout << "\t" << (char)('a' + x);
+    cerr << "\t" << (char)('a' + x);
   }
-  cout << endl;
+  cerr << endl;
 }
 
 // Sets position ownership at location 'pos'
